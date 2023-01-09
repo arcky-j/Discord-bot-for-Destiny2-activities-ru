@@ -1,0 +1,6 @@
+.env
+package-lock.json
+node_modules/
+data/
+context_commands/send_oleg.js
+media/
