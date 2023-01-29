@@ -2,6 +2,7 @@
 //по сути нужен только для работы команды рассылки по ролям, чтобы после перезапуска бота всех заного не кэшировать вручную
 //теоретически, ускоряет повседневную работу взамен долгой инициализации, но так ли это на практике - не знаю
 const fs = require('node:fs');
+const Settings = require('./settings.js');
 const path = require('node:path');
 class CacheManager{
     userManager; //это всё объекты клиента для работы с кэшами пользователей
@@ -9,9 +10,12 @@ class CacheManager{
     guildManager;
     guildsCache;
 
+    client;
+
     pathToUsers; //путь к файлу с сохранёнными пользователями
 
-    constructor(userManager, guildManager){
+    constructor(userManager, guildManager, client){
+        this.client = client;
         this.userManager = userManager;
         this.usersCache = userManager.cache;
         this.guildManager = guildManager;
@@ -90,8 +94,7 @@ class CacheManager{
                 }
             });
         });
-    }
-    
+    } 
 
     //команда для инициализации всего (тут были другие загручики, вдруг они появятся снова)
 

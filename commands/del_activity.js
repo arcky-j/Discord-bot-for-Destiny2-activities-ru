@@ -3,7 +3,7 @@ const {SlashCommandBuilder, PermissionFlagsBits} = require('discord.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('del_activity')
-        .setDescription('Админская роль для удаления любого сбора')
+        .setDescription('Админская команда для удаления любого сбора')
         .addStringOption(option => 
             option.setName('id')
                 .setDescription('ID удаляемой активности')

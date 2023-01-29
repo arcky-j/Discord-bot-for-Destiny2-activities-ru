@@ -9,18 +9,18 @@ module.exports = {
     async execute (interaction){
         //создание формы
         const modal = new ModalBuilder()
-            .setTitle('Ресет')
+            .setTitle('Пятничный ресет')
             .setCustomId('reset_fri_modal');
 
         const xur = new TextInputBuilder()
             .setCustomId('reset_xur')
-            .setLabel('Сумрачный налёт')
+            .setLabel('Всё про Зура')
             .setStyle(TextInputStyle.Paragraph)
             .setRequired(true);
 
         const trials = new TextInputBuilder()
             .setCustomId('reset_trials')
-            .setLabel('Бонусная репутация')
+            .setLabel('Всё о испытаниях Осириса')
             .setStyle(TextInputStyle.Paragraph)
             .setRequired(true);
 

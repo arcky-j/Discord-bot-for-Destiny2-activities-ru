@@ -118,9 +118,9 @@ module.exports = {
         }
         //добавление требования и описания, если есть
         if (requiries){
-            embDesc += `Собираемся в подземелье ${dungName}!\nТребования к участникам: ${requiries}`;
+            embDesc += `Собираемся в подземелье!\nТребования к участникам: ${requiries}`;
         } else {
-            embDesc += `Собираемся в подземелье ${dungName}!\nТребования к участникам отсутствуют!`;
+            embDesc += `Собираемся в подземелье!\nТребования к участникам отсутствуют!`;
         }
         if (descript){
             embDesc += `\n${descript}`;
@@ -132,7 +132,7 @@ module.exports = {
         .setDescription(embDesc)
         .addFields(
             {name: 'Время и дата:', value: `**${hT}:${mT}** МСК  **${dayT}.${monT}.${year}**`},
-            {name: 'Боевая группа:', value: `${interaction.user.tag} - *Лидер*`, inline: true},
+            {name: 'Боевая группа:', value: `<@${interaction.user.id}> - ${interaction.user.tag} - *Лидер*`, inline: true},
             {name: 'Резерв:', value: 'Резерв пуст', inline: true}
         )
         .setThumbnail(bannerUrl);
@@ -145,6 +145,7 @@ module.exports = {
         //добавление ID
         embed.setFooter({text: `ID: ${lastMess.id}`});
         lastMess.edit({embeds: [embed]});
+        interaction.client.fireteams.get(lastMess.id).setEmbed(embed);
         //уведомление, если всё прошло успешно
         await interaction.reply({content: 'Ваш сбор в подземелье успешно создан!', ephemeral:true});
     }

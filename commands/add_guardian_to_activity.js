@@ -41,6 +41,7 @@ module.exports = {
         embed.fields[1].value = fireteam.getMembersString();
         embed.fields[2].value = fireteam.getReservsString();
         message.edit({embeds: [embed]});
+        fireteam.setEmbed(embed);
         await interaction.reply({content: 'Вы успешно записали Стража в группу!', ephemeral:true});
     }
 };

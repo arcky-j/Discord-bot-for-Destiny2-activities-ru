@@ -7,6 +7,7 @@ class FireTeam{
     members = new Map(); //словарь для хранения боевой группы
     reservs = new Map(); //словарь для хранения резерва
     date = new Date(); //дата начала активности
+    embed;
 
     constructor(id, leader, name, nDate, typ, quan){
         this.id = id;
@@ -121,33 +122,36 @@ class FireTeam{
             throw new Error('Только лидер может сменить дату/время сбора!');
         }        
     }
+    setEmbed(embed){
+        this.embed = embed;
+    }
     //рассылка оповещений в личные сообщения
     sendAlerts(reason){
         switch(reason){
             case 'del': //рассылка при удалении активности
                 this.members.forEach( async (us, id) =>{
                     if (this.members.leaderId != id) //рассылает оповещение всем участникам кроме лидера
-                    us.send(`Активность ${this.name} на ${this.getDateString()}, в которую вы были записаны, была отменёна пользователем ${this.getLeader().tag}.`);
+                    us.send({content: `Активность ${this.name} на ${this.getDateString()}, в которую вы были записаны, была отменёна пользователем ${this.getLeader().tag}.`, embeds:[this.embed]});
                 });
                 break;
             case 'uptime': //рассылка при скором начале активности
                 this.members.forEach( async (us, id) =>{ //оповещает всех участников
-                    us.send(`${this.name} начнётся в ближайшие **10 минут**!\nВаша боевая группа:\n${this.getMembersString()}`);
+                    us.send({content: `${this.name} начнётся в ближайшие **10 минут**!\n`, embeds: [this.embed]});
                 });
                 if (this.reservs.size > 0 && this.members.size < this.quantity)
                 this.reservs.forEach( async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
-                    us.send(`${this.name} начнётся в ближайшие **10 минут**! Вы были записаны в резерв и получаете это сообщение, потому что боевая группа меньше необходимого!\nВаша боевая группа:\n${this.getMembersString()}`);
+                    us.send({content:`${this.name} начнётся в ближайшие **10 минут**! Вы были записаны в резерв и получаете это сообщение, потому что боевая группа меньше необходимого!`, embeds: [this.embed]});
                 });
                 break;
             case 'dateChange': //рассылка при переносе активности
                 this.members.forEach( async (us, id) =>{
                     if (this.members.leaderId != id) //рассылает оповещение всем участникам кроме лидера
-                    us.send(`Активность ${this.name}, в которую вы записаны, перенесёна пользователем ${this.getLeader().tag}! Новое время: ${this.getDateString()}`);
+                    us.send({content: `Активность ${this.name}, в которую вы записаны, перенесёна пользователем ${this.getLeader().tag}! Новое время: ${this.getDateString()}`, embeds: [this.embed]});
                 });
                 break;
             case 'admin_del': //рассылка при удалении активности администратором
                 this.members.forEach( async (us, id) =>{
-                    us.send(`Активность ${this.name} на ${this.getDateString()}, в которую вы были записаны, была отменён администратором. Более подробная информация в канале сбора.`);
+                    us.send({content: `Активность ${this.name} на ${this.getDateString()}, в которую вы были записаны, была отменёна администратором. Более подробная информация в канале сбора.`, embeds: [this.embed]});
                 });
                 break;
         }
@@ -175,9 +179,9 @@ class FireTeam{
         let str = '';
         this.members.forEach(function(value1, value2, mp){
             if (value2 == mp.leaderId){
-                str += `${value1.tag} - *Лидер* \n`;
+                str += `<@${value1.id}> - ${value1.tag} - *Лидер* \n`;
             } else {
-                str += `${value1.tag} \n`;
+                str += `<@${value1.id}> - ${value1.tag} \n`;
             }
         });
         return str; //возвращает строку со всеми участниками боевой группы в столбик
@@ -189,7 +193,7 @@ class FireTeam{
             return 'Резерв пуст';
         }
         this.reservs.forEach(function(value1, value2){
-            str += `${value1.tag} \n`;
+            str += `<@${value1.id}> - ${value1.tag} \n`;
         });
         return str; //возвращает строку со всеми резервистами в столбик
     }

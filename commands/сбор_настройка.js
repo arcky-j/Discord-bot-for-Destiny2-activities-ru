@@ -156,7 +156,7 @@ module.exports = {
         .setDescription(embDesc)
         .addFields(
             {name: 'Время и дата:', value: `**${hT}:${mT}** МСК  **${dayT}.${monT}.${year}**`},
-            {name: 'Боевая группа:', value: `${interaction.user.tag} - *Лидер*`, inline: true},
+            {name: 'Боевая группа:', value: `<@${interaction.user.id}> - ${interaction.user.tag} - *Лидер*`, inline: true},
             {name: 'Резерв:', value: 'Резерв пуст', inline: true}
         )
         .setThumbnail(bannerUrl);
@@ -169,6 +169,7 @@ module.exports = {
         //добавление ID 
         embed.setFooter({text: `ID: ${lastMess.id}`});
         lastMess.edit({embeds: [embed]});
+        interaction.client.fireteams.get(lastMess.id).setEmbed(embed);
         //уведомление, если всё прошло успешно
         await interaction.reply({content: 'Ваш настраиваемый сбор успешно создан!', ephemeral:true});
     }

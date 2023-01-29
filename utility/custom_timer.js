@@ -52,18 +52,26 @@ class CustomTimer{
             {
                 this.fireteamsStarted.forEach((val, id, mp) => {
                     if (val.date - today < -this.day){
-                        this.actMessages.get(id).delete();
-                        this.actMessages.delete(id);
-                        mp.delete(id);
+                        try {
+                            this.actMessages.get(id).delete();
+                            this.actMessages.delete(id);
+                            mp.delete(id);
+                        } catch (err) {
+                            console.log(`Неизвестная ошибка удаления старого сбора: ${err.message}`);
+                        }                       
                     }
                 });
             }
 
             if (this.logMessages.size > 0){
                 this.logMessages.forEach((val, id, mp) =>{
-                    if (val.createdAt - today < -this.day)
-                    this.logMessages.get(id).delete();
-                    mp.delete(id);
+                    try {
+                        if (val.createdAt - today < -this.day)
+                        this.logMessages.get(id).delete();
+                        mp.delete(id);
+                    } catch (err){
+                        console.log(`Неизвестная ошибка удаления старых логов: ${err.message}`);
+                    }                  
                 });
             }
             //меняет боту статус

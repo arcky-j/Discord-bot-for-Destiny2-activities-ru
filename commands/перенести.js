@@ -54,6 +54,7 @@ module.exports = {
         const embed = message.embeds[0];
         embed.fields[0].value = fireteam.getDateString();
         message.edit({embeds: [embed]});
+        fireteam.setEmbed(embed);
         //рассылка уведомлений
         fireteam.sendAlerts('dateChange');
         //если оповещение о начале сбора было, отправить его потом снова

@@ -14,12 +14,13 @@ if (!process.env.TOKEN){
     return;
 }
 //создание объекта клиента
-const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers]});
+const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildIntegrations]});
 
 //добавление к клиенту коллекций (по сути Map из javascript) для данных
 client.commands = new Collection(); //слэш-команды
 client.fireteams = new Collection(); //боевые группы (свой тип данных)
 client.polls = new Collection(); //голосования (свой тип данных)
+client.settings = new Collection(); //настройки сервера (свой тип данных)
 //загрузка исполняемого кода для команд
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -108,6 +109,6 @@ client.reset = new Reset(); //добавление к клиенту модул�
 client.timer = new CustomTimer(client);
 client.timer.checkSeconds();
 //добавление к клиенту модуля для работы с диском
-client.cacheManager = new CacheManager(client.users, client.guilds);
+client.cacheManager = new CacheManager(client.users, client.guilds, client);
 //запуск бота
 client.login(process.env.TOKEN);

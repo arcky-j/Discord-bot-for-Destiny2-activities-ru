@@ -43,6 +43,7 @@ module.exports = {
         embed.fields[1].value = fireteam.getMembersString();
         embed.fields[2].value = fireteam.getReservsString();
         message.edit({embeds: [embed]});
+        fireteam.setEmbed(embed);
         //уведомление в чат сбора
         if (reason){
             await interaction.reply({content: `В сборе ${fireteam.name} (ID: ${id}) сменился Лидер! <@${user.id}> => <@${userNew.id}>\nПричина: ${reason}` });

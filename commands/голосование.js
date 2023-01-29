@@ -36,8 +36,8 @@ module.exports = {
     async execute(interaction) {
         //получение данных из команды
         const theme = interaction.options.getString('тема');
-        const isChangeble = interaction.options.getBoolean('смена_голоса');
-        const isAnon = interaction.options.getBoolean('анонимность');
+        let isChangeble = interaction.options.getBoolean('смена_голоса');
+        let isAnon = interaction.options.getBoolean('анонимность');
         const choice1 = interaction.options.getString('вариант1');
         const choice2 = interaction.options.getString('вариант2');
         const choice3 = interaction.options.getString('вариант3');

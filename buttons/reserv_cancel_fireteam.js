@@ -19,7 +19,8 @@ module.exports = {
         }        
         //обновление сообщения сбора
         embed.fields[1].value = fireteam.getMembersString();
-        embed.fields[2].value = fireteam.getReservsString();   
+        embed.fields[2].value = fireteam.getReservsString();
+        fireteam.setEmbed(embed);   
         await interaction.update({embeds: [embed]});
     }
 }
