@@ -11,6 +11,6 @@ module.exports = {
         //загружает информацию в объект, отвечающий за ресет
         interaction.client.reset.upload(info, nf, bonus, raid, dung);
 
-        interaction.reply({content: 'Вы успешно загрузили информацию о ресете!', ephemeral: true});
+        interaction.reply({content: 'Вы успешно загрузили информацию о ресете!'});
     }
 }

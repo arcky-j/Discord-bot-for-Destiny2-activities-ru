@@ -8,6 +8,6 @@ module.exports = {
         //загружает информацию в объект, отвечающий за ресет
         interaction.client.reset.uploadFri(xur, trials);
 
-        interaction.reply({content: 'Вы успешно загрузили информацию о пятничном ресете!', ephemeral: true});
+        interaction.reply({content: 'Вы успешно загрузили информацию о пятничном ресете!'});
     }
 }
