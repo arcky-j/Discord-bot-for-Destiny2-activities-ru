@@ -156,7 +156,7 @@ module.exports = {
         .setDescription(embDesc)
         .addFields(
             {name: 'Время и дата:', value: `**${hT}:${mT}** МСК  **${dayT}.${monT}.${year}**`},
-            {name: 'Боевая группа:', value: `<@${interaction.user.id}> - ${interaction.user.tag} - *Лидер*`, inline: true},
+            {name: 'Боевая группа:', value: `<@${interaction.user.id}> - *Лидер*`, inline: true},
             {name: 'Резерв:', value: 'Резерв пуст', inline: true}
         )
         .setThumbnail(bannerUrl);

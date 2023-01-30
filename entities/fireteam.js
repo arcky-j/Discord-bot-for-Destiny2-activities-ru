@@ -179,9 +179,9 @@ class FireTeam{
         let str = '';
         this.members.forEach(function(value1, value2, mp){
             if (value2 == mp.leaderId){
-                str += `<@${value1.id}> - ${value1.tag} - *Лидер* \n`;
+                str += `<@${value1.id}> - *Лидер* \n`;
             } else {
-                str += `<@${value1.id}> - ${value1.tag} \n`;
+                str += `<@${value1.id}>\n`;
             }
         });
         return str; //возвращает строку со всеми участниками боевой группы в столбик
@@ -193,7 +193,7 @@ class FireTeam{
             return 'Резерв пуст';
         }
         this.reservs.forEach(function(value1, value2){
-            str += `<@${value1.id}> - ${value1.tag} \n`;
+            str += `<@${value1.id}>\n`;
         });
         return str; //возвращает строку со всеми резервистами в столбик
     }
