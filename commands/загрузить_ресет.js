@@ -2,7 +2,7 @@ const {SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, Acti
 //команда для загрузки информации о ресете
 module.exports = {
     data: new SlashCommandBuilder()
-            .setName('upload_reset')
+            .setName('загрузить_ресет')
             .setDescription('Команда для записи информации о ресете')
             .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 

@@ -1,23 +1,23 @@
-//код для кнопки отмены записи в боевую группу
 module.exports = {
-    name: 'cancel_fireteam',
+    name: 'go_bron',
     async execute(interaction){
         const user = interaction.user;
+        const message = interaction.message;
+        const id = message.content.substring(message.content.lastIndexOf(' ')+1);
         //поиск нужной боевой группы
-        const fireteam = interaction.client.fireteams.get(interaction.message.customId);
+        const fireteam = interaction.client.fireteams.get(id);
         if (!fireteam){
             await interaction.reply({content: `Скорее всего, активность уже стартовала. Возможно, произошла непредвиденная ошибка`, ephemeral: true});
             return;
         }
-        //попытка удаления Стража
+
         try {
-            fireteam.memberDel(user.id);
+            fireteam.bronToMember(user.id, user);
         } catch (err) {
             await interaction.reply({content: err.message, ephemeral: true});
             return;
         }        
-        //обновление сообщения сбора
-        const embed = fireteam.refreshLists();
-        await interaction.update({embeds: [embed]});
+        interaction.message.delete();
+        await interaction.reply({content: 'Вы успешно записаны в сбор! Бронь снята.'});
     }
 }

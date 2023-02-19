@@ -2,7 +2,7 @@ const {SlashCommandBuilder, PermissionFlagsBits} = require('discord.js');
 //команда для рассылки личных сообщений конкретной роли
 module.exports = {
     data: new SlashCommandBuilder()
-            .setName('send_dm_for_role')
+            .setName('личная_рассылка')
             .setDescription('Сделать личную рассылку для определённой роли')
             .addRoleOption(option =>
                 option.setName('роль')

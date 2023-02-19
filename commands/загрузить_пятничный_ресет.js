@@ -2,7 +2,7 @@ const {SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, Acti
 //команда для загрузки информации о пятничном ресете
 module.exports = {
     data: new SlashCommandBuilder()
-            .setName('upload_fri_reset')
+            .setName('загрузить_пятничный_ресет')
             .setDescription('Команда для записи информации о пятничном ресете')
             .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 

@@ -31,19 +31,16 @@ module.exports = {
             return;
         }
         //попытка передачи лидерства
+        let embed;
         try{
-            fireteam.changeLeader(user.id, userNew.id, userNew);
+            embed = fireteam.changeLeader(user.id, userNew.id, userNew);
         } catch (err){
             await interaction.reply({content: err.message, ephemeral:true});
             return;
         }
         //обновление сообщения сбора
-        const message = await channel.messages.fetch(id);
-        const embed = message.embeds[0];
-        embed.fields[1].value = fireteam.getMembersString();
-        embed.fields[2].value = fireteam.getReservsString();
+        const message = fireteam.message;
         message.edit({embeds: [embed]});
-        fireteam.setEmbed(embed);
         //уведомление в чат сбора
         if (reason){
             await interaction.reply({content: `В сборе ${fireteam.name} (ID: ${id}) сменился Лидер! <@${user.id}> => <@${userNew.id}>\nПричина: ${reason}` });

@@ -19,7 +19,15 @@ module.exports = {
                 .addRoleOption(option => 
                     option
                         .setName('роль3')
-                        .setDescription('Третья роль')))
+                        .setDescription('Третья роль'))
+                .addRoleOption(option => 
+                    option
+                        .setName('роль4')
+                        .setDescription('Четвёртая роль'))
+                .addRoleOption(option => 
+                    option
+                        .setName('роль5')
+                        .setDescription('Пятая роль')))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('роли_для_новичков')
@@ -79,23 +87,28 @@ module.exports = {
             const role1 = interaction.options.getRole('роль1');
             const role2 = interaction.options.getRole('роль2');
             const role3 = interaction.options.getRole('роль3');
+            const role4 = interaction.options.getRole('роль4');
+            const role5 = interaction.options.getRole('роль5');
             const sett = interaction.client.settings.get(interaction.guild.id);
-            sett.setRoleTags(role1, role2, role3);
+            sett.setRoleTags(role1, role2, role3, role4, role5);
             //если первая роль не введена, то роли сбрасываются
             if (!role1){
                 await interaction.reply({content: 'Роли для тегов в сборах сброшены!'});
-                interaction.client.rolesActTag = undefined;
                 return;
             } 
-            //записывает роли в отдельный словарь на клиенте
-            interaction.client.rolesActTag = new Map();
-            const rat = interaction.client.rolesActTag;
+            const rat = new Map();
             rat.set(role1.id, role1);
             if (role2){
                 rat.set(role2.id, role2);
             }
             if (role3){
                 rat.set(role3.id, role3);
+            }
+            if (role4){
+                rat.set(role4.id, role4);
+            }
+            if (role5){
+                rat.set(role5.id, role5);
             }
             let str = '';
             rat.forEach((val) =>{

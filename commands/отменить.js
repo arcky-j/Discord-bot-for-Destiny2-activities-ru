@@ -33,7 +33,7 @@ module.exports = {
         }
         //удаление сообщения
         try {
-            await channel.messages.delete(id);
+            await channel.messages.delete(fireteam.message.id);
             if (reason) {
                 await interaction.reply({content:`Сбор в ${fireteam.name} (ID: ${id}) успешно удалён!\nПричина: ${reason}`});
             } else {

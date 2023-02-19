@@ -21,6 +21,7 @@ client.commands = new Collection(); //слэш-команды
 client.fireteams = new Collection(); //боевые группы (свой тип данных)
 client.polls = new Collection(); //голосования (свой тип данных)
 client.settings = new Collection(); //настройки сервера (свой тип данных)
+client.activities = new Collection(); //настройки сервера (свой тип данных)
 //загрузка исполняемого кода для команд
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -110,5 +111,7 @@ client.timer = new CustomTimer(client);
 client.timer.checkSeconds();
 //добавление к клиенту модуля для работы с диском
 client.cacheManager = new CacheManager(client.users, client.guilds, client);
+
+client.generateId = require('./utility/id_generator');
 //запуск бота
 client.login(process.env.TOKEN);

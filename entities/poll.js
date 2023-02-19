@@ -35,7 +35,7 @@ class Poll{
         let vC = 0;
         this.voters.forEach((val, id) => {
             if (val.choiceId == 0){
-                str += `${val.user.tag}\n`;
+                str += `<@${val.user.id}>\n`;
                 vC++;
             }
         });
@@ -56,7 +56,7 @@ class Poll{
         let vC = 0;
         this.voters.forEach((val, id) => {
             if (val.choiceId == 1){
-                str += `${val.user.tag}\n`;
+                str += `<@${val.user.id}>\n`;
                 vC++;
             }
         });
@@ -74,7 +74,7 @@ class Poll{
         let vC = 0;
         this.voters.forEach((val, id) => {
             if (val.choiceId == 2){
-                str += `${val.user.tag}\n`;
+                str += `<@${val.user.id}>\n`;
                 vC++;
             }
         });
@@ -92,7 +92,7 @@ class Poll{
         let vC = 0;
         this.voters.forEach((val, id) => {
             if (val.choiceId == 3){
-                str += `${val.user.tag}\n`;
+                str += `<@${val.user.id}>\n`;
                 vC++;
             }
         });
@@ -110,7 +110,7 @@ class Poll{
         let vC = 0;
         this.voters.forEach((val, id) => {
             if (val.choiceId == 4){
-                str += `${val.user.tag}\n`;
+                str += `<@${val.user.id}>\n`;
                 vC++;
             }
         });

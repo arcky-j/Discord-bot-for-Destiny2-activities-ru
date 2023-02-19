@@ -1,5 +1,6 @@
 const {SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder} = require('discord.js');
 const Poll = require('../entities/poll.js');
+const getRandomColor = require('../utility/get_random_color');
 //команда для начала голосования
 module.exports = {
     data: new SlashCommandBuilder()
@@ -46,7 +47,7 @@ module.exports = {
         if (!isAnon){ //значение анонимности по умолчанию
             isAnon = false;
         }
-        if (!isChangeble){ //значение смены голоса по умолчанию
+        if (isChangeble == undefined){ //значение смены голоса по умолчанию
             isChangeble = true;
         }
         let count = 2;
@@ -90,7 +91,7 @@ module.exports = {
             count++;
         }
         //оформление описания голосования
-        const embColor = 0x2bd1e3, bannerUrl = 'https://i.ibb.co/pdRdLHT/image.png';
+        const embColor = getRandomColor(), bannerUrl = 'https://i.ibb.co/pdRdLHT/image.png';
         let embDesc = `Голосование начато!`;
 
         if (isChangeble){

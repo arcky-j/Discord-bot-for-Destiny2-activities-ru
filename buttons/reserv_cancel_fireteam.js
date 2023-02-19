@@ -2,10 +2,9 @@
 module.exports = {
     name: 'reserv_cancel_fireteam',
     async execute(interaction){
-        const embed = interaction.message.embeds[0];
         const user = interaction.user;
         //поиск нужной боевой группы
-        const fireteam = interaction.client.fireteams.get(interaction.message.id);
+        const fireteam = interaction.client.fireteams.get(interaction.message.customId);
         if (!fireteam){
             await interaction.reply({content: `Скорее всего, активность уже стартовала. Возможно, произошла непредвиденная ошибка`, ephemeral: true});
             return;
@@ -18,9 +17,7 @@ module.exports = {
             return;
         }        
         //обновление сообщения сбора
-        embed.fields[1].value = fireteam.getMembersString();
-        embed.fields[2].value = fireteam.getReservsString();
-        fireteam.setEmbed(embed);   
+        const embed = fireteam.refreshLists();   
         await interaction.update({embeds: [embed]});
     }
 }

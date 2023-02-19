@@ -4,10 +4,6 @@ const Settings = require('../utility/settings.js');
 module.exports = {
     name: Events.InteractionCreate,
     async execute (interaction) {
-        //создаёт объект настроек для сервера, если такого нет
-        if (!interaction.client.settings.has(interaction.guild.id)){
-            interaction.client.settings.set(interaction.guild.id, new Settings(interaction.guild.id));
-        }
         //действия при срабатывании слэш-команды
         if (interaction.isChatInputCommand()){
             //получает объект команды из коллекции клиента

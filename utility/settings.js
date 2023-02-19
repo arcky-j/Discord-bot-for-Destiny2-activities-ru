@@ -16,7 +16,7 @@ class Settings{
         this.messageLeave = '# покинул нас';
     }
 
-    setRoleTags(r0, r1, r2){
+    setRoleTags(r0, r1, r2, r3, r4){
         this.rolesToTag = [];
         if (r0){
             this.rolesToTag.push(r0);
@@ -26,6 +26,12 @@ class Settings{
         }
         if (r2){
             this.rolesToTag.push(r2);
+        }
+        if (r3){
+            this.rolesToTag.push(r3);
+        }
+        if (r4){
+            this.rolesToTag.push(r4);
         }
     }
 

@@ -1,29 +1,48 @@
 //класс, содержащий в себе всё для работы со сборами
 class FireTeam{
-    id; 
+    id;
+    message;
     name; //название активности
     actType; //тип активности
     quantity; //необходимое количество Стражей
     members = new Map(); //словарь для хранения боевой группы
     reservs = new Map(); //словарь для хранения резерва
     date = new Date(); //дата начала активности
-    embed;
+    bron = new Map();
+    bronSize;
+    bronCounter;
 
-    constructor(id, leader, name, nDate, typ, quan){
+    constructor(id, mess, leader, name, nDate, typ, quan, rowdm, br1, br2){
         this.id = id;
+        this.message = mess;
         this.name = name;
         this.members.set(leader.id, leader);
-        this.members.leaderId = leader.id;
+        this.leaderId = leader.id;
         this.date = nDate;
         this.actType = typ;
+        this.rowdm = rowdm;
+        this.bronCounter = 0;
         switch (typ){
             case 'raid': this.quantity = 6;
+                        this.bronSize = 2;
                 break;
             case 'dungeon': this.quantity = 3;
+                        this.bronSize = 1;
                 break;
             default: if (quan !== undefined) this.quantity = quan;
                     else this.quantity = 6;
+                    this.bronSize = Math.ceil(this.quantity/2 - 1);
                 break;
+        }
+        if (br1){
+            this.bron.set(br1.id, br1);
+            br1.send({content: `Вы были записаны лидером активности в ${name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность? ID: ${this.id}`, components:[rowdm]});
+            this.bronCounter++;
+        }
+        if (br2){
+            this.bron.set(br2.id, br2);
+            br2.send({content: `Вы были записаны лидером активности в ${name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность? ID: ${this.id}`, components:[rowdm]});
+            this.bronCounter++;
         }
     }
     //добавление Стража в боевую группу
@@ -31,8 +50,13 @@ class FireTeam{
         if (this.members.has(id)){ //проверка на присутствие в боевой группе
             throw new Error('Ты уже записан в боевую группу!'); 
         } 
-
+        if (this.bron.has(id)){ //проверка на присутствие в боевой группе
+            throw new Error('Пользователю уже забронировано место! Если вы тот самый пользователь, подтвердите бронь в ЛС'); 
+        }
         if (this.members.size == this.quantity){ //проверка на количество стражей
+            throw new Error('Сбор уже укомплектован!');
+        }
+        if (this.members.size + this.bron.size == this.quantity){ //проверка на количество стражей
             throw new Error('Сбор уже укомплектован!');
         }
         if (user.bot){ //проверка на случай, если кто-то насильно догадается записать в сбор бота
@@ -50,7 +74,7 @@ class FireTeam{
             throw new Error('Пользователь не был записан в эту боевую группу! Не в моих силах его из неё убрать'); 
         } 
 
-        if (id == this.members.leaderId){ //проверка на лидерство
+        if (id == this.leaderId){ //проверка на лидерство
             throw new Error('Лидер не может покинуть боевую группу!');
         }
 
@@ -62,7 +86,7 @@ class FireTeam{
             throw new Error('Этот пользователь уже записан в резерв!'); 
         } 
 
-        if (id == this.members.leaderId){ //проверка на лидерство
+        if (id == this.leaderId){ //проверка на лидерство
             throw new Error('Лидер не может записаться в резерв!'); 
         } 
         
@@ -79,9 +103,58 @@ class FireTeam{
         } 
         this.reservs.delete(id); //удаление из резерва
     }
+    bronAdd(id, user){
+        if (this.members.has(id)){ //проверка на присутствие в боевой группе
+            throw new Error('Пользователь уже записан в боевую группу!'); 
+        } 
+        if (this.bron.has(id)){ //проверка на присутствие в боевой группе
+            throw new Error('Пользователю уже забронировано место!'); 
+        } 
+        if (this.bronCounter == this.bronSize){ //проверка на присутствие в боевой группе
+            throw new Error('Вы уже забронировали максимум! Для этой активности это ' + this.bronSize + ' места'); 
+        } 
+        if (this.bron.size == this.bronSize){ //проверка на присутствие в боевой группе
+            throw new Error('Вы уже забронировали максимум! Для этой активности это ' + this.bronSize + ' места'); 
+        } 
+        if (this.members.size + this.bron.size == this.quantity){ //проверка на количество стражей
+            throw new Error('Сбор уже укомплектован!');
+        }
+        if (this.members.size == this.quantity){ //проверка на количество стражей
+            throw new Error('Сбор уже укомплектован!');
+        }
+        if (user.bot){ //проверка на случай, если кто-то насильно догадается записать в сбор бота
+            throw new Error('Возмутительно! Я не думал, что кому-то придёт в голову совать в сбор бота, но и к этому я был готов');
+        }
+        this.bron.set(id, user);
+        user.send({content: `Вы были записаны лидером активности в ${this.name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность? ID: ${this.id}`, components:[this.rowdm]});
+        this.bronCounter++;
+        const embed = this.message.embeds[0];
+        embed.fields[2].value = this.getMembersString();
+        embed.fields[3].value = this.getReservsString();
+        this.message.edit({embeds: [embed]});
+    }
+    bronDel(id){
+        if (!this.bron.has(id)){ //проверка на присутствие в боевой группе
+            throw new Error('Пользователю не было забронировано место!'); 
+        } 
+        this.bron.delete(id);
+        const embed = this.message.embeds[0];
+        embed.fields[2].value = this.getMembersString();
+        embed.fields[3].value = this.getReservsString();
+        this.message.edit({embeds: [embed]});
+        this.bronCounter--;
+    }
+    bronToMember(id, user){
+        this.bron.delete(id);
+        this.members.set(id, user);
+        const embed = this.message.embeds[0];
+        embed.fields[2].value = this.getMembersString();
+        embed.fields[3].value = this.getReservsString();
+        this.message.edit({embeds: [embed]});
+    }
     //смена лидера со всеми проверками
     changeLeader(id,newId, nUser){
-        if (id != this.members.leaderId){ //первостепенная проверка на лидерство
+        if (id != this.leaderId){ //первостепенная проверка на лидерство
             throw new Error('Только лидер может назначить другого лидера!');
         }
 
@@ -94,64 +167,73 @@ class FireTeam{
         }
 
         if (this.members.has(newId)){ 
-            this.members.leaderId = newId; //если новый лидер был в боевой группе, просто передаёт лидерство
+            this.leaderId = newId; //если новый лидер был в боевой группе, просто передаёт лидерство
         } else if(this.reservs.has(newId)) {
             this.reservs.delete(newId); //если новый лидер был в резерве, то сперва удаляет его из резервов
-            if (this.members.size == this.quantity){
+            if (this.members.size == this.quantity || this.members.size + this.bron.size == this.quantity){
                 this.memberDel(id); //если группа была заполнена, удаляет предыдущего лидера
             }       
             this.members.set(newId, nUser); //и только потом записывает нового лидера в боевую группу                 
-            this.members.leaderId = newId;
+            this.leaderId = newId;
         } else{
-            this.members.leaderId = '';  //если нового лидера нет ни в боевой группе, ни в резерве              
-            if (this.members.size == this.quantity){                    
+            this.leaderId = '';  //если нового лидера нет ни в боевой группе, ни в резерве              
+            if (this.members.size == this.quantity || this.members.size + this.bron.size == this.quantity){                    
                 this.memberDel(id); //если группа была заполнена, удаляет предыдущего лидера
                 this.members.set(newId, nUser); //и только потом записывает нового лидера в боевую группу 
-                this.members.leaderId = newId;                
+                this.leaderId = newId;                
             } else {
                 this.members.set(newId, nUser); //если места есть, просто добавляет нового Стража и делает его лидером
-                this.members.leaderId = newId; 
+                this.leaderId = newId; 
             }
         }
+        const embed = this.message.embeds[0];
+        embed.fields[1].value = `<@${newId}>`;
+        embed.fields[2].value = this.getMembersString();
+        embed.fields[3].value = this.getReservsString();
+        return embed;
     }
     //смена даты
     changeDate(id,newDate){
-        if (id == this.members.leaderId){ //проверка на лидерство
+        if (id == this.leaderId){ //проверка на лидерство
             this.date = newDate; //установка даты
         } else {
             throw new Error('Только лидер может сменить дату/время сбора!');
-        }        
-    }
-    setEmbed(embed){
-        this.embed = embed;
+        }
+        const embed = this.message.embeds[0];
+        embed.fields[0].value = this.getDateString();
+        return embed;        
     }
     //рассылка оповещений в личные сообщения
     sendAlerts(reason){
         switch(reason){
             case 'del': //рассылка при удалении активности
                 this.members.forEach( async (us, id) =>{
-                    if (this.members.leaderId != id) //рассылает оповещение всем участникам кроме лидера
-                    us.send({content: `Активность ${this.name} на ${this.getDateString()}, в которую вы были записаны, была отменёна пользователем ${this.getLeader().tag}.`, embeds:[this.embed]});
+                    if (this.leaderId != id) //рассылает оповещение всем участникам кроме лидера
+                    us.send({content: `Активность ${this.name} на ${this.getDateString()}, в которую вы были записаны, была отменёна пользователем ${this.getLeader().tag}.`, embeds:this.message.embeds});
                 });
                 break;
             case 'uptime': //рассылка при скором начале активности
                 this.members.forEach( async (us, id) =>{ //оповещает всех участников
-                    us.send({content: `${this.name} начнётся в ближайшие **10 минут**!\n`, embeds: [this.embed]});
+                    us.send({content: `${this.name} начнётся в ближайшие **10 минут**!\n`, embeds: this.message.embeds});
                 });
                 if (this.reservs.size > 0 && this.members.size < this.quantity)
                 this.reservs.forEach( async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
-                    us.send({content:`${this.name} начнётся в ближайшие **10 минут**! Вы были записаны в резерв и получаете это сообщение, потому что боевая группа меньше необходимого!`, embeds: [this.embed]});
+                    us.send({content:`${this.name} начнётся в ближайшие **10 минут**! Вы были записаны в резерв и получаете это сообщение, потому что боевая группа меньше необходимого!`, embeds: this.message.embeds});
+                });
+                if (this.bron.size > 0 && this.members.size < this.quantity)
+                this.bron.forEach( async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
+                    us.send({content:`${this.name} начнётся в ближайшие **10 минут**! Вам было забронировано место, поэтому вы получаете это сообщение!`, embeds: this.message.embeds});
                 });
                 break;
             case 'dateChange': //рассылка при переносе активности
                 this.members.forEach( async (us, id) =>{
-                    if (this.members.leaderId != id) //рассылает оповещение всем участникам кроме лидера
-                    us.send({content: `Активность ${this.name}, в которую вы записаны, перенесёна пользователем ${this.getLeader().tag}! Новое время: ${this.getDateString()}`, embeds: [this.embed]});
+                    if (this.leaderId != id) //рассылает оповещение всем участникам кроме лидера
+                    us.send({content: `Активность ${this.name}, в которую вы записаны, перенесёна пользователем ${this.getLeader().tag}! Новое время: ${this.getDateString()}`, embeds: this.message.embeds});
                 });
                 break;
             case 'admin_del': //рассылка при удалении активности администратором
                 this.members.forEach( async (us, id) =>{
-                    us.send({content: `Активность ${this.name} на ${this.getDateString()}, в которую вы были записаны, была отменёна администратором. Более подробная информация в канале сбора.`, embeds: [this.embed]});
+                    us.send({content: `Активность ${this.name} на ${this.getDateString()}, в которую вы были записаны, была отменёна администратором. Более подробная информация в канале сбора.`, embeds: this.message.embeds});
                 });
                 break;
         }
@@ -178,11 +260,10 @@ class FireTeam{
     getMembersString(){
         let str = '';
         this.members.forEach(function(value1, value2, mp){
-            if (value2 == mp.leaderId){
-                str += `<@${value1.id}> - *Лидер* \n`;
-            } else {
-                str += `<@${value1.id}>\n`;
-            }
+            str += `<@${value1.id}>\n`;
+        });
+        this.bron.forEach(function(value1, value2, mp){
+            str += `#бронь\n`;
         });
         return str; //возвращает строку со всеми участниками боевой группы в столбик
     }
@@ -197,29 +278,24 @@ class FireTeam{
         });
         return str; //возвращает строку со всеми резервистами в столбик
     }
+    refreshLists(){
+        const embed = this.message.embeds[0];
+        embed.fields[2].value = this.getMembersString();
+        embed.fields[3].value = this.getReservsString();
+        return embed;
+    }
     //вспомогательный метод для нахождения лидера боевой группы
     getLeader(){
-        let lead;
-        this.members.forEach(function(value1, value2, mp){
-            if (value2 == mp.leaderId){
-                lead = value1;
-            }
-        });
+        const lead = this.members.get(this.leaderId);
         return lead;
     }
     //вспомогательный метод для нахождения id (иногда его достаточно) лидера боевой группы
     getLeaderId(){
-        let leadId;
-        this.members.forEach(function(value1, value2, mp){
-            if (value2 == mp.leaderId){
-                leadId = value2;
-            }
-        });
-        return leadId;
+        return this.leaderId;
     }
     //вспомогательный метод для проверки пользователя на лидерство
     isLeader(id){
-        if (id == this.members.leaderId){
+        if (id == this.leaderId){
             return true;
         } else {
             return false;

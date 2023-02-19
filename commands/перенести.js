@@ -43,18 +43,16 @@ module.exports = {
             return;
         }
         //попытка дату сменить
+        let embed;
         try{
-            fireteam.changeDate(interaction.user.id, rDate);
+            embed = fireteam.changeDate(interaction.user.id, rDate);
         } catch (err){
             await interaction.reply({content: err.message, ephemeral:true});
             return;
         }
         //редактирование сообщения со сбором
-        const message = await channel.messages.fetch(id);
-        const embed = message.embeds[0];
-        embed.fields[0].value = fireteam.getDateString();
+        const message = fireteam.message;
         message.edit({embeds: [embed]});
-        fireteam.setEmbed(embed);
         //рассылка уведомлений
         fireteam.sendAlerts('dateChange');
         //если оповещение о начале сбора было, отправить его потом снова
