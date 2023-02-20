@@ -7,7 +7,7 @@ module.exports = {
         if (oldMember.pending && !newMember.pending){
             const settings = newMember.client.settings.get(newMember.guild.id);
             if (settings.channelJoin){
-                settings.channelJoin.send(settings.messageJoin.replace('#', `<@${newMember.user.id}>`)); //оповещает о прибытии
+                settings.channelJoin.send(settings.messageJoin.replace('#', `<@${newMember.user.id}> (${newMember.user.tag})`)); //оповещает о прибытии
             }
             if (settings.rolesForNew.length > 0){
                 newMember.roles.add(settings.rolesForNew);

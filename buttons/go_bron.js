@@ -1,8 +1,10 @@
+//код обработчика для кнопки записи через броню
 module.exports = {
     name: 'go_bron',
     async execute(interaction){
         const user = interaction.user;
         const message = interaction.message;
+        //вычурный, но рабочий способ получения id
         const id = message.content.substring(message.content.lastIndexOf(' ')+1);
         //поиск нужной боевой группы
         const fireteam = interaction.client.fireteams.get(id);
@@ -12,12 +14,13 @@ module.exports = {
         }
 
         try {
+            //попытка перевести стража из брони в боевую группу
             fireteam.bronToMember(user.id, user);
         } catch (err) {
             await interaction.reply({content: err.message, ephemeral: true});
             return;
         }        
-        interaction.message.delete();
-        await interaction.reply({content: 'Вы успешно записаны в сбор! Бронь снята.'});
+        //обновление сообщения
+        await interaction.update({content: 'Вы успешно записаны в сбор! Бронь снята.', components: []});
     }
 }

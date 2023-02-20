@@ -1,4 +1,5 @@
 const {SlashCommandBuilder, PermissionFlagsBits} = require('discord.js');
+//команда для управления бронёй в сборах
 module.exports = {
     data: new SlashCommandBuilder()
             .setName('бронь')
@@ -37,6 +38,7 @@ module.exports = {
             await interaction.reply({content: 'Неверный ID. Возможно, активность уже началась', ephemeral:true});
             return;
         }
+        //проверка на лидерство
         if (user.id != fireteam.leaderId){
             await interaction.reply({content: 'Только лидер может управлять бронью сбора!', ephemeral:true});
             return;
@@ -52,6 +54,7 @@ module.exports = {
             //редактирование сообщения
             await interaction.reply({content: 'Вы успешно забронировали место Стражу!', ephemeral:true});
         }
+        //попытка удаления пользователя
         if (interaction.options.getSubcommand() === 'удалить'){
             try{
                 fireteam.bronDel(userNew.id);

@@ -6,7 +6,7 @@ module.exports = {
         const client = member.client;
         const settings = client.settings.get(member.guild.id);
         if (settings.channelLeave){
-            settings.channelLeave.send(settings.messageLeave.replace('#', `<@${member.user.id}>`)); //оповещает об уходе
+            settings.channelLeave.send(settings.messageLeave.replace('#', `<@${member.user.id}> (${member.user.tag})`)); //оповещает об уходе
         }
         //удаляет его из кэшэй
         if (client.users.cache.has(member.user.id)){

@@ -1,5 +1,5 @@
 const {SlashCommandBuilder, PermissionFlagsBits} = require('discord.js');
-//команда для ручного добавления Стража в боевую группу
+//команда для админских действий со сборами
 module.exports = {
     data: new SlashCommandBuilder()
             .setName('админ')
@@ -52,6 +52,7 @@ module.exports = {
 
     async execute (interaction){
         const id = interaction.options.getString('id');
+        //код при добавлении стража
         if (interaction.options.getSubcommand() === 'добавить_стража'){
             const userNew = interaction.options.getUser('пользователь');
             const user = interaction.user;
@@ -158,6 +159,7 @@ module.exports = {
                 interaction.client.fireteams.delete(id);
             } catch (err){
                 await interaction.reply({content: `Непредвиденная ошибка: ${err.message}`, ephemeral:true});
+                return;
             }
             
             await interaction.reply({content: `Активность была удалена. Её участники оповещены.`, ephemeral:true});

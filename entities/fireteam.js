@@ -8,9 +8,9 @@ class FireTeam{
     members = new Map(); //словарь для хранения боевой группы
     reservs = new Map(); //словарь для хранения резерва
     date = new Date(); //дата начала активности
-    bron = new Map();
-    bronSize;
-    bronCounter;
+    bron = new Map(); //словарь для забронированных Стражей
+    bronSize; //максимальный размер брони
+    bronCounter; //сколько было забронировано
 
     constructor(id, mess, leader, name, nDate, typ, quan, rowdm, br1, br2){
         this.id = id;
@@ -50,13 +50,13 @@ class FireTeam{
         if (this.members.has(id)){ //проверка на присутствие в боевой группе
             throw new Error('Ты уже записан в боевую группу!'); 
         } 
-        if (this.bron.has(id)){ //проверка на присутствие в боевой группе
+        if (this.bron.has(id)){ //проверка на присутствие в списке брони
             throw new Error('Пользователю уже забронировано место! Если вы тот самый пользователь, подтвердите бронь в ЛС'); 
         }
         if (this.members.size == this.quantity){ //проверка на количество стражей
             throw new Error('Сбор уже укомплектован!');
         }
-        if (this.members.size + this.bron.size == this.quantity){ //проверка на количество стражей
+        if (this.members.size + this.bron.size == this.quantity){ //проверка на количество стражей с учётом брони
             throw new Error('Сбор уже укомплектован!');
         }
         if (user.bot){ //проверка на случай, если кто-то насильно догадается записать в сбор бота
@@ -103,20 +103,21 @@ class FireTeam{
         } 
         this.reservs.delete(id); //удаление из резерва
     }
+    //бронирование места Сражу
     bronAdd(id, user){
         if (this.members.has(id)){ //проверка на присутствие в боевой группе
             throw new Error('Пользователь уже записан в боевую группу!'); 
         } 
-        if (this.bron.has(id)){ //проверка на присутствие в боевой группе
+        if (this.bron.has(id)){ //проверка на присутствие в списке брони
             throw new Error('Пользователю уже забронировано место!'); 
         } 
-        if (this.bronCounter == this.bronSize){ //проверка на присутствие в боевой группе
+        if (this.bronCounter == this.bronSize){ //проверка на максимальное количество брони
             throw new Error('Вы уже забронировали максимум! Для этой активности это ' + this.bronSize + ' места'); 
         } 
-        if (this.bron.size == this.bronSize){ //проверка на присутствие в боевой группе
+        if (this.bron.size == this.bronSize){ //проверка на заполненность брони
             throw new Error('Вы уже забронировали максимум! Для этой активности это ' + this.bronSize + ' места'); 
         } 
-        if (this.members.size + this.bron.size == this.quantity){ //проверка на количество стражей
+        if (this.members.size + this.bron.size == this.quantity){ //проверка на количество стражей с учётом брони
             throw new Error('Сбор уже укомплектован!');
         }
         if (this.members.size == this.quantity){ //проверка на количество стражей
@@ -133,10 +134,13 @@ class FireTeam{
         embed.fields[3].value = this.getReservsString();
         this.message.edit({embeds: [embed]});
     }
+    //удаление из брони
     bronDel(id){
         if (!this.bron.has(id)){ //проверка на присутствие в боевой группе
             throw new Error('Пользователю не было забронировано место!'); 
-        } 
+        }
+        const us = this.bron.get(id);
+        us.send({content: `Ваша бронь была отозвана! Кнопки в сообщении выше работать не будут`}); 
         this.bron.delete(id);
         const embed = this.message.embeds[0];
         embed.fields[2].value = this.getMembersString();
@@ -144,7 +148,11 @@ class FireTeam{
         this.message.edit({embeds: [embed]});
         this.bronCounter--;
     }
+    //перевод из брони в боевую группу
     bronToMember(id, user){
+        if (!this.bron.has(id)){ //проверка на присутствие в боевой группе
+            throw new Error('Пользователю не было забронировано место!'); 
+        }
         this.bron.delete(id);
         this.members.set(id, user);
         const embed = this.message.embeds[0];
@@ -278,6 +286,7 @@ class FireTeam{
         });
         return str; //возвращает строку со всеми резервистами в столбик
     }
+    //вспомогательный метод для обновления списков
     refreshLists(){
         const embed = this.message.embeds[0];
         embed.fields[2].value = this.getMembersString();
