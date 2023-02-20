@@ -67,10 +67,14 @@ class CacheManager{
     readUsers(array){
         return new Promise((resolve, reject) => {
             array.forEach(async (val) => {
-                this.usersCache.set(val, await this.userManager.fetch(val)); //просто фетчит id из массива - для записи в кэш этого достаточно
-                if (array.length == this.usersCache.size){
-                    resolve(console.log('Кэш пользователей загружен')); //выходит из промиса только когда профетчит всё, что может
-                }
+                try {
+                    this.usersCache.set(val, await this.userManager.fetch(val)); //просто фетчит id из массива - для записи в кэш этого достаточно
+                    if (array.length == this.usersCache.size){
+                        resolve(console.log('Кэш пользователей загружен')); //выходит из промиса только когда профетчит всё, что может
+                    }
+                } catch (err){
+                    console.log(`Ошибка с загрузкой кэша пользователей: ${err.message}`)
+                }            
             });
         });
     }
