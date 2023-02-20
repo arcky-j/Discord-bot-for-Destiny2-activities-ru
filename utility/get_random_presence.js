@@ -37,7 +37,7 @@ function getRandomPresence(){
         case 28: return {activities: [{name: 'догони меня гьяллархорн', type: 0}]};
         case 29: return {activities: [{name: 'расстреле Стражей', type: 5}]};
         case 30: return {activities: [{name: 'на улетающего Странника', type: 3}]};
-        case 31: return {activities: [{name: 'в пьяницу с Калусом', type: 0}]};
+        case 31: return {activities: [{name: 'пьяницу с Калусом', type: 0}]};
         case 32: return {activities: [{name: 'эпичные рассказы Рулка', type: 2}]};
         case 33: return {activities: [{name: 'письма Сенеки', type: 2}]};
         case 34: return {activities: [{name: 'дестабилизации реактора', type: 5}]};
