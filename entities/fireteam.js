@@ -140,7 +140,6 @@ class FireTeam{
             throw new Error('Пользователю не было забронировано место!'); 
         }
         const us = this.bron.get(id);
-        us.send({content: `Ваша бронь была отозвана! Кнопки в сообщении выше работать не будут`}); 
         this.bron.delete(id);
         const embed = this.message.embeds[0];
         embed.fields[2].value = this.getMembersString();
