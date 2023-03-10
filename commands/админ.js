@@ -151,7 +151,7 @@ module.exports = {
             }
             //попытка удаления сообщения с последующим уведомлением
             try {
-                interaction.channel.messages.delete(id);
+                interaction.channel.messages.delete(fireteam.message.id);
                 await interaction.channel.send(`Сбор ${fireteam.name} (ID: ${fireteam.id}) был удалён администратором ${interaction.user.tag} по причине: ${reason}`);
                 const lastMess = interaction.channel.lastMessage;
                 fireteam.sendAlerts('admin_del');

@@ -15,6 +15,7 @@ module.exports = {
                     .setDescription('В какой рейд вы хотите собрать людей?')
                     .setRequired(true)
                     .addChoices(
+                        {name: 'Источник Кошмаров', value: 'Источник Кошмаров'},
                         {name: 'Гибель Короля', value: 'Гибель Короля'},
                         {name: 'Клятва Послушника', value: 'Клятва Послушника'},
                         {name: 'Хрустальный Чертог', value: 'Хрустальный Чертог'},
@@ -214,6 +215,9 @@ module.exports = {
                 case 'Гибель Короля': bannerUrl = 'https://i.ibb.co/fHDQL1b/kings-fall.jpg';
                     embColor = 0x83a362;
                     break;
+                case 'Источник Кошмаров': bannerUrl = 'https://i.ibb.co/7V0Lk4r/destiny-2-lightfall-raid-0.jpg';
+                    embColor = 0xfff8f2;
+                    break;
             }
             //добавление требований и описания, если есть
             if (requiries){
@@ -260,47 +264,59 @@ module.exports = {
             bannerUrl = 'https://i.ibb.co/fDV3yJM/year-one-moments-of-triumph.png'; embColor = getRandomColor(); embDesc = ''; //стандартное оформление       
             actType = 'other';
             (() => { //специальное оформление, если есть ключевые слова
-                if (actName.toLowerCase().includes('источник')){
+                if (actName.match(/источник/i)){
                     bannerUrl = 'https://i.ibb.co/NWQtT50/wellspring.jpg';
                     embColor = 0x60c957;
                     return;
-                } else if (actName.toLowerCase().includes('железное знамя') ){
+                } else if (actName.match(/железное знамя/i) ){
                     bannerUrl = 'https://i.ibb.co/5G5w8ML/iron-banner.jpg';
                     embColor = 0x9e6b31;
                     return;
-                } else if (actName.toLowerCase().includes('горнило') ){
+                } else if (actName.match(/горнило/i) ){
                     bannerUrl = 'https://i.ibb.co/2tGwSwn/crucible.jpg';
                     embColor = 0xd93030;
                     return;
-                } else if (actName.toLowerCase().includes('гамбит') ){
+                } else if (actName.match(/гамбит/i) ){
                     bannerUrl = 'https://i.ibb.co/Q9gkvL8/gambit.jpg';
                     embColor = 0x32850f;
                     return;
-                } else if (actName.toLowerCase().includes('щит сераф') ){
-                    bannerUrl = 'https://i.ibb.co/GPPWJyS/seraph-shield.png';
-                    embColor = 0x36abbf;
-                    return;
-                } else if (actName.toLowerCase().includes('налет') || actName.toLowerCase().includes('налёт')){
+                }  else if (actName.match(/налет/i) || actName.match(/налёт/i) || actName.match(/сумра/i)){
                     bannerUrl = 'https://i.ibb.co/NmbVX7x/vanguard.png';
                     embColor = 0x38468f;
                     return;
-                } else if (actName.toLowerCase().includes('осирис')){
+                } else if (actName.match(/осирис/i)){
                     bannerUrl = 'https://i.ibb.co/9vn67RV/trials-of-osiris.jpg';
                     embColor = 0xdec943;
+                    return;
+                } else if (actName.match(/кампан/i) || actName.match(/100к мисси/i) || actName.match(/сплав/i)){
+                    bannerUrl = 'https://i.ibb.co/HKVW2r4/lightfall-campaign.jpg';
+                    embColor = 0x4fe0a4;
+                    return;
+                } else if (actName.match(/вечност/i)){
+                    bannerUrl = 'https://i.ibb.co/vHFWq2D/Dares-of-Eternity-Xur.jpg';
+                    embColor = 0x4f90e0;
+                    return;
+                } else if (actName.match(/экзот/i)){
+                    bannerUrl = 'https://i.ibb.co/2PrkMBJ/destiny-2-exotic-engram.jpg';
+                    embColor = 0xf0f573;
+                    return;
+                } else if (actName.match(/ГМ/) || actName.match(/грандмастер/i)){
+                    bannerUrl = 'https://i.ibb.co/SKRg5pB/EYZZg-R1-Uc-AEX3-Np.jpg';
+                    embColor = 0xf0f2ae;
                     return;
                 }
             })();
             if (requiries){
                 if (quant < 5){
-                    embDesc += `Сбор ${actName}! Нужно ${quant} Стража.\nТребования к участникам: ${requiries}`;
+                    embDesc += `Сбор! Нужно ${quant} Стража.\nТребования к участникам: ${requiries}`;
                 } else {
-                    embDesc += `Сбор ${actName}! Нужно ${quant} Стражей.\nТребования к участникам: ${requiries}`;
+                    embDesc += `Сбор! Нужно ${quant} Стражей.\nТребования к участникам: ${requiries}`;
                 }
             } else {
                 if (quant < 5){
-                    embDesc += `Сбор ${actName}! Нужно ${quant} Стража.\nТребования к участникам отсутствуют!`;
+                    embDesc += `Сбор! Нужно ${quant} Стража.\nТребования к участникам отсутствуют!`;
                 } else {
-                    embDesc += `Сбор ${actName}! Нужно ${quant} Стражей.\nТребования к участникам отсутствуют!`;
+                    embDesc += `Сбор! Нужно ${quant} Стражей.\nТребования к участникам отсутствуют!`;
                 }
             }
             if (descript){

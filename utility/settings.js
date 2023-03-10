@@ -9,6 +9,7 @@ class Settings{
     messageJoin; //уведомление о прибытии
     channelLeave; //канал уведомлений о ливах 
     messageLeave; //уведомление о ливах
+    logChannel;
 
     constructor(id){
         this.guildId = id;
@@ -130,6 +131,8 @@ class Settings{
         const str = `Роли, упоминаемые в сборах: ${strT}\nКанал для ресетов: ${strRCh}\nОбновляющие ресет: ${strU}\nРоли для новоприбывших: ${strN}\nКанал для уведомлений о прибытии: ${strCHJ}\nУведомление о прибытии: ${strMJ}\nКанал для уведомлений об уходе: ${strCHL}\nУведомление об уходе: ${strML}`;
         return str;
     }
+
+    
 }
 
 module.exports = Settings;

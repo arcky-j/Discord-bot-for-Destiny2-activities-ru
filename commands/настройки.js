@@ -7,6 +7,7 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
         
     async execute(interaction) {
+        //interaction.client.cacheManager.saveSetting();
         const settings = interaction.client.settings.get(interaction.guild.id);
         const embed = new EmbedBuilder()
             .setTitle(`Конфигурация бота для сервера ${interaction.guild.name}`)

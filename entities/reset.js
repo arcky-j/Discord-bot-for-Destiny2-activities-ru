@@ -1,5 +1,6 @@
 //класс, содержащий данные ресета
 const {EmbedBuilder} = require('discord.js');
+const getRandomColor = require('../utility/get_random_color');
 //попытка в полуавтоматизацию ресетов; полная без подключение bungie API нереальна
 class Reset{
     info; //доп информация к ресету
@@ -62,7 +63,7 @@ class Reset{
         if (month < 10){
             month = `0${month}`;
         }
-        const color = this.setRandomColor();
+        const color = getRandomColor();
         const embed = new EmbedBuilder() //формирует embed
             .setTitle(`Ресет ${day}.${month}!`)
             .setDescription(this.info)
@@ -102,7 +103,7 @@ class Reset{
         if (month < 10){
             month = `0${month}`;
         }
-        const color = this.setRandomColor();
+        const color = getRandomColor();
         const embed = new EmbedBuilder()
             .setTitle(`Пятничный ресет ${day}.${month}!`)
             .addFields(
@@ -118,18 +119,6 @@ class Reset{
         this.xur = undefined;
         this.trials = undefined;
     }
-    //вспомогательный метод для случайного цвета
-    setRandomColor(){
-        const rand = Math.floor(Math.random()*5);
-        switch(rand){
-            case 0: return 0x83d479;
-            case 1: return 0x58dbd3;
-            case 2: return 0xb539d4;
-            case 3: return 0xc95353;
-            case 4: return 0xe8e464;
-            default: return 0x777f80;
-        }
-    }
     //метод для оповещения о ресете
     alertUpdaters(){
         if (!this.channel){ //проверка, есть ли куда отправлять ресет
@@ -142,10 +131,10 @@ class Reset{
             return;
         }
         if (this.updater0){
-            this.updater0.send({content: 'До ресета осталось 10 минут. Воспользуйтесь командой /upload_reset для отправки оповещения'});
+            this.updater0.send({content: 'До ресета осталось 10 минут. Воспользуйтесь командой /загрузить_ресет для отправки оповещения'});
         }
         if (this.updater1){
-            this.updater1.send({content: 'До ресета осталось 10 минут. Воспользуйтесь командой /upload_reset для отправки оповещения'});
+            this.updater1.send({content: 'До ресета осталось 10 минут. Воспользуйтесь командой /загрузить_ресет для отправки оповещения'});
         }
         this.isAlerted = true;
     }
@@ -161,10 +150,10 @@ class Reset{
             return;
         }
         if (this.updater0){
-            this.updater0.send({content: 'До прилёта Зура осталось 10 минут. Воспользуйтесь командой /upload_fri_reset для отправки оповещения'});
+            this.updater0.send({content: 'До прилёта Зура осталось 10 минут. Воспользуйтесь командой /загрузить_пятничный_ресет для отправки оповещения'});
         }
         if (this.updater1){
-            this.updater1.send({content: 'До прилёта Зура осталось 10 минут. Воспользуйтесь командой /upload_fri_reset для отправки оповещения'});
+            this.updater1.send({content: 'До прилёта Зура осталось 10 минут. Воспользуйтесь командой /загрузить_пятничный_ресет для отправки оповещения'});
         }
         this.isAlerted = true;
     }

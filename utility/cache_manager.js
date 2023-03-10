@@ -21,6 +21,7 @@ class CacheManager{
         this.guildManager = guildManager;
         this.guildsCache = guildManager.cache;
         this.pathToUsers = path.join('.', 'data', 'users.json');
+        this.pathToSettings = path.join('.', 'data', 'setting.json');
     }
     //сохранение кэша пользователей
     saveCache(){ //обычное сохранение в JSON; сохраняет пользователей в виде массива id
@@ -100,10 +101,85 @@ class CacheManager{
         });
     } 
 
+    saveSetting(sett){
+        let settArr = [];
+        fs.readFileSync(this.pathToSettings, 'utf-8', (err, data) =>{
+            if (err) console.log(err);
+            else {
+                settArr = JSON.parse(data);
+            }
+        });
+        for (let i = 0; i < settArr.length; i++){
+            if (settArr[i] == sett){
+                settArr[i] = sett;
+            }
+        }
+        settArr.push(sett);
+        const data = JSON.stringify(settArr);
+        fs.writeFile(this.pathToSettings, data, 'utf8', (err) => {
+            if (err) console.log(err);
+            console.log('Настройки сохранены');
+        });
+    }
+
+    loadSettings(){
+        this.guildManager.cache.forEach(async (val, id) =>{
+            this.client.settings.set(id, new Settings(id));
+        });
+        console.log('Объекты настроек серверов инициализированны');
+        // if (!fs.existsSync(this.pathToSettings)){ //если файл с сохранёнными пользователями не обнаружен, пытается его создать (вместе с папкой data)
+        //     console.log('файл "./data/settings.json" не обнаружен; настройки серверов не загружены;');
+        //     fs.appendFile(this.pathToSettings, '[]', (err) => {
+        //         if (err) console.log('Ошибка при создании файла "settings.json"');
+        //         console.log('файл "./data/settings.json" создан!');
+        //     });
+        //     return;
+        // }
+        // fs.readFile(this.pathToSettings, 'utf-8', async(err, data) =>{
+        //     if (err) console.log(err);
+        //     else {
+        //         const settings = JSON.parse(data);
+        //         if (settings.length == 0){
+        //             console.log('Файлов настроек не обнаружено!');
+        //             return;
+        //         }
+        //         try {
+        //             settings.forEach(async (val) =>{
+        //                 const sett = client.settings.get(val.guildId);                        
+        //                 if (val.rolesToTag.length > 0){
+        //                     sett.rolesToTag = val.rolesToTag;
+        //                 }
+        //                 if (val.resetChannel){
+        //                     sett.resetChannel = val.resetChannel;
+        //                 }
+        //                 if (val.resetUpdaters.length > 0){
+        //                     sett.resetUpdaters = val.resetUpdaters;
+        //                 }
+        //                 if (val.rolesForNew.length > 0){
+        //                     sett.rolesForNew = val.rolesForNew;
+        //                 }
+        //                 if (val.channelJoin){
+        //                     sett.channelJoin = val.channelJoin;
+        //                 }
+        //                 if (val.channelLeave){
+        //                     sett.channelLeave = val.channelLeave;
+        //                 }
+        //                 sett.messageJoin = val.messageJoin;
+        //                 sett.messageLeave = val.messageLeave;
+        //             });
+        //         } catch (error) {
+        //             console.log(error);
+        //         }
+        //         console.log(`Настройки для серверов (${settings.length}) загружены`);
+        //     }
+        // });
+    }
+
     //команда для инициализации всего (тут были другие загручики, вдруг они появятся снова)
 
     async loadAll(){
         this.loadCache();
+        this.loadSettings();
     }
 }
 

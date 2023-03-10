@@ -53,8 +53,8 @@ class CustomTimer{
                 this.fireteamsStarted.forEach((val, id, mp) => {
                     if (val.date - today < -this.day){
                         try {
-                            this.actMessages.get(id).delete();
-                            this.actMessages.delete(id);
+                            this.actMessages.get(val.message.id).delete();
+                            this.actMessages.delete(val.message.id);
                             mp.delete(id);
                         } catch (err) {
                             console.log(`Неизвестная ошибка удаления старого сбора: ${err.message}`);

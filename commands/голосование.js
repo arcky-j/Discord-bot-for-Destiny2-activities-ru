@@ -110,18 +110,18 @@ module.exports = {
         .setTitle(theme)
         .setDescription(embDesc)
         .addFields(
-            {name: choice1, value: `Никого`, inline: true},
-            {name: choice2, value: 'Никого', inline: true}
+            {name: choice1, value: `Никого`, inline: false},
+            {name: choice2, value: 'Никого', inline: false}
         )
         .setThumbnail(bannerUrl);
         if (choice3){
-            embed.addFields({name: choice3, value: `Никого`, inline: true});
+            embed.addFields({name: choice3, value: `Никого`, inline: false});
         }
         if (choice4){
-            embed.addFields({name: choice4, value: `Никого`, inline: true});
+            embed.addFields({name: choice4, value: `Никого`, inline: false});
         }
         if (choice5){
-            embed.addFields({name: choice5, value: `Никого`, inline: true});
+            embed.addFields({name: choice5, value: `Никого`, inline: false});
         }
         //отправка сообщения
         await interaction.channel.send({embeds: [embed], components: [row]});
