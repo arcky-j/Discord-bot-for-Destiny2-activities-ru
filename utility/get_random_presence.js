@@ -1,6 +1,6 @@
 //функция для выбора рандомного статуса вот и всё, что она делает
 function getRandomPresence(){
-    const count = 36;
+    const count = 37;
     const rand = Math.floor(Math.random()*count);
     //изначально образ бота создан на основе финального босса Шпиля Хранителя, поэтому статусы соответствующие
     //их легко поменять: name - это содержание, а type - тип активности; 0 - "играет в", 2 - "слушает", 3 - "смотрит", 5 - "соревнуется в"
@@ -41,6 +41,7 @@ function getRandomPresence(){
         case 32: return {activities: [{name: 'эпичные рассказы Рулка', type: 2}]};
         case 33: return {activities: [{name: 'письма Сенеки', type: 2}]};
         case 34: return {activities: [{name: 'дестабилизации реактора', type: 5}]};
+        case 35: return {activities: [{name: 'в разлитии пива на сервера Bungie', type: 5}]};
         default: return {activities: [{name: 'советы по созданию статуса', type: 2}]};
     }
 }

@@ -1,4 +1,5 @@
-const {SlashCommandBuilder} = require('discord.js');
+const {SlashCommandBuilder, Activity} = require('discord.js');
+const ActivityUntimed = require('../entities/activityUntimed.js');
 const setDate = require('../utility/date_set.js');
 //команда для переноса активности на новое время
 module.exports = {
@@ -27,11 +28,19 @@ module.exports = {
         const date = interaction.options.getString('дата');
         const id = interaction.options.getString('id');
         const reason = interaction.options.getString('причина');
-        const channel = interaction.channel;
+        const user = interaction.user;
         //поиск нужной боевой группы
         const fireteam = interaction.client.fireteams.get(id);
-        if (!fireteam){
+        if (fireteam instanceof ActivityUntimed){
+            await interaction.reply({content: `Попытка перенести активность, где даты-времени нет в принципе, не пройдёт`, ephemeral: true});
+            return;
+        }
+        if (!fireteam || fireteam.state == 'Закрыт'){
             await interaction.reply({content: `Неверный ID. Возможно, активность уже началась`, ephemeral: true});
+            return;
+        }
+        if (fireteam.leaderId != user.id){ //проверка на лидерство
+            await interaction.reply({content:'Только лидер может перенести сбор', ephemeral: true});
             return;
         }
         let rDate;
@@ -43,30 +52,26 @@ module.exports = {
             return;
         }
         //попытка дату сменить
-        let embed;
         try{
-            embed = fireteam.changeDate(interaction.user.id, rDate);
+            fireteam.changeDate(rDate);
         } catch (err){
             await interaction.reply({content: err.message, ephemeral:true});
             return;
         }
-        //редактирование сообщения со сбором
-        const message = fireteam.message;
-        message.edit({embeds: [embed]});
         //рассылка уведомлений
-        fireteam.sendAlerts('dateChange');
-        //если оповещение о начале сбора было, отправить его потом снова
-        if (fireteam.isAlerted){
-            fireteam.isAlerted = false;
-            interaction.client.timer.fireteamsStarted.delete(fireteam.id);
-        }
         if (reason){
             interaction.reply({content: `Сбор ${fireteam.name} ID (${id}) был успешно пересён на ${fireteam.getDateString()}!\nПричина: ${reason}`});
         } else {
-            interaction.reply({content: `Сбор ${fireteam.name} ID (${id}) был успешно пересён на ${fireteam.getDateString()}!\nПричина не указана.`});
+            interaction.reply({content: `Сбор ${fireteam.name} ID (${id}) был успешно пересён на ${fireteam.getDateString()}!`});
         }
         //загрузка сообщения в логи
         const logMess = await interaction.fetchReply();
-        interaction.client.timer.logMessages.set(logMess.id, logMess);
+        setTimeout(() => {
+            try{
+                logMess.delete();
+            } catch (err){
+                console.log('Ошибка удаления лога переноса сбора: ' + err.message);
+            }
+        }, 86400000);
     }
 }

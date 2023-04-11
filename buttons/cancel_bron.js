@@ -8,7 +8,7 @@ module.exports = {
         const id = message.content.substring(message.content.lastIndexOf(' ') + 1);
         //поиск нужной боевой группы
         const fireteam = interaction.client.fireteams.get(id);
-        if (!fireteam){
+        if (!fireteam || fireteam.state == 'Закрыт'){
             await interaction.reply({content: `Скорее всего, активность уже стартовала. Возможно, произошла непредвиденная ошибка`, ephemeral: true});
             return;
         }
@@ -21,6 +21,7 @@ module.exports = {
             return;
         }        
         //редактирование сообщения
-        await interaction.update({content: 'Вы успешно отклонили запись в сбор! Бронь снята.', components: []});
+        await interaction.reply({content: 'Бронь удалена', ephemeral: true});
+
     }
 }

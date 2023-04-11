@@ -46,7 +46,7 @@ module.exports = {
         //попытка добавления пользователя
         if (interaction.options.getSubcommand() === 'добавить'){
             try{
-                fireteam.bronAdd(userNew.id, userNew);
+                fireteam.bronAdd(userNew);
             } catch (err){
                 await interaction.reply({content: err.message, ephemeral:true});
                 return;

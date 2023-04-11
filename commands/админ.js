@@ -74,7 +74,7 @@ module.exports = {
             userNew.send(`Вы были записаны в активность ${fireteam.name} на ${fireteam.getDateString()} администратором ${user.tag}`);
             //редактирование сообщения
             const embed = fireteam.refreshLists();
-            message.edit({embeds: [embed]});   
+            fireteam.message.edit({embeds: [embed]});   
             await interaction.reply({content: 'Вы успешно записали Стража в группу!', ephemeral:true});
         }
 
@@ -99,7 +99,7 @@ module.exports = {
             userNew.send(`Вы были удалены из активности ${fireteam.name} на ${fireteam.getDateString()} администратором ${interaction.user.tag}`);
             //изменение сообщения
             const embed = fireteam.refreshLists();
-            message.edit({embeds: [embed]});
+            fireteam.message.edit({embeds: [embed]});
             await interaction.reply({content: 'Вы успешно удалили Стража из группы!', ephemeral:true});
         }
 

@@ -18,8 +18,28 @@ class Reset{
     updater0; //первый пользователь, обновляющий ресет
     updater1; //второй пользователь, обновляющий ресет
     isAlerted; //оповещены ли ответственные за ресет?
-    constructor(){
 
+    timer;
+    constructor(){
+        this.timer = setInterval(() => {
+            const today = new Date(); 
+            //рассылка уведомлений о ресете за 10 минут до него
+            if (today.getHours() == 19 && today.getDay() == 2){
+                this.alertUpdaters();
+            }
+            //оправка ресета, если он готов
+            if (today.getDay() == 2){
+                this.send();
+            }
+            //рассылка уведомлений о пятничном ресете за 10 минут до него
+            if (today.getHours() == 19 && today.getDay() == 5){
+                this.alertFriUpdaters();
+            }
+            //оправка пятничного ресета, если он готов
+            if (today.getDay() == 5){
+                this.sendFri();
+            }
+        }, 3600000);
     }
     //метод для записи информации для ресета
     upload(inf, nf, bonus, raid, dung){
@@ -76,7 +96,15 @@ class Reset{
             .setThumbnail('https://i.ibb.co/pdRdLHT/image.png')
             .setColor(color)
             .setFooter({text: 'Всем респект!'});
-
+        try {
+            if (this.channel.messages.cache.size >= 2){
+                this.channel.messages.cache.forEach((val, key, mp) => {
+                    mp.delete(key);
+                });
+            }
+        } catch (err){
+            console.log(`Ошибка при удалении старых ресетов: ${err.message}`);
+        }        
         this.channel.send({embeds: [embed]}); //отправляет сообщение с ресетом и сбрасывает все значения
         this.isReady = false;
         this.info = undefined;
@@ -131,10 +159,10 @@ class Reset{
             return;
         }
         if (this.updater0){
-            this.updater0.send({content: 'До ресета осталось 10 минут. Воспользуйтесь командой /загрузить_ресет для отправки оповещения'});
+            this.updater0.send({content: 'До ресета осталось менее часа. Воспользуйтесь командой /загрузить_ресет для отправки оповещения'});
         }
         if (this.updater1){
-            this.updater1.send({content: 'До ресета осталось 10 минут. Воспользуйтесь командой /загрузить_ресет для отправки оповещения'});
+            this.updater1.send({content: 'До ресета осталось менее часа. Воспользуйтесь командой /загрузить_ресет для отправки оповещения'});
         }
         this.isAlerted = true;
     }
@@ -150,10 +178,10 @@ class Reset{
             return;
         }
         if (this.updater0){
-            this.updater0.send({content: 'До прилёта Зура осталось 10 минут. Воспользуйтесь командой /загрузить_пятничный_ресет для отправки оповещения'});
+            this.updater0.send({content: 'До прилёта Зура осталось менее часа. Воспользуйтесь командой /загрузить_пятничный_ресет для отправки оповещения'});
         }
         if (this.updater1){
-            this.updater1.send({content: 'До прилёта Зура осталось 10 минут. Воспользуйтесь командой /загрузить_пятничный_ресет для отправки оповещения'});
+            this.updater1.send({content: 'До прилёта Зура осталось менее часа. Воспользуйтесь командой /загрузить_пятничный_ресет для отправки оповещения'});
         }
         this.isAlerted = true;
     }

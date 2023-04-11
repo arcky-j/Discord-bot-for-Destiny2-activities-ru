@@ -26,29 +26,35 @@ module.exports = {
         //поиск нужной боевой группы
         const fireteam = interaction.client.fireteams.get(id);
 
-        if (!fireteam){
+        if (!fireteam || fireteam.state == 'Закрыт'){
             await interaction.reply({content: 'Неверный ID. Возможно, активность уже началась', ephemeral:true});
             return;
         }
+        if (fireteam.leaderId != user.id){ //проверка на лидерство
+            await interaction.reply({content:'Только лидер может передать сбор! Что довольно логично', ephemeral: true});
+            return;
+        }
         //попытка передачи лидерства
-        let embed;
         try{
-            embed = fireteam.changeLeader(user.id, userNew.id, userNew);
+            fireteam.changeLeader(userNew);
         } catch (err){
             await interaction.reply({content: err.message, ephemeral:true});
             return;
         }
-        //обновление сообщения сбора
-        const message = fireteam.message;
-        message.edit({embeds: [embed]});
         //уведомление в чат сбора
         if (reason){
             await interaction.reply({content: `В сборе ${fireteam.name} (ID: ${id}) сменился Лидер! <@${user.id}> => <@${userNew.id}>\nПричина: ${reason}` });
         } else {
-            await interaction.reply({content: `В сборе ${fireteam.name} (ID: ${id}) сменился Лидер! <@${user.id}> => <@${userNew.id}>\nПричина не указана.` });
+            await interaction.reply({content: `В сборе ${fireteam.name} (ID: ${id}) сменился Лидер! <@${user.id}> => <@${userNew.id}>` });
         }     
         //запись сообщения в логи
         const logMess = await interaction.fetchReply();
-        interaction.client.timer.logMessages.set(logMess.id, logMess);
+        setTimeout(() => {
+            try{
+                logMess.delete();
+            } catch (err){
+                console.log('Ошибка удаления лога передачи сбора: ' + err.message);
+            }
+        }, 86400000);
     }
 };

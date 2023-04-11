@@ -5,7 +5,6 @@ const path = require('node:path');
 const { Client, Collection, GatewayIntentBits} = require("discord.js");
 require("dotenv").config();
 
-const CustomTimer = require('./utility/custom_timer.js');
 const CacheManager = require('./utility/cache_manager.js');
 const Reset = require('./entities/reset.js');
 
@@ -21,7 +20,8 @@ client.commands = new Collection(); //слэш-команды
 client.fireteams = new Collection(); //боевые группы (свой тип данных)
 client.polls = new Collection(); //голосования (свой тип данных)
 client.settings = new Collection(); //настройки сервера (свой тип данных)
-client.activities = new Collection(); //настройки сервера (свой тип данных)
+client.actGens = new Collection(); 
+client.activities = new Collection(); 
 //загрузка исполняемого кода для команд
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -105,10 +105,6 @@ for(const file of modalFiles){
     }
 }
 client.reset = new Reset(); //добавление к клиенту модуля для работы с ресетами
-//добавление к клиенту таймера и его запуск
-
-client.timer = new CustomTimer(client);
-client.timer.checkSeconds();
 //добавление к клиенту модуля для работы с диском
 client.cacheManager = new CacheManager(client.users, client.guilds, client);
 

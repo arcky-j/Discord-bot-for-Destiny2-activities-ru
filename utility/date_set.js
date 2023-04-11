@@ -5,24 +5,29 @@ function dateSet(timeText, dateText){
         throw new Error('Неправильный формат времени!');
     }
     //принимает дату в формате "ДД.ММ" или "ДД.ММ.ГГ", или "ДД.ММ.ГГГГ"
-    if (!dateText.includes('.')){
+    if (dateText && !dateText.includes('.')){
         throw new Error('Неправильный формат Даты!');
     }
 
     const hour = parseInt(timeText.split(':')[0]); //парсит часы
     const minute = parseInt(timeText.split(':')[1]); //парсит минуты
 
-    const day = parseInt(dateText.split('.')[0]); //парсит день
-    const month = parseInt(dateText.split('.')[1]); //парсит месяц
-
-    let year;
     const today = new Date();
+    let day, month, year;
 
-    if (dateText.split('.').length == 3){ //проверяет: введён ли пользователем год?
+    if (dateText){
+        day = parseInt(dateText.split('.')[0]); //парсит день
+        month = parseInt(dateText.split('.')[1]) - 1; //парсит месяц
+    } else {
+        day = today.getDate();
+        month = today.getMonth();
+    }
+
+    if (dateText && dateText.split('.').length == 3){ //проверяет: введён ли пользователем год?
         if (dateText.split('.')[2].length == 2){
             year = parseInt('20' + dateText.split('.')[2]); //если введён в формате "ГГ", добавляет "20" - "20ГГ" и парсит
         } else if (dateText.split('.')[2].length == 4){
-            year = parseInt(dateText.split('.')[2]); //если введён в формате "ГГГГ"? просто парсит
+            year = parseInt(dateText.split('.')[2]); //если введён в формате "ГГГГ", просто парсит
         } else {
             throw new Error('Формат года некорректен! Или пишите год целиком, или последние две цифры. Третьего не дано');
         }
@@ -39,7 +44,7 @@ function dateSet(timeText, dateText){
         throw new Error('Время сбора введено некорректно!');
     }
 
-    switch (month){
+    switch (month + 1){
         case 1:
         case 3:
         case 5:
@@ -73,7 +78,7 @@ function dateSet(timeText, dateText){
         default: throw new Error('Дата сбора введёна некорректно!');
     }
     //только после всех проверок устанавливается дата
-    const activityDate = new Date(year, month - 1, day, hour, minute, 0);
+    const activityDate = new Date(year, month, day, hour, minute, 0);
     //и сразу проверяется на актуальность
     if (activityDate - today < 0){
         throw new Error('Введена прошедшая дата!');

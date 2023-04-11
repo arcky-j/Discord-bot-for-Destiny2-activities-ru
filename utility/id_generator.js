@@ -1,6 +1,6 @@
 module.exports = function generate_id(col){
     let id = '0451';
-    const maxId = 10000;
+    const maxId = 100000;
     if (col.has(id)){
         do{
             id = Math.floor(Math.random() * maxId);
@@ -10,14 +10,18 @@ module.exports = function generate_id(col){
         return id.toString();
     }
     if (id < 10){
-        id = '000' + id.toString();
+        id = '0000' + id.toString();
         return id;
     }
     if (id < 100){
-        id = '00' + id.toString();
+        id = '000' + id.toString();
         return id;
     }
     if (id < 1000){
+        id = '00' + id.toString();
+        return id;
+    }
+    if (id < 10000){
         id = '0' + id.toString();
         return id;
     }

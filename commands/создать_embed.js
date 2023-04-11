@@ -15,18 +15,38 @@ module.exports = {
             .setCustomId('embedTitle')
             .setLabel('Заголовок вашего сообщения')
             .setStyle(TextInputStyle.Short)
-            .setRequired(true);
+            .setRequired(false);
         
         const embedDesc = new TextInputBuilder()
             .setCustomId('embedDesc')
             .setLabel('Содержание вашего сообщения')
             .setStyle(TextInputStyle.Paragraph)
             .setRequired(true);
+
+        const embedMedia = new TextInputBuilder()
+            .setCustomId('embedMedia')
+            .setLabel('Ссылка на гифку или картинку, если хочется')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(false);
+
+        const embedBanner = new TextInputBuilder()
+            .setCustomId('embedBanner')
+            .setLabel('Баннер эмбеда. По умолчанию ваш аватар')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(false);
+        const embedFooter = new TextInputBuilder()
+            .setCustomId('embedFooter')
+            .setLabel('Футер эмбеда')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(false);
         
         const actionRow0 = new ActionRowBuilder().addComponents(embedTitle);
         const actionRow1 = new ActionRowBuilder().addComponents(embedDesc);
+        const actionRow2 = new ActionRowBuilder().addComponents(embedMedia);
+        const actionRow3 = new ActionRowBuilder().addComponents(embedBanner);
+        const actionRow4 = new ActionRowBuilder().addComponents(embedFooter);
 
-        modal.addComponents(actionRow0, actionRow1);
+        modal.addComponents(actionRow0, actionRow1, actionRow2, actionRow3, actionRow4);
         //отправляет форму пользователю
         await interaction.showModal(modal);
     }

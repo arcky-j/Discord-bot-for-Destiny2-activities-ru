@@ -11,13 +11,13 @@ module.exports = {
         }
         //попытка удаления Стража
         try {
-            fireteam.memberDel(user.id);
+            fireteam.remove(user.id);
         } catch (err) {
             await interaction.reply({content: err.message, ephemeral: true});
             return;
         }        
         //обновление сообщения сбора
-        const embed = fireteam.refreshLists();
-        await interaction.update({embeds: [embed]});
+        interaction.update({embeds: fireteam.message.embeds});
+
     }
 }
