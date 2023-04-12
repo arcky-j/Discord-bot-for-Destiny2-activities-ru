@@ -4,8 +4,12 @@ module.exports = class ActivityUntimed extends ActivityBron{
     constructor(id, mess, name, quant, leader, br1, br2){
         super(id, mess, name, quant, leader, br1, br2);
         this.timer = setTimeout(() => {
-            this.state = this.states.get(0);
-            this.refreshMessage();
+            try{
+                this.state = this.states.get(0);
+                this.refreshMessage();
+            } catch (err){
+                console.log('Ошибка таймера: ' + err.message)
+            }
         }, this.day * 7);
     }
 
@@ -15,7 +19,10 @@ module.exports = class ActivityUntimed extends ActivityBron{
         this.sendAlerts('start');
         this.refreshMessage();
     }
-
+    async delete(){
+        clearTimeout(this.timer);
+        super.delete();
+    }
     sendAlerts(reason){
         switch(reason){
             case 'start': //рассылка при скором начале активности               

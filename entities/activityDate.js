@@ -4,6 +4,7 @@ module.exports = class ActivityDate extends ActivityBron{
     date = new Date();
     today;
     timer;
+    interval;
     tenMinutes = 600000;
 
     constructor(id, mess, name, quant, leader, date, br1, br2){
@@ -24,10 +25,10 @@ module.exports = class ActivityDate extends ActivityBron{
     setTimer(){        
         const t = this.date - this.today - this.tenMinutes; 
         if (this.t > 2147483647){
-            const interval = setInterval(() => {
+            this.interval = setInterval(() => {
                 if (this.t < 2147483647){
                     this.setTimer();
-                    clearInterval(interval);
+                    clearInterval(this.interval);
                 }
             }, this.day * 20);
             return;
@@ -36,8 +37,12 @@ module.exports = class ActivityDate extends ActivityBron{
             if (this.date - this.today > this.tenMinutes)
             this.sendAlerts('uptime');
             setTimeout(() => {
-                this.state = this.states.get(0);
-                this.refreshMessage();
+                try{
+                    this.state = this.states.get(0);
+                    this.refreshMessage();
+                } catch (err){
+                    console.log('Ошибка таймера: ' + err.message)
+                }
             }, this.tenMinutes);
         }, t);          
     }
@@ -90,6 +95,11 @@ module.exports = class ActivityDate extends ActivityBron{
                 break;
             default: super.sendAlerts(reason);
         }
+    }
+    async delete(){
+        clearInterval(this.interval);
+        clearTimeout(this.timer);
+        super.delete();
     }
     refreshMessage(){
         this.refreshDate();

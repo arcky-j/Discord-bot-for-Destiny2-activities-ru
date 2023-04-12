@@ -298,7 +298,7 @@ module.exports = {
             actName = `Мастер ${actName}`;
         }       
         //отправка сообщения
-        const lastMess = await interaction.channel.send({content: '*Строительные работы*'});
+        const lastMess = await interaction.channel.send({content: `${strTags} *Строительные работы*`});
         let fireteam;  
         try{
             if (time || date){

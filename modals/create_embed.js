@@ -17,8 +17,7 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setDescription(embDecs)
             .setColor(color)
-            .setThumbnail(user.displayAvatarURL()) //делает баннером аватар пользователя           
-            .setTimestamp(new Date());
+            .setThumbnail(user.displayAvatarURL()) //делает баннером аватар пользователя
         if (embTitle){
             embed.setTitle(embTitle);
         }
