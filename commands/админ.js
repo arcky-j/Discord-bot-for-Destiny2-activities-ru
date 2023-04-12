@@ -145,18 +145,21 @@ module.exports = {
                 await interaction.reply({content: `ID введён некорректно! Или такой активности нет, или она началась и сообщение скоро удалится автоматически.`, ephemeral:true});
                 return;
             }
-
-            if (fireteam.isAlerted){
-                interaction.client.timer.fireteamsStarted.delete(id);
-            }
             //попытка удаления сообщения с последующим уведомлением
             try {
                 interaction.channel.messages.delete(fireteam.message.id);
                 await interaction.channel.send(`Сбор ${fireteam.name} (ID: ${fireteam.id}) был удалён администратором ${interaction.user.tag} по причине: ${reason}`);
                 const lastMess = interaction.channel.lastMessage;
                 fireteam.sendAlerts('admin_del');
-                interaction.client.timer.logMessages.set(lastMess.id, lastMess);
-                interaction.client.fireteams.delete(id);
+                setTimeout(() => {
+                    try{
+                        lastMess.delete();
+                    } catch (err){
+                        console.log('Ошибка удаления сообщения лога удаления сбора (каво?): ' + err.message);
+                    }
+                }, 86400000);
+                fireteam.state = 'Закрыт';
+                fireteam.refreshMessage();
             } catch (err){
                 await interaction.reply({content: `Непредвиденная ошибка: ${err.message}`, ephemeral:true});
                 return;

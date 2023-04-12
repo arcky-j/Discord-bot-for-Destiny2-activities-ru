@@ -47,14 +47,16 @@ module.exports = {
             } catch (err){
                 console.log('Ошибка удаления сообщения лога удаления сбора (каво?): ' + err.message);
             }
-        }, 86400000)
-        await fireteam.delete();
-        //удаление всех данных и рассылка уведомлений
-        //interaction.client.timer.actMessages.delete(id);  
-        try {
-            client.fireteams.delete(id);
-        } catch (err){
-            console.log('гитара');
-        }       
+        }, 86400000);
+        fireteam.state = 'Закрыт';
+        fireteam.refreshMessage();
+        // await fireteam.delete();
+        // //удаление всех данных и рассылка уведомлений
+        // //interaction.client.timer.actMessages.delete(id);  
+        // try {
+        //     client.fireteams.delete(id);
+        // } catch (err){
+        //     console.log('гитара');
+        // }       
     }
 };
