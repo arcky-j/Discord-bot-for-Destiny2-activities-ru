@@ -157,10 +157,10 @@ module.exports = {
                     } catch (err){
                         console.log('Ошибка удаления сообщения лога удаления сбора (каво?): ' + err.message);
                     }
-                }, 86400000);а
+                }, 86400000);
                 // fireteam.state = 'Закрыт';
                 // fireteam.refreshMessage();
-                await fireteam.delete();
+                fireteam.message.delete();
                 //удаление всех данных и рассылка уведомлений 
                 // try {
                 //     client.fireteams.delete(id);

@@ -105,7 +105,7 @@ module.exports = class ActivityBase{
             this.delTimer = setTimeout(() => {
                 try{
                     if (this.message){
-                        this.message.delete();                  
+                        this.message.delete().catch(console.error);                  
                     }
                 } catch (err){
                     console.log(err.message);
@@ -138,13 +138,16 @@ module.exports = class ActivityBase{
     }
     async delete(){
         clearTimeout(this.delTimer);
-        try{
-            if (this.message){
-                this.message.delete();
-            }
-        } catch (err){
-            console.log('Ошибка удаления сбора: ' + err.message);
-        }
+        // if (!this.message){
+        //     return;
+        // }
+        // try{
+        //     if (this.message){
+        //         this.message.delete().catch(console.log(`Сбор ${this.id} удалён`));
+        //     }
+        // } catch (err){
+        //     console.log('Ошибка удаления сбора: ' + err.message);
+        // }
     }
     //вспомогательный метод для создания строки с участниками боевой группы
     getMembersString(){
