@@ -6,7 +6,7 @@ module.exports = {
         const client = member.client;
         const settings = client.settings.get(member.guild.id);
         if (settings.channelLeave){
-            const embed = new EmbedBuilder().setTitle('Уведомление').setDescription(settings.messageLeave.replace('#', `${member.user.tag}`)).setTimestamp(new Date());
+            const embed = new EmbedBuilder().setTitle('Уведомление').setDescription(settings.messageLeave.replace('#', `**${member.user.tag}**`)).setTimestamp(new Date());
             settings.channelLeave.send({embeds: [embed]}); //оповещает об уходе
         }
         //удаляет его из кэшэй

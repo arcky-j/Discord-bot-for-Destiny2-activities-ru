@@ -25,7 +25,10 @@ module.exports = class ActivityUntimed extends ActivityBron{
     }
     sendAlerts(reason){
         switch(reason){
-            case 'start': //рассылка при скором начале активности               
+            case 'start': //рассылка при скором начале активности
+                if (!this.message){
+                    break;
+                }               
                 this.members.forEach(async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
                     if (id != this.leaderId)
                     try{

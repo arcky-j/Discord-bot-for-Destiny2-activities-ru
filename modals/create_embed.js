@@ -18,6 +18,7 @@ module.exports = {
             .setDescription(embDecs)
             .setColor(color)
             .setThumbnail(user.displayAvatarURL()) //делает баннером аватар пользователя
+            .setTimestamp(new Date());
         if (embTitle){
             embed.setTitle(embTitle);
         }
@@ -28,7 +29,7 @@ module.exports = {
             embed.setThumbnail(embBanner);
         }
         if (embFooter){
-            embed.setFooter(embFooter);
+            embed.setFooter({text: embFooter});
         }
         try{
             interaction.reply({embeds: [embed]});

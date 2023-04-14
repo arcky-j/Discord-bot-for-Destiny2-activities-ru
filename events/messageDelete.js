@@ -7,6 +7,7 @@ module.exports = {
         //если удалённое сообщение хранилось как сообщение сбора или лог, удаляет и из своей памяти
         if (message.customId){
             if (client.fireteams.has(message.customId)){
+                client.fireteams.get(customId).delete();
                 client.fireteams.delete(message.customId);
             }
             if (client.activities.has(message.customId)){

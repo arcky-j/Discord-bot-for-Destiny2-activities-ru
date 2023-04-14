@@ -7,6 +7,7 @@ module.exports = class ActivityBase{
     members = new Map();
     state;
     states = new Map([[0, 'Закрыт'], [1, 'Открыт'], [2, 'Заполнен']]);
+    delTimer;
     day = 86400000;
 
     constructor(id, mess, name, quant, leader){
@@ -68,6 +69,9 @@ module.exports = class ActivityBase{
     sendAlerts(reason){
         switch(reason){
             case 'del': //рассылка при удалении активности
+                if (!this.message){
+                    break;
+                }
                 this.members.forEach( async (us, id) =>{
                     if (this.leaderId != id) //рассылает оповещение всем участникам кроме лидера
                     try {
@@ -78,6 +82,9 @@ module.exports = class ActivityBase{
                 });
                 break;
             case 'admin_del': //рассылка при удалении активности администратором
+                if (!this.message){
+                    break;
+                }
                 this.members.forEach( async (us, id) =>{
                     try{
                         us.send({content: `Активность ${this.name}, в которую вы были записаны, была отменёна администратором. Более подробная информация в канале сбора.`, embeds: this.message.embeds});
@@ -89,22 +96,38 @@ module.exports = class ActivityBase{
         }
     }
     refreshMessage(){
+        if (!this.message){
+            return;
+        }
         const embed = this.message.embeds[0];
         embed.fields[1].value = this.state;
         if (this.state == 'Закрыт'){
-            setTimeout(() => {
+            this.delTimer = setTimeout(() => {
                 try{
-                    this.message.delete();                  
+                    if (this.message){
+                        this.message.delete();                  
+                    }
                 } catch (err){
                     console.log(err.message);
                 }
             }, this.day);
-            this.message.edit({content: '', embeds: [embed], components: []});
+            try{
+                if (this.message){
+                    this.message.edit({content: '', embeds: [embed], components: []});
+                }
+            } catch (err){
+                console.log('Ошибка закрытия сбора: ' + err.message);
+            }
             return;
         }
         embed.fields[2].value = `<@${this.leaderId}>`;
         embed.fields[3].value = this.getMembersString();
-        this.message.edit({embeds: [embed]});
+        try{
+            this.message.edit({embeds: [embed]});
+        } catch (err){
+            console.log('Ошибка изменения сбора: ' + err.message);
+        }
+        
     }
     updateMessage(){
         const embed = this.message.embeds[0];
@@ -114,7 +137,14 @@ module.exports = class ActivityBase{
         return embed;
     }
     async delete(){
-        this.message.delete();
+        clearTimeout(this.delTimer);
+        try{
+            if (this.message){
+                this.message.delete();
+            }
+        } catch (err){
+            console.log('Ошибка удаления сбора: ' + err.message);
+        }
     }
     //вспомогательный метод для создания строки с участниками боевой группы
     getMembersString(){

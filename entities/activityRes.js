@@ -47,6 +47,9 @@ module.exports = class ActivityRes extends ActivityDate{
     sendAlerts(reason){
         switch(reason){
             case 'uptime': //рассылка при скором начале активности
+                if (!this.message){
+                    break;
+                }
                 if (this.reservs.size > 0 && this.members.size < this.quantity)
                 this.reservs.forEach( async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
                     try{

@@ -60,9 +60,9 @@ module.exports = {
         }
         //рассылка уведомлений
         if (reason){
-            interaction.reply({content: `Сбор ${fireteam.name} ID (${id}) был успешно пересён на ${fireteam.getDateString()}!\nПричина: ${reason}`});
+            interaction.reply({content: `Сбор ${fireteam.name} ID (${id}) был успешно перенесён на ${fireteam.getDateString()}!\nПричина: ${reason}`});
         } else {
-            interaction.reply({content: `Сбор ${fireteam.name} ID (${id}) был успешно пересён на ${fireteam.getDateString()}!`});
+            interaction.reply({content: `Сбор ${fireteam.name} ID (${id}) был успешно перенесён на ${fireteam.getDateString()}!`});
         }
         //загрузка сообщения в логи
         const logMess = await interaction.fetchReply();

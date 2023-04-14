@@ -67,6 +67,9 @@ module.exports = class ActivityDate extends ActivityBron{
     sendAlerts(reason){
         switch(reason){
             case 'uptime': //рассылка при скором начале активности
+                if (!this.message){
+                    break;
+                }
                 this.members.forEach( async (us, id) =>{ //оповещает всех участников
                     try{
                         us.send({content: `${this.name} начнётся в ближайшие **10 минут**!\n`, embeds: this.message.embeds});
@@ -84,6 +87,9 @@ module.exports = class ActivityDate extends ActivityBron{
                 });
                 break;
             case 'dateChange': //рассылка при переносе активности
+                if (!this.message){
+                    break;
+                }
                 this.members.forEach( async (us, id) =>{
                     if (this.leaderId != id) //рассылает оповещение всем участникам кроме лидера
                     try{
