@@ -52,10 +52,10 @@ module.exports = {
         // fireteam.refreshMessage();
         await fireteam.delete();
         //удаление всех данных и рассылка уведомлений 
-        try {
-            client.fireteams.delete(id);
-        } catch (err){
-            console.log('гитара');
-        }       
+        // try {
+        //     client.fireteams.delete(id);
+        // } catch (err){
+        //     console.log('гитара');
+        // }       
     }
 };

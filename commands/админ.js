@@ -157,9 +157,16 @@ module.exports = {
                     } catch (err){
                         console.log('Ошибка удаления сообщения лога удаления сбора (каво?): ' + err.message);
                     }
-                }, 86400000);
-                fireteam.state = 'Закрыт';
-                fireteam.refreshMessage();
+                }, 86400000);а
+                // fireteam.state = 'Закрыт';
+                // fireteam.refreshMessage();
+                await fireteam.delete();
+                //удаление всех данных и рассылка уведомлений 
+                // try {
+                //     client.fireteams.delete(id);
+                // } catch (err){
+                //     console.log('гитара');
+                // }  
             } catch (err){
                 await interaction.reply({content: `Непредвиденная ошибка: ${err.message}`, ephemeral:true});
                 return;
