@@ -1,7 +1,10 @@
 const ActivityUntimed = require("./activityUntimed");
 const {ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder} = require('discord.js');
+const fs = require('node:fs');
+const path = require('node:path');
 
 module.exports = class FireteamUntimed extends ActivityUntimed{
+    pathToFireteams = path.join('.', 'data', 'fireteamsUntimed');
     constructor(id, mess, name, quant, leader, br1, br2){
         super(id, mess, name, quant, leader, br1, br2);
         this.members.set(leader.id, leader);
@@ -77,4 +80,142 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
         }   
         this.refreshMessage();
     }
-}
+
+    refreshMessage(){
+        super.refreshMessage();
+        this.save();
+    }
+
+    static async initAll(){
+        const pathToFireteams = path.join('.', 'data', 'fireteamsUntimed');
+        if (!fs.existsSync(pathToFireteams)){
+            fs.mkdirSync(pathToFireteams, {recursive:true});
+            console.log('Директория для хранения боевых групп по готовности была успешно создана.')
+        }
+        const files = fs.readdirSync(pathToFireteams).filter(f => f.endsWith('.json'));
+        if (files.length > 0){
+            files.forEach((val) => {
+                fs.readFile(path.join(pathToFireteams, val), async (error, data) =>{
+                    if (error){
+                        console.error(error);
+                        throw error;
+                    }
+                    try{
+                        const fireteam = await this.fromJSON(data);
+                        this.client.fireteams.set(fireteam.id, fireteam);
+                        setTimeout(() => {
+                            fireteam.checkQuantity();
+                            fireteam.refreshMessage();
+                        }, 10000);
+                        console.log(`Загружена боевая группа ${fireteam.name} (${fireteam.id})`);
+                    } catch (err){
+                        console.log(`Невозможно загрузить боевую группу ${val}. Причина: ${err.message} Производится удаление...`);
+                        fs.unlink(path.join(pathToFireteams, val), (err) => {
+                            if (err){
+                                console.error(err);
+                            }
+                        });
+                    }                   
+                });
+            });
+        }
+    }
+
+    save(){
+        const pathToTeam = path.join(this.pathToFireteams, `fireteam_${this.id}.json`);
+        const data = FireteamUntimed.toJSON(this);
+        fs.writeFile(pathToTeam, data, (err) =>{
+            if (err){
+                console.error(err);
+                throw err;
+            }
+        })
+    }
+
+    delete(){
+        const pathToTeam = path.join(this.pathToFireteams, `fireteam_${this.id}.json`);
+        fs.unlink(pathToTeam, (err) =>{
+            if (err){
+                console.error(err);
+            }
+        });
+    }
+
+    static toJSON(team){
+        if (!(team instanceof FireteamUntimed)){
+            return;
+        }
+        
+        const data = {
+            id: team.id,
+            message: team.message.id,
+            channel: team.message.channelId,
+            name: team.name,
+            quantity: team.quantity,
+            leaderId: team.leaderId,
+            members: new Array(),
+            state: team.state,
+            bron: new Array(),
+            bronMessages: new Array(),
+            bronChannels: new Array()
+        };
+
+        team.members.forEach((val, id) =>{
+            data.members.push(id);
+        });
+
+        if (team.bron.size > 0){
+            team.bron.forEach((val, id) =>{
+                data.bron.push(id);
+            });
+            team.bronMessages.forEach((val, id) =>{
+                data.bronMessages.push(val.id);
+                data.bronChannels.push(val.channelId);
+            });
+        }   
+        return JSON.stringify(data);
+    }
+
+    static async fromJSON(data){
+        data = JSON.parse(data);
+        const channel = await this.client.channels.fetch(data.channel).catch();
+        if (!channel){
+            throw new Error('Канал сбора не обнаружен');
+        }
+        const message = await channel.messages.fetch(data.message).catch();
+        if (!message){
+            throw new Error('Сообщение сбора не обнаружено');
+        }
+        message.customId = data.id;
+        const leader = await this.client.users.fetch(data.leaderId).catch();
+        if (!leader){
+            message.delete().catch();
+            throw new Error('Лидер сбора не обнаружен');
+        }
+        const fireteam = new FireteamUntimed(data.id, message, data.name, data.quantity, leader);
+        await data.members.forEach(async (val) =>{
+            if (val != leader.id){
+                const user = await this.client.users.fetch(val).catch();
+                if (user){
+                    fireteam.members.set(val, user);
+                }
+            }
+        });
+        if (data.bron.length > 0){
+            await data.bron.forEach(async (val, i) =>{
+                const user = await this.client.users.fetch(val).catch();
+                if (user){
+                    fireteam.bron.set(val, user);
+                }
+                const channel = await this.client.channels.fetch(data.bronChannels[i]).catch();
+                if (channel){
+                    const message = await channel.messages.fetch(data.bronMessages[i]).catch();
+                    if (message){
+                        fireteam.bronMessages.set(val, message);
+                    }
+                }               
+            });
+        }
+        return fireteam;
+    }
+} 

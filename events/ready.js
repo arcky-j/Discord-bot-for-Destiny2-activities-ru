@@ -1,4 +1,7 @@
-const Settings = require('../utility/settings.js');
+const Settings = require('../entities/settings.js');
+const FireteamUntimed = require('../entities/fireteamUntimed.js');
+const FireteamRes = require('../entities/fireteamRes.js');
+const CustomActivity = require('../entities/customActivity.js');
 const {Events} = require('discord.js');
 const getRandomPresence = require('../utility/get_random_presence');
 //срабатывает при запуске бота
@@ -11,14 +14,9 @@ module.exports = {
         setInterval(() => {
             client.user.setPresence(getRandomPresence());
         }, 3600000);//3600000
-        setInterval(() => {
-            client.cacheManager.saveCache(); 
-            const used = process.memoryUsage();
-            console.log('Использование памяти:');
-            for (let key in used) {
-                console.log(`${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
-            }
-        }, 86400000);
-        client.cacheManager.loadAll();
+        Settings.initSettings().catch(err => console.log(`Ошибка инициализации настроек серверов: ${err.message}`));    
+        FireteamUntimed.initAll().catch(err => console.log(`Ошибка загрузки сборов по готовности: ${err.message}`)); 
+        FireteamRes.initAll().catch(err => console.log(`Ошибка загрузки стандартных сборов: ${err.message}`)); 
+        CustomActivity.initAll().catch(err => console.log(`Ошибка загрузки кастомных сборов по готовности: ${err.message}`));
     },
 };

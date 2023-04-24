@@ -2,7 +2,7 @@
 module.exports = {
     name: 'cancel_activity',
     async execute(interaction){
-        const user = interaction.user;
+        const user = interaction.member;
         //поиск нужной боевой группы
         const activity = interaction.client.activities.get(interaction.message.customId);
         if (!activity){

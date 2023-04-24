@@ -1,5 +1,5 @@
-const {Events, ReactionUserManager} = require('discord.js');
-const Settings = require('../utility/settings.js');
+const {Events} = require('discord.js');
+
 //здесь обрабатываются все взаимодействия с пользователем
 module.exports = {
     name: Events.InteractionCreate,

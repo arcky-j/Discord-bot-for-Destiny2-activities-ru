@@ -1,12 +1,12 @@
 //главный исполняемый файл
 const fs = require('node:fs');
 const path = require('node:path');
+const Settings = require('./entities/settings.js');
+const ActivityBase = require('./entities/activityBase.js');
+const Base = require('./entities/base.js');
 
 const { Client, Collection, GatewayIntentBits} = require("discord.js");
 require("dotenv").config();
-
-const CacheManager = require('./utility/cache_manager.js');
-const Reset = require('./entities/reset.js');
 
 if (!process.env.TOKEN){
     console.log('Отсутствует .env файл с конфигурацией!');
@@ -18,7 +18,6 @@ const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits
 //добавление к клиенту коллекций (по сути Map из javascript) для данных
 client.commands = new Collection(); //слэш-команды
 client.fireteams = new Collection(); //боевые группы (свой тип данных)
-client.polls = new Collection(); //голосования (свой тип данных)
 client.settings = new Collection(); //настройки сервера (свой тип данных)
 client.actGens = new Collection(); 
 client.activities = new Collection(); 
@@ -104,10 +103,7 @@ for(const file of modalFiles){
         console.log(`[WARNING] The Modal at ${modalPath} is missing a required "name" or "execute" property`);
     }
 }
-client.reset = new Reset(); //добавление к клиенту модуля для работы с ресетами
-//добавление к клиенту модуля для работы с диском
-client.cacheManager = new CacheManager(client.users, client.guilds, client);
-
+Base.client = client;
 client.generateId = require('./utility/id_generator');
 //запуск бота
 client.login(process.env.TOKEN);

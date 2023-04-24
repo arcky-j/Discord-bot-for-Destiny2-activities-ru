@@ -1,4 +1,6 @@
-module.exports = class ActivityBase{
+const Base = require("./base");
+
+module.exports = class ActivityBase extends Base{
     id;
     message;
     name;
@@ -10,7 +12,10 @@ module.exports = class ActivityBase{
     delTimer;
     day = 86400000;
 
+    //static client;
+
     constructor(id, mess, name, quant, leader){
+        super();
         this.id = id;
         this.message = mess;
         this.name = name;
@@ -22,7 +27,7 @@ module.exports = class ActivityBase{
 
     add(user){
         if (this.members.has(user.id)){ //проверка на присутствие в боевой группе
-            throw new Error('Ты уже записан в боевую группу!'); 
+            throw new Error('Пользователь уже записан!'); 
         } 
         if (this.state == 'Заполнен'){ //проверка на количество стражей
             throw new Error('Сбор уже укомплектован!');
@@ -59,6 +64,9 @@ module.exports = class ActivityBase{
         this.refreshMessage();
     }
     checkQuantity(){
+        if (this.state == 'Закрыт'){
+            return;
+        }
         if (this.members.size == this.quantity){
             this.state = this.states.get(2);
         } else {
@@ -74,11 +82,8 @@ module.exports = class ActivityBase{
                 }
                 this.members.forEach( async (us, id) =>{
                     if (this.leaderId != id) //рассылает оповещение всем участникам кроме лидера
-                    try {
-                        us.send({content: `Активность ${this.name}, в которую вы были записаны, была отменёна пользователем ${this.getLeader().tag}.`, embeds:this.message.embeds});
-                    } catch (err){
-                        console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`)
-                    }
+                    us.send({content: `Активность «${this.name}», в которую вы были записаны, была отменёна пользователем ${this.getLeader().tag}.`, embeds:this.message.embeds})
+                    .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
                 });
                 break;
             case 'admin_del': //рассылка при удалении активности администратором
@@ -86,13 +91,19 @@ module.exports = class ActivityBase{
                     break;
                 }
                 this.members.forEach( async (us, id) =>{
-                    try{
-                        us.send({content: `Активность ${this.name}, в которую вы были записаны, была отменёна администратором. Более подробная информация в канале сбора.`, embeds: this.message.embeds});
-                    } catch (err){
-                        console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`)
-                    }
+                    us.send({content: `Активность «${this.name}», в которую вы были записаны, была отменёна администратором. Более подробная информация в канале сбора.`, embeds: this.message.embeds})
+                    .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
                 });
                 break;
+            case 'start': //рассылка при скором начале активности
+                if (!this.message){
+                    break;
+                }               
+                this.members.forEach(async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
+                    if (id != this.leaderId)
+                    us.send({content:`Активность «${this.name}» начата лидером активности!`, embeds: this.message.embeds})
+                    .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));                      
+                });
         }
     }
     refreshMessage(){
@@ -103,30 +114,18 @@ module.exports = class ActivityBase{
         embed.fields[1].value = this.state;
         if (this.state == 'Закрыт'){
             this.delTimer = setTimeout(() => {
-                try{
-                    if (this.message){
-                        this.message.delete().catch(console.error);                  
-                    }
-                } catch (err){
-                    console.log(err.message);
+                if (this.message){
+                    this.message.delete().catch(`Ошибка удаления сбора ${this.id}`);                  
                 }
             }, this.day);
-            try{
-                if (this.message){
-                    this.message.edit({content: '', embeds: [embed], components: []});
-                }
-            } catch (err){
-                console.log('Ошибка закрытия сбора: ' + err.message);
+            if (this.message){
+                this.message.edit({content: '', embeds: [embed], components: []}).catch(() => console.log(`Ошибка закрытия сбора ${this.id}`));
             }
             return;
         }
         embed.fields[2].value = `<@${this.leaderId}>`;
         embed.fields[3].value = this.getMembersString();
-        try{
-            this.message.edit({embeds: [embed]});
-        } catch (err){
-            console.log('Ошибка изменения сбора: ' + err.message);
-        }
+        this.message.edit({embeds: [embed]}).catch(() => console.log(`Ошибка изменения сбора ${this.id}`));
         
     }
     updateMessage(){
@@ -136,18 +135,9 @@ module.exports = class ActivityBase{
         embed.fields[3].value = this.getMembersString();
         return embed;
     }
-    async delete(){
+    delete(){
         clearTimeout(this.delTimer);
-        // if (!this.message){
-        //     return;
-        // }
-        // try{
-        //     if (this.message){
-        //         this.message.delete().catch(console.log(`Сбор ${this.id} удалён`));
-        //     }
-        // } catch (err){
-        //     console.log('Ошибка удаления сбора: ' + err.message);
-        // }
+        this.message = undefined;
     }
     //вспомогательный метод для создания строки с участниками боевой группы
     getMembersString(){

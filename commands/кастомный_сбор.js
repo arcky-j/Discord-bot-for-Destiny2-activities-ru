@@ -1,6 +1,4 @@
 const {SlashCommandBuilder, PermissionFlagsBits} = require('discord.js');
-const activityRes = require('../entities/activityRes.js');
-const activityUntimed = require('../entities/activityUntimed.js');
 const getRandomColor = require('../utility/get_random_color.js');
 const CustomActivity = require('../entities/customActivity.js');
 module.exports = {
@@ -14,10 +12,14 @@ module.exports = {
         .addStringOption(option => 
             option.setName('время_дата')
                 .setDescription('Время и дата. Просто строка, можно ввести приблизительные сроки')
-                .setRequired(false))
+                .setRequired(true))
         .addBooleanOption(option => 
             option.setName('тэги')
                 .setDescription('Нужны ли общие тэги участников? По умолчанию: false')
+                .setRequired(false))
+        .addRoleOption(option => 
+            option.setName('роль')
+                .setDescription('Роль для выдачи записавшимся участникам')
                 .setRequired(false))
         .addStringOption(option =>
             option.setName('требования')
@@ -40,6 +42,7 @@ module.exports = {
         const requiries = interaction.options.getString('требования');     
         const descript = interaction.options.getString('описание');          
         const tags = interaction.options.getBoolean('тэги');          
+        const role = interaction.options.getRole('роль');          
         const media = interaction.options.getString('медиа');                 
         const banner = interaction.options.getString('баннер');                 
         
@@ -67,14 +70,17 @@ module.exports = {
         } 
         if (descript){
             embDesc += `\n${descript}\n`;
+            if (role){
+                embDesc += `*При записи вы получите роль* ${role}`;
+            }
         } 
             
         //формирование embed
         const id = interaction.client.generateId(interaction.client.activities);    
         //отправка сообщения
         const lastMess = await interaction.channel.send({content: '*Строительные работы*'});
+        const activity = new CustomActivity(id, lastMess, actName, Infinity, interaction.member, timeDate, role.id);
         try {
-            const activity = new CustomActivity(id, lastMess, actName, 100, interaction.user, timeDate);
             const embed = activity.createEmbed(embColor, embDesc, bannerUrl, media);
             const row = activity.createActionRow();
             const mess1 = await lastMess.edit({content: strTags, embeds: [embed], components: [row]});

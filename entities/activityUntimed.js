@@ -10,7 +10,7 @@ module.exports = class ActivityUntimed extends ActivityBron{
             } catch (err){
                 console.log('Ошибка таймера: ' + err.message)
             }
-        }, this.day * 7);
+        }, this.day * 3);
     }
 
     start(){
@@ -19,9 +19,21 @@ module.exports = class ActivityUntimed extends ActivityBron{
         this.sendAlerts('start');
         this.refreshMessage();
     }
-    async delete(){
+    delete(){
         clearTimeout(this.timer);
         super.delete();
+
+    }
+    refreshMessage(){
+        super.refreshMessage();
+        if (this.state == 'Заполнен'){
+            const leader = this.members.get(this.leaderId);
+            try{
+                leader.send({content:`Ваш сбор по готовности заполнился стражами!`, embeds: this.message.embeds});
+            } catch(err){
+                console.log(`Ошибка рассылки для пользователя ${leader.tag}: ${err.message}`);
+            }
+        }
     }
     sendAlerts(reason){
         switch(reason){
@@ -29,21 +41,10 @@ module.exports = class ActivityUntimed extends ActivityBron{
                 if (!this.message){
                     break;
                 }               
-                this.members.forEach(async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
-                    if (id != this.leaderId)
-                    try{
-                        us.send({content:`${this.name} начат лидером активности!`, embeds: this.message.embeds});                      
-                    } catch (err){
-                        console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`)
-                    }
-                });
                 if (this.bron.size > 0){
                     this.bron.forEach(async (us, id) => {
-                        try{
-                            us.send({content:`${this.name} начат лидером активности! Вы получаете это сообщение, так как вам было забронировано место.`, embeds: this.message.embeds});
-                        } catch (err){
-                            console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`)
-                        }
+                        us.send({content:`Активность «${this.name}» начата лидером активности! Вы получаете это сообщение, так как вам было забронировано место.`, embeds: this.message.embeds})
+                        .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
                     });
                 }
             default: super.sendAlerts(reason);

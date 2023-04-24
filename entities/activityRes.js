@@ -52,11 +52,8 @@ module.exports = class ActivityRes extends ActivityDate{
                 }
                 if (this.reservs.size > 0 && this.members.size < this.quantity)
                 this.reservs.forEach( async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
-                    try{
-                        us.send({content:`${this.name} начнётся в ближайшие **10 минут**! Вы были записаны в резерв и получаете это сообщение, потому что боевая группа меньше необходимого!`, embeds: this.message.embeds});
-                    } catch (err){
-                        console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`)
-                    }
+                    us.send({content:`Активность «${this.name}» начнётся в ближайшие **10 минут**! Вы были записаны в резерв и получаете это сообщение, потому что боевая группа меньше необходимого!`, embeds: this.message.embeds})
+                    .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
                 });
                 //super.sendAlerts(reason);
             default: super.sendAlerts(reason);
@@ -64,7 +61,6 @@ module.exports = class ActivityRes extends ActivityDate{
     }
     getReservsString(){
         let str = '';
-        if (!this.reservs) return;
         if (this.reservs.size == 0){
             return '...';
         }

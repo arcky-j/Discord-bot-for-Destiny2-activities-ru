@@ -41,7 +41,7 @@ function getRandomPresence(){
         case 32: return {activities: [{name: 'эпичные рассказы Рулка', type: 2}]};
         case 33: return {activities: [{name: 'письма Сенеки', type: 2}]};
         case 34: return {activities: [{name: 'дестабилизации реактора', type: 5}]};
-        case 35: return {activities: [{name: 'в разлитии пива на сервера Bungie', type: 5}]};
+        case 35: return {activities: [{name: 'разлитии пива на сервера Bungie', type: 5}]};
         default: return {activities: [{name: 'советы по созданию статуса', type: 2}]};
     }
 }

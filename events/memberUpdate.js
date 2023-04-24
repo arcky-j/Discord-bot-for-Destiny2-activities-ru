@@ -7,8 +7,7 @@ module.exports = {
         if (oldMember.pending && !newMember.pending){
             const settings = newMember.client.settings.get(newMember.guild.id);
             if (settings.channelJoin){
-                const embed = new EmbedBuilder().setTitle('Уведомление').setDescription(`<@${newMember.user.id}> принял правила сервера!`).setTimestamp(new Date());
-                settings.channelJoin.send({embeds: [embed]}); //оповещает о прибытии
+                settings.sendAcceptAlert(newMember);
             }
             try {
                 if (settings.rolesForNew.length > 0){

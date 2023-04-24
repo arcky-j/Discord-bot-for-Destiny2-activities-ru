@@ -17,12 +17,16 @@ module.exports = class ActivityDate extends ActivityBron{
     //смена даты
     changeDate(newDate){
         this.date = newDate; //установка даты    
-        this.sendAlerts('dateChange'); 
         clearTimeout(this.timer);
         this.setTimer();
+        this.sendAlerts('dateChange'); 
         this.refreshMessage();
     }
-    setTimer(){        
+    setTimer(){
+        if (this.today > this.date){
+            this.state = this.states.get(0);
+            return;
+        }        
         const t = this.date - this.today - this.tenMinutes; 
         if (this.t > 2147483647){
             this.interval = setInterval(() => {
@@ -71,19 +75,13 @@ module.exports = class ActivityDate extends ActivityBron{
                     break;
                 }
                 this.members.forEach( async (us, id) =>{ //оповещает всех участников
-                    try{
-                        us.send({content: `${this.name} начнётся в ближайшие **10 минут**!\n`, embeds: this.message.embeds});
-                    } catch (err){
-                        console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`)
-                    }
+                    us.send({content: `Активность «${this.name}» начнётся в ближайшие **10 минут**!\n`, embeds: this.message.embeds})
+                    .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
                 });
                 if (this.bron.size > 0 && this.members.size < this.quantity)
                 this.bron.forEach( async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
-                    try{
-                        us.send({content:`${this.name} начнётся в ближайшие **10 минут**! Вам было забронировано место, поэтому вы получаете это сообщение!`, embeds: this.message.embeds});
-                    } catch (err){
-                        console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`)
-                    }
+                    us.send({content:`Активность «${this.name}» начнётся в ближайшие **10 минут**! Вам было забронировано место, поэтому вы получаете это сообщение!`, embeds: this.message.embeds})
+                    .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
                 });
                 break;
             case 'dateChange': //рассылка при переносе активности
@@ -92,17 +90,14 @@ module.exports = class ActivityDate extends ActivityBron{
                 }
                 this.members.forEach( async (us, id) =>{
                     if (this.leaderId != id) //рассылает оповещение всем участникам кроме лидера
-                    try{
-                        us.send({content: `Активность ${this.name}, в которую вы записаны, перенесёна пользователем ${this.getLeader().tag}! Новое время: ${this.getDateString()}`, embeds: this.message.embeds});
-                    } catch (err){
-                        console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`)
-                    }
+                    us.send({content: `Активность «${this.name}» перенесёна пользователем ${this.getLeader().tag}! Новое время: ${this.getDateString()}`, embeds: this.message.embeds})
+                    .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
                 });
                 break;
             default: super.sendAlerts(reason);
         }
     }
-    async delete(){
+    delete(){
         clearInterval(this.interval);
         clearTimeout(this.timer);
         super.delete();

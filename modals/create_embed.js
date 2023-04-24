@@ -11,13 +11,13 @@ module.exports = {
         const embBanner = interaction.fields.getTextInputValue('embedBanner');
         const embFooter = interaction.fields.getTextInputValue('embedFooter');
 
-        const user = interaction.user;
-        const color = getRandomColor();
+        const color = interaction.user.accentColor;
+        //const color = getRandomColor();
         //формирует пользовательский embed
         const embed = new EmbedBuilder()
             .setDescription(embDecs)
             .setColor(color)
-            .setThumbnail(user.displayAvatarURL()) //делает баннером аватар пользователя
+            //.setThumbnail(user.displayAvatarURL()) //делает баннером аватар пользователя
             .setTimestamp(new Date());
         if (embTitle){
             embed.setTitle(embTitle);

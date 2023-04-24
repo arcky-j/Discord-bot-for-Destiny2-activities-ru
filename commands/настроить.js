@@ -1,13 +1,13 @@
-const {SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, PermissionFlagsBits} = require('discord.js');
+const {SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, EmbedBuilder, PermissionFlagsBits} = require('discord.js');
 //команда для управления ботом
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('настроить')
-        .setDescription('Команда для управления ботом. Без параметров просто покажет конфиг')
+        .setDescription('Команда для управления ботом')
         .addSubcommand(subcommand =>
             subcommand
                 .setName('роли_для_сборов')
-                .setDescription('Установить до трёх ролей, упоминаемых в сборах')
+                .setDescription('Установить до пяти ролей, упоминаемых в сборах')
                 .addRoleOption(option => 
                     option
                         .setName('роль1')
@@ -46,26 +46,6 @@ module.exports = {
                         .setDescription('Третья роль')))
         .addSubcommand(subcommand =>
             subcommand
-                .setName('канал_для_ресета')
-                .setDescription('Установить канал для отправки ресета')
-                .addChannelOption(option => 
-                    option
-                        .setName('канал')
-                        .setDescription('Непосредственно чат для ресета')))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('обновляющих_ресет')
-                .setDescription('Установить до двух людей, ответственных за ресеты')
-                .addUserOption(option => 
-                    option
-                        .setName('пользователь1')
-                        .setDescription('Первый пользователь'))
-                .addUserOption(option => 
-                    option
-                        .setName('пользователь2')
-                        .setDescription('Второй пользователь')))
-        .addSubcommand(subcommand =>
-            subcommand
                 .setName('каналы_уведомлений')
                 .setDescription('Назначить каналы для уведомлений о новоприбывших и ушедших')
                 .addChannelOption(option => 
@@ -93,29 +73,31 @@ module.exports = {
             sett.setRoleTags(role1, role2, role3, role4, role5);
             //если первая роль не введена, то роли сбрасываются
             if (!role1){
-                await interaction.reply({content: 'Роли для тегов в сборах сброшены!'});
+                const embed = new EmbedBuilder().setTitle('Роли для сборов сброшены').setDescription(`Вы не выбрали ни одной роли`);
+                await interaction.reply({embeds: [embed]});
                 return;
             } 
-            const rat = new Map();
-            rat.set(role1.id, role1);
+            const rat = [];
+            rat.push(role1);
             if (role2){
-                rat.set(role2.id, role2);
+                rat.push(role2);
             }
             if (role3){
-                rat.set(role3.id, role3);
+                rat.push(role3);
             }
             if (role4){
-                rat.set(role4.id, role4);
+                rat.push(role4);
             }
             if (role5){
-                rat.set(role5.id, role5);
+                rat.push(role5);
             }
             let str = '';
             rat.forEach((val) =>{
-                str += `${val.name}\n`;
+                str += `<@&${val.id}>\n`;
             });
             //оповещает о проделанной работе
-            await interaction.reply({content: `Следующие роли для тегов в сборах были установлены:\n${str}`});
+            const embed = new EmbedBuilder().setTitle('Роли для сборов установлены').setDescription(`${str}`);
+            await interaction.reply({embeds: [embed]});
             return;
         }
 
@@ -127,65 +109,27 @@ module.exports = {
             sett.setRolesForNew(role1, role2, role3);
             //если первая роль не введена, то роли сбрасываются
             if (!role1){
-                await interaction.reply({content: 'Роли для новичков сброшены!'});
+                const embed = new EmbedBuilder().setTitle('Роли для новичков сервера сброшены').setDescription(`Вы не выбрали ни одной роли`);
+                await interaction.reply({embeds: [embed]});
                 return;
             } 
-            const rat = new Map();
-            rat.set(role1.id, role1);
+            const rat = [];
+            rat.push(role1);
             if (role2){
-                rat.set(role2.id, role2);
+                rat.push(role2);
             }
             if (role3){
-                rat.set(role3.id, role3);
+                rat.push(role3);
             }
             let str = '';
             rat.forEach((val) =>{
-                str += `${val.name}\n`;
+                str += `<@&${val.id}>\n`;
             });
 
             //оповещает о проделанной работе
-            await interaction.reply({content: `Следующие роли для новоприбывших были установлены:\n${str}`});
+            const embed = new EmbedBuilder().setTitle('Роли для новичков сервера установлены').setDescription(`${str}`);
+            await interaction.reply({embeds: [embed]});
             return;
-        }
-
-        if (interaction.options.getSubcommand() === 'канал_для_ресета'){
-            const channel = interaction.options.getChannel('канал');
-            interaction.client.reset.setChannel(channel);
-            const sett = interaction.client.settings.get(interaction.guild.id);
-            sett.setResetChannel(channel);
-            //если чат не введён, то он просто сбрасывается
-            if (!channel){
-                await interaction.reply({content: `Вы успешно сбросили канал для рассылки ресетов!`});
-                return;
-            }   
-            await interaction.reply({content: `Вы успешно установили канал <#${channel.id}> как канал для рассылки ресетов!`});
-            return;
-        }
-
-        if (interaction.options.getSubcommand() === 'обновляющих_ресет'){
-            const user1 = interaction.options.getUser('пользователь1');
-            const user2 = interaction.options.getUser('пользователь2');
-            //установка пользователей на оповещение
-            interaction.client.reset.setUpdaters(user1, user2);
-            const sett = interaction.client.settings.get(interaction.guild.id);
-            sett.setResetUpdaters(user1, user2);
-            //если пользователи не введены, уведомления получать никто не будет
-            if (!user1 && !user2){
-                await interaction.reply({content: `Вы успешно сбросили оповещения о ресете!`});
-                return;
-            }
-            if (user1 && user2){
-                await interaction.reply({content: `Вы успешно определили пользователей ${user1.tag} и ${user2.tag} как ответственных за ресет!`});
-                return;
-            }
-            if (user1){
-                await interaction.reply({content: `Вы успешно определили пользователя ${user1.tag} как ответственного за ресет!`});
-                return;
-            }
-            if (user2){
-                await interaction.reply({content: `Вы успешно определили пользователя ${user2.tag} как ответственного за ресет!`});
-                return;
-            }
         }
 
         if (interaction.options.getSubcommand() === 'каналы_уведомлений'){
@@ -195,19 +139,23 @@ module.exports = {
             sett.setJLChannels(channelJ, channelL);
             //если чат не введён, то он просто сбрасывается
             if (!channelJ && !channelL){
-                await interaction.reply({content: `Вы успешно сбросили каналы для уведомлений!`});
+                const embed = new EmbedBuilder().setTitle('Каналы оповещений сброшены').setDescription(`Вы не выбрали ни одного канала`);
+                await interaction.reply({embeds: [embed]});
                 return;
             }
             if (channelJ && channelL){
-                await interaction.reply({content: `Вы успешно установили каналы <#${channelJ.id}> и <#${channelL.id}> как каналы для уведомлений!`});
+                const embed = new EmbedBuilder().setTitle('Каналы оповещений установлены').setDescription(`<#${channelJ.id}> - канал для уведомлений о новоприбывших и <#${channelL.id}> - канал уведомлений о ушедших`);
+                await interaction.reply({embeds: [embed]});
                 return;
             }
             if (channelJ){
-                await interaction.reply({content: `Вы успешно установили канал <#${channelJ.id}> как канал для уведомлений о новоприбывших!`});
+                const embed = new EmbedBuilder().setTitle('Каналы оповещений установлены').setDescription(`<#${channelJ.id}> - канал для уведомлений о новоприбывших`);
+                await interaction.reply({embeds: [embed]});
                 return;
             }
             if (channelL){
-                await interaction.reply({content: `Вы успешно установили канал <#${channelL.id}> как канал для уведомлений о новоприбывших!`});
+                const embed = new EmbedBuilder().setTitle('Каналы оповещений установлены').setDescription(`<#${channelL.id}> - канал уведомлений о ушедших`);
+                await interaction.reply({embeds: [embed]});
                 return;
             }
         }
@@ -220,18 +168,25 @@ module.exports = {
                 .setCustomId('messJ')
                 .setLabel('Уведомление при входе (# - ник)')
                 .setStyle(TextInputStyle.Paragraph)
-                .setRequired(true);
+                .setRequired(false);
+
+            const messA = new TextInputBuilder()
+                .setCustomId('messA')
+                .setLabel('Уведомление о принятии правил (# - ник)')
+                .setStyle(TextInputStyle.Paragraph)
+                .setRequired(false);
 
             const messL = new TextInputBuilder()
                 .setCustomId('messL')
                 .setLabel('Уведомление при уходе (# - ник)')
                 .setStyle(TextInputStyle.Paragraph)
-                .setRequired(true);
+                .setRequired(false);
 
             const row0 = new ActionRowBuilder().addComponents(messJ);
-            const row1 = new ActionRowBuilder().addComponents(messL);
+            const row1 = new ActionRowBuilder().addComponents(messA);
+            const row2 = new ActionRowBuilder().addComponents(messL);
 
-            modal.addComponents(row0, row1);
+            modal.addComponents(row0, row1, row2);
             //отправка формы пользователю
             await interaction.showModal(modal);
         }

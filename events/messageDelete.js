@@ -14,9 +14,5 @@ module.exports = {
                 client.activities.delete(message.customId);
             }
         }
-        //если удалённое сообщение содержало в себе голосование, удалить голосование
-        if (client.polls.has(message.id)){
-            client.polls.delete(message.id);
-        }
     },
 };

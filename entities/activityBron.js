@@ -22,19 +22,13 @@ module.exports = class ActivityBron extends ActivityBase{
         this.bronSize = Math.ceil(quant/2 - 1);
         if (br1){
             this.bron.set(br1.id, br1);
-            try{
-                br1.send({content: `Вы были записаны лидером активности в ${name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность? ID: ${this.id}`, components:[this.rowBr]}).then(m => this.bronMessages.set(br1.id, m));
-            } catch (err){
-                console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`)
-            }
+            br1.send({content: `Вы были записаны лидером активности в ${name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность? ID: ${this.id}`, components:[this.rowBr]})
+            .then(m => this.bronMessages.set(br1.id, m)).catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
         }
         if (br2){
             this.bron.set(br2.id, br2);
-            try{
-                br2.send({content: `Вы были записаны лидером активности в ${name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность? ID: ${this.id}`, components:[this.rowBr]}).then(m => this.bronMessages.set(br2.id, m));
-            } catch (err){
-                console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`)
-            }
+            br2.send({content: `Вы были записаны лидером активности в ${name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность? ID: ${this.id}`, components:[this.rowBr]})
+            .then(m => this.bronMessages.set(br2.id, m)).catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
         }       
     }
 
@@ -63,11 +57,16 @@ module.exports = class ActivityBron extends ActivityBase{
         }
         if (user.bot){ //проверка на случай, если кто-то насильно догадается записать в сбор бота
             throw new Error('Возмутительно! Я не думал, что кому-то придёт в голову совать в сбор бота, но и к этому я был готов');
-        }
-        this.bron.set(user.id, user);
-        user.send({content: `Вы были записаны лидером активности в ${this.name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность? ID: ${this.id}`, components:[this.rowBr]}).then(m => this.bronMessages.set(user.id, m));
-        this.checkQuantity();
-        this.refreshMessage();
+        }   
+        user.send({content: `Вы были записаны лидером активности в ${this.name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность? ID: ${this.id}`, components:[this.rowBr]})
+        .then(m => {
+            this.bron.set(user.id, user);
+            this.bronMessages.set(user.id, m);
+            this.checkQuantity();
+            this.refreshMessage();
+        })
+        .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
+        
     }
     //удаление из брони
     bronDel(id){
@@ -75,7 +74,7 @@ module.exports = class ActivityBron extends ActivityBase{
             throw new Error('Пользователю не было забронировано место!'); 
         }
         const mess = this.bronMessages.get(id);
-        mess.edit({content: 'Ваша бронь была отозвана! :(', components: []});
+        mess.edit({content: 'Ваша бронь была отозвана! :(', components: []}).catch();
         this.bron.delete(id);
         this.bronMessages.delete(id); 
         this.checkQuantity();
@@ -88,10 +87,13 @@ module.exports = class ActivityBron extends ActivityBase{
         }
         this.bron.delete(user.id);
         const mess = this.bronMessages.get(user.id);
-        mess.edit({content: 'Вы успешно записаны в сбор! Бронь снята.', components: []});
-        this.bronMessages.delete(user.id);
-        this.members.set(user.id, user);
-        this.refreshMessage();
+        mess.edit({content: 'Вы успешно записаны в сбор! Бронь снята.', components: []})
+        .then(() =>{
+            this.bronMessages.delete(user.id);
+            this.members.set(user.id, user);
+            this.refreshMessage();
+        })
+        .catch(() => this.refreshMessage());     
     }
     changeLeader(user){
         if (this.bron.has(user.id)){
