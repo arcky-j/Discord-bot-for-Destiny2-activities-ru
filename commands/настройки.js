@@ -9,11 +9,12 @@ module.exports = {
     async execute(interaction) {
         //interaction.client.cacheManager.saveSetting();
         const settings = interaction.client.settings.get(interaction.guild.id);
+        const user = await interaction.client.users.fetch(interaction.user.id);
         const embed = new EmbedBuilder()
             .setTitle(`Конфигурация бота для сервера ${interaction.guild.name}`)
             .setDescription(`${settings.getString()}`)
             .setThumbnail(interaction.guild.iconURL())
-            .setColor(interaction.user.accentColor)
+            .setColor(user.accentColor)
             .setTimestamp(new Date());
                   
         interaction.reply({embeds: [embed]});
