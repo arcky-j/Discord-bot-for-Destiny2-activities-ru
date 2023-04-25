@@ -244,7 +244,7 @@ class Settings extends Base{
             messageAccept: sett.messageAccept,
             channelLeave: undefined,
             messageLeave: sett.messageLeave,
-            logChannel: sett.logChannel.id
+            logChannel: undefined
         };
 
         if (sett.rolesToTag.length > 0){
@@ -262,7 +262,9 @@ class Settings extends Base{
         if (sett.channelJoin){
             data.channelJoin = sett.channelJoin.id;
         }
-
+        if (sett.logChannel){
+            data.logChannel = sett.logChannel.id;
+        }
         if (sett.channelLeave){
             data.channelLeave = sett.channelLeave.id;
         }
