@@ -11,7 +11,7 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
     }
 
     remove(id){
-        if (id == this.leaderId){ //проверка на лидерство
+        if (id == this.leader.id){ //проверка на лидерство
             throw new Error('Лидер не может покинуть боевую группу!');
         }
         super.remove(id);
@@ -108,6 +108,10 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
                             fireteam.refreshMessage();
                         }, 10000);
                         console.log(`Загружена боевая группа ${fireteam.name} (${fireteam.id})`);
+                        if (fireteam.guildId){
+                            const sett = FireteamUntimed.client.settings.get(fireteam.guildId);
+                            sett.sendLog(`Загружена боевая группа ${fireteam.name} (${fireteam.id})`, 'Запись логов: успех');
+                        }
                     } catch (err){
                         console.log(`Невозможно загрузить боевую группу ${val}. Причина: ${err.message} Производится удаление...`);
                         fs.unlink(path.join(pathToFireteams, val), (err) => {
@@ -127,7 +131,10 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
         fs.writeFile(pathToTeam, data, (err) =>{
             if (err){
                 console.error(err);
-                throw err;
+                if (this.guildId){
+                    const sett = FireteamUntimed.client.settings.get(this.guildId);
+                    sett.sendLog(`Не удалось сохранить в файл ${this.name} (${this.id}): ${err.message}`, 'Запись логов: ошибка');
+                }
             }
         })
     }
@@ -137,6 +144,10 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
         fs.unlink(pathToTeam, (err) =>{
             if (err){
                 console.error(err);
+                if (this.guildId){
+                    const sett = FireteamUntimed.client.settings.get(this.guildId);
+                    sett.sendLog(`Не удалось удалить файл с ${this.name} (${this.id}): ${err.message}`, 'Запись логов: ошибка');
+                }
             }
         });
     }

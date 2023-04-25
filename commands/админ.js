@@ -113,7 +113,13 @@ module.exports = {
                 interaction.channel.send({embeds: [embed]});
                 const lastMess = interaction.channel.lastMessage;              
                 setTimeout(() => {
-                    lastMess.delete().catch(err => console.log('Ошибка удаления сообщения лога удаления сбора (каво?): ' + err.message));
+                    lastMess.delete().catch(err => {
+                        console.log('Ошибка удаления сообщения лога удаления сбора (каво?): ' + err.message);
+                        if (interaction.guildId){
+                            const sett = interaction.client.settings.get(interaction.guildId);
+                            sett.sendLog(`Ошибка удаления сообщения лога удаления сбора (каво?): ${err.message}`, 'Запись логов: ошибка');
+                        }
+                    });
                 }, 86400000);
             } catch (err){
                 const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');

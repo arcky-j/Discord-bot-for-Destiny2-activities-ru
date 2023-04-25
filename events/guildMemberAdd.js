@@ -2,7 +2,7 @@ const {Events, EmbedBuilder, GuildFeature} = require('discord.js');
 //срабатывает при вступлении пользователя на сервер
 module.exports = {
     name: Events.GuildMemberAdd,
-    execute(member) {
+    async execute(member) {
         const settings = member.client.settings.get(member.guild.id);
         if (settings.channelJoin){
             settings.sendJoinAlert(member); //оповещает о прибытии

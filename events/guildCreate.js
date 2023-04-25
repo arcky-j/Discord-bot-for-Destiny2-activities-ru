@@ -3,7 +3,7 @@ const Settings = require('../entities/settings.js');
 //срабатывает при вступлении пользователя на сервер
 module.exports = {
     name: Events.GuildCreate,
-    execute(guild) {
+    async execute(guild) {
         Settings.initSingle(guild);
     },
 };

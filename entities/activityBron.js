@@ -27,7 +27,13 @@ module.exports = class ActivityBron extends ActivityBase{
                 this.bron.set(br1.id, br1);
                 this.bronMessages.set(br1.id, m);
             })
-            .catch(err => console.log(`Ошибка бронирования пользователя ${us.tag}: ${err.message}`));
+            .catch(err =>{
+                console.log(`Ошибка бронирования пользователя ${us.tag}: ${err.message}`);
+                if (this.guildId){
+                    const sett = ActivityBron.client.settings.get(this.guildId);
+                    sett.sendLog(`Ошибка бронирования пользователя ${us} в сборе ${this.name} ${this.id}: ${err.message}`, 'Запись логов: ошибка');
+                }
+            });
         }
         if (br2){
             const embed = ActivityBron.client.genEmbed(`Вы были записаны лидером активности в ${name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность?`, 'Уведомление', undefined, undefined, this.id);
@@ -36,15 +42,29 @@ module.exports = class ActivityBron extends ActivityBase{
                 this.bron.set(br2.id, br2);
                 this.bronMessages.set(br2.id, m);
             })
-            .catch(err => console.log(`Ошибка бронирования пользователя ${us.tag}: ${err.message}`));
+            .catch(err =>{
+                console.log(`Ошибка бронирования пользователя ${us.tag}: ${err.message}`);
+                if (this.guildId){
+                    const sett = ActivityBron.client.settings.get(this.guildId);
+                    sett.sendLog(`Ошибка бронирования пользователя ${us} в сборе ${this.name} ${this.id}: ${err.message}`, 'Запись логов: ошибка');
+                }
+            });
         }       
     }
 
     add(user){
         if (this.bron.has(user.id)){ //проверка на присутствие в списке брони
-            throw new Error('Пользователю уже забронировано место! Если вы тот самый пользователь, подтвердите бронь в ЛС'); 
+            this.bronToMember(user);
         }
         super.add(user);
+    }
+
+    remove(id){
+        if (this.bron.has(id)){ //проверка на присутствие в списке брони
+            this.bronDel(id);
+            return;
+        }
+        super.remove(id);
     }
     //бронирование места Сражу
     bronAdd(user){
@@ -74,7 +94,13 @@ module.exports = class ActivityBron extends ActivityBase{
             this.checkQuantity();
             this.refreshMessage();
         })
-        .catch(err => console.log(`Ошибка бронирования пользователя ${us.tag}: ${err.message}`));
+        .catch(err =>{
+            console.log(`Ошибка бронирования пользователя ${user.tag}: ${err.message}`);
+            if (this.guildId){
+                const sett = ActivityBron.client.settings.get(this.guildId);
+                sett.sendLog(`Ошибка бронирования пользователя ${user} в сборе ${this.name} ${this.id}: ${err.message}`, 'Запись логов: ошибка');
+            }
+        });
         
     }
     //удаление из брони

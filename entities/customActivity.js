@@ -109,6 +109,10 @@ module.exports = class CustomActivity extends ActivityBase{
                             activity.refreshMessage();
                         }, 10000);
                         console.log(`Загружена кастомная активность ${activity.name} (${activity.id})`);
+                        if (activity.guildId){
+                            const sett = CustomActivity.client.settings.get(activity.guildId);
+                            sett.sendLog(`Загружена кастомная активность ${activity.name} (${activity.id})`, 'Запись логов: успех');
+                        }
                     } catch (err){
                         console.log(`Невозможно загрузить кастомную активность ${val}. Причина: ${err.message} Производится удаление...`);
                         fs.unlink(path.join(pathToActivities, val), (err) => {
@@ -128,7 +132,10 @@ module.exports = class CustomActivity extends ActivityBase{
         fs.writeFile(pathToActivity, data, (err) =>{
             if (err){
                 console.error(err);
-                throw err;
+                if (this.guildId){
+                    const sett = CustomActivity.client.settings.get(this.guildId);
+                    sett.sendLog(`Не удалось сохранить в файл ${this.name} (${this.id}): ${err.message}`, 'Запись логов: ошибка');
+                }
             }
         })
     }
@@ -138,6 +145,10 @@ module.exports = class CustomActivity extends ActivityBase{
         fs.unlink(pathToActivity, (err) =>{
             if (err){
                 console.error(err);
+                if (this.guildId){
+                    const sett = CustomActivity.client.settings.get(this.guildId);
+                    sett.sendLog(`Не удалось удалить файл с ${this.name} (${this.id}): ${err.message}`, 'Запись логов: ошибка');
+                }
             }
         });
     }

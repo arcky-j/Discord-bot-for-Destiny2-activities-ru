@@ -109,6 +109,10 @@ module.exports = class FireteamRes extends ActivityRes{
                             fireteam.refreshMessage();
                         }, 10000);
                         console.log(`Загружена боевая группа ${fireteam.name} (${fireteam.id})`);
+                        if (fireteam.guildId){
+                            const sett = FireteamRes.client.settings.get(fireteam.guildId);
+                            sett.sendLog(`Загружена боевая группа ${fireteam.name} (${fireteam.id})`, 'Запись логов: успех');
+                        }
                     } catch (err){
                         console.log(`Невозможно загрузить боевую группу ${val}. Причина: ${err.message} Производится удаление...`);
                         fs.unlink(path.join(pathToFireteams, val), (err) => {
@@ -128,7 +132,10 @@ module.exports = class FireteamRes extends ActivityRes{
         fs.writeFile(pathToTeam, data, (err) =>{
             if (err){
                 console.error(err);
-                throw err;
+                if (this.guildId){
+                    const sett = FireteamRes.client.settings.get(this.guildId);
+                    sett.sendLog(`Не удалось сохранить в файл ${this.name} (${this.id}): ${err.message}`, 'Запись логов: ошибка');
+                }
             }
         });
     }
@@ -138,6 +145,10 @@ module.exports = class FireteamRes extends ActivityRes{
         fs.unlink(pathToTeam, (err) =>{
             if (err){
                 console.error(err);
+                if (this.guildId){
+                    const sett = FireteamRes.client.settings.get(this.guildId);
+                    sett.sendLog(`Не удалось удалить файл с ${this.name} (${this.id}): ${err.message}`, 'Запись логов: ошибка');
+                }
             }
         });
     }

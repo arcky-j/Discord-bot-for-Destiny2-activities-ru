@@ -27,11 +27,15 @@ module.exports = class ActivityUntimed extends ActivityBron{
     refreshMessage(){
         super.refreshMessage();
         if (this.state == 'Заполнен'){
-            try{
-                this.leader.send({content:`Ваш сбор по готовности заполнен!`, embeds: this.message.embeds});
-            } catch(err){
+            const embed = ActivityUntimed.client.genEmbed(`Ваш сбор по готовности (${this.name} ${this.id}) заполнен!`, 'Уведомление');
+            this.leader.send({embeds: [embed, this.message.embeds[0]]})
+            .catch(err => {
                 console.log(`Ошибка рассылки для пользователя ${this.leader.tag}: ${err.message}`);
-            }
+                if (this.guildId){
+                    const sett = ActivityUntimed.client.settings.get(this.guildId);
+                    sett.sendLog(`Ошибка оповещения (заполнение сбора ${this.name} ${this.id}) для пользователя ${this.leader}: ${err.message}`, 'Запись логов: ошибка');
+                }
+            });
         }
     }
     sendAlerts(reason){
@@ -42,8 +46,15 @@ module.exports = class ActivityUntimed extends ActivityBron{
                 }               
                 if (this.bron.size > 0){
                     this.bron.forEach(async (us, id) => {
-                        us.send({content:`Активность «${this.name}» начата лидером активности! Вы получаете это сообщение, так как вам было забронировано место.`, embeds: this.message.embeds})
-                        .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
+                        const embed = ActivityUntimed.client.genEmbed(`Активность «${this.name}» начата лидером (${this.leader}) активности! Вы получаете уведомление, потому что вам забронировано место.`, 'Уведомление');
+                        us.send({embeds:[embed, this.message.embeds[0]]})
+                        .catch(err =>{
+                            console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
+                            if (this.guildId){
+                                const sett = ActivityUntimed.client.settings.get(this.guildId);
+                                sett.sendLog(`Ошибка рассылки (старт сбора ${this.name} ${this.id}) для пользователя ${us.tag}: ${err.message}`, 'Запись логов: ошибка');
+                            }
+                        });
                     });
                 }
             default: super.sendAlerts(reason);

@@ -13,7 +13,7 @@ class Settings extends Base{
     messageAccept; 
     channelLeave; //канал уведомлений о ливах 
     messageLeave; //уведомление о ливах
-    //logChannel;
+    logChannel;
 
     pathToSettings = path.join('.', 'data', 'settings');
 
@@ -72,7 +72,13 @@ class Settings extends Base{
         }
         this.save();
     }
-
+    setLogChannel(ch){
+        this.logChannel = undefined;
+        if (ch){
+            this.logChannel = ch;
+        }
+        this.save();
+    }
     setJALMessages(messJ, messA, messL){
         if (messJ){
             this.messageJoin = messJ;
@@ -86,36 +92,70 @@ class Settings extends Base{
         this.save();
     }
 
-    sendJoinAlert(member){
+    async sendLog(message, title){
+        if (this.logChannel){
+            const embed = Settings.client.genEmbed(message, title);
+            this.logChannel.send({embeds: [embed]}).catch(err => {
+                console.log(`Ошибка с отправлением лога на сервере ${this.guildId}: ${err.message}\nСброс канала с логами...`);
+                this.logChannel = undefined;
+            });
+        }
+    }
+
+    async sendJoinAlert(member){
         const color = member.roles.highest.color;
         if (this.messageJoin.match(/#/)){
             const embed = new EmbedBuilder().setTitle('Уведомление').setDescription(this.messageJoin.replace('#', `<@${member.user.id}> (**${member.user.tag}**)`)).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
-            this.channelJoin.send({embeds: [embed]}); //оповещает о прибытии
+            this.channelJoin.send({embeds: [embed]}).catch(err => {
+                console.log(`Ошибка с отправлением уведомления о прибытии в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`);
+                this.sendLog(`Ошибка с отправлением уведомления о прибытии в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`); 
+                this.channelJoin = undefined;
+            }); //оповещает о прибытии
         } else {
             const embed = new EmbedBuilder().setTitle('Уведомление (стандартное - в тексте уведомления нет *#*)').setDescription(`<@${member.user.id}> (**${member.user.tag}**) прибыл на сервер!`).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
-            this.channelJoin.send({embeds: [embed]});
+            this.channelJoin.send({embeds: [embed]}).catch(err => {
+                console.log(`Ошибка с отправлением уведомления о прибытии в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`);
+                this.sendLog(`Ошибка с отправлением уведомления о прибытии в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`); 
+                this.channelJoin = undefined;
+            });
         }
     }
 
-    sendAcceptAlert(member){
+    async sendAcceptAlert(member){
         const color = member.roles.highest.color;
         if (this.messageAccept.match(/#/)){
             const embed = new EmbedBuilder().setTitle('Уведомление').setDescription(this.messageAccept.replace('#', `<@${member.user.id}> (**${member.user.tag}**)`)).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
-            this.channelJoin.send({embeds: [embed]}); //оповещает о прибытии
+            this.channelJoin.send({embeds: [embed]}).catch(err => {
+                console.log(`Ошибка с отправлением уведомления о принятии правил в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`);
+                this.sendLog(`Ошибка с отправлением уведомления о принятии правил в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`); 
+                this.channelJoin = undefined;
+            }); 
         } else {
             const embed = new EmbedBuilder().setTitle('Уведомление (стандартное - в тексте уведомления нет *#*)').setDescription(`<@${member.user.id}> (**${member.user.tag}**) принял правила сервера!`).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
-            this.channelJoin.send({embeds: [embed]});
+            this.channelJoin.send({embeds: [embed]}).catch(err => {
+                console.log(`Ошибка с отправлением уведомления о принятии правил в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`);
+                this.sendLog(`Ошибка с отправлением уведомления о принятии правил в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`); 
+                this.channelJoin = undefined;
+            });
         }
     }
 
-    sendLeaveAlert(member){
+    async sendLeaveAlert(member){
         const color = member.roles.highest.color;
         if (this.messageLeave.match(/#/)){
             const embed = new EmbedBuilder().setTitle('Уведомление').setDescription(this.messageLeave.replace('#', `**${member.user.tag}**`)).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
-            this.channelLeave.send({embeds: [embed]}); //оповещает об уходе
+            this.channelLeave.send({embeds: [embed]}).catch(err => {
+                console.log(`Ошибка с отправлением уведомления об уходе в ${this.channelLeave}: ${err.message}\nСброс канала с уведомлениями...`);
+                this.sendLog(`Ошибка с отправлением уведомления об уходе в ${this.channelLeave}: ${err.message}\nСброс канала с уведомлениями...`); 
+                this.channelLeave = undefined;
+            }); //оповещает об уходе
         } else {
             const embed = new EmbedBuilder().setTitle('Уведомление (стандартное - в тексте уведомления нет *#*)').setDescription(`**${member.user.tag}** покинул сервер!`).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
-            this.channelLeave.send({embeds: [embed]});
+            this.channelLeave.send({embeds: [embed]}).catch(err => {
+                console.log(`Ошибка с отправлением уведомления об уходе в ${this.channelLeave}: ${err.message}\nСброс канала с уведомлениями...`);
+                this.sendLog(`Ошибка с отправлением уведомления об уходе в ${this.channelLeave}: ${err.message}\nСброс канала с уведомлениями...`); 
+                this.channelLeave = undefined;
+            });
         }
     }
 
@@ -125,7 +165,7 @@ class Settings extends Base{
         fs.writeFile(pathGuildSetting, data, (error) =>{
             if (error){
                 console.error(error);
-                throw error;
+                this.sendLog(`Не удалось сохранить файл с настройками сервера`, 'Запись логов: ошибка');
             }
         });
     }
@@ -136,7 +176,7 @@ class Settings extends Base{
         fs.unlink(pathGuildSetting, (error) =>{
             if (error){
                 console.error(error);
-                throw error;
+                this.sendLog(`Не удалось удалить файл с настройками сервера`, 'Запись логов: ошибка');
             }
         });
 
@@ -171,6 +211,7 @@ class Settings extends Base{
                     const sett = await Settings.fromJSON(JSON.parse(data));    
                     this.client.settings.set(id, sett);       
                     console.log(`Настройки для сервера ${val.name} загружены.`);
+                    sett.sendLog(`Настройки для сервера загружены.`, 'Запись логов');
                 });
             } else {
                 console.log(`Файл настроек для сервера "${val.name}" не обнаружен; настройки сервера не загружены; запуск инициализации...`);  
@@ -202,7 +243,8 @@ class Settings extends Base{
             messageJoin: sett.messageJoin,
             messageAccept: sett.messageAccept,
             channelLeave: undefined,
-            messageLeave: sett.messageLeave
+            messageLeave: sett.messageLeave,
+            logChannel: sett.logChannel.id
         };
 
         if (sett.rolesToTag.length > 0){
@@ -241,17 +283,30 @@ class Settings extends Base{
         }
         if (data.rolesForNew.length > 0){
             data.rolesForNew.forEach(async (value, index) => {
-                sett.rolesForNew.push(value);
+                const role = await guild.roles.fetch(value).catch();
+                if (role){
+                    sett.rolesForNew.push(value);
+                }
             });
         }
         if (data.channelJoin){
-            this.client.channels.fetch(data.channelJoin)
-            .then(ch => sett.channelJoin = ch).catch();        
+            const ch = await this.client.channels.fetch(data.channelJoin).catch();
+            if (ch){
+                sett.channelJoin = ch;
+            }        
         }  
         if (data.channelLeave){
-            this.client.channels.fetch(data.channelLeave)
-            .then(ch => sett.channelLeave = ch).catch();
+            const ch = await this.client.channels.fetch(data.channelLeave).catch();
+            if (ch){
+                sett.channelLeave = ch;
+            }   
         }
+        if (data.logChannel){
+            const ch = await this.client.channels.fetch(data.logChannel).catch();
+            if (ch){
+                sett.logChannel = ch;
+            }           
+        }  
         sett.messageJoin = data.messageJoin;
         sett.messageAccept = data.messageAccept;
         sett.messageLeave = data.messageLeave;
@@ -261,7 +316,7 @@ class Settings extends Base{
     getString(){
         let strT = '';
         this.rolesToTag.forEach((val) => {
-            strT += `<@&${val.id}> `;
+            strT += `${val} `;
         });
 
         let strN = '';
@@ -271,15 +326,20 @@ class Settings extends Base{
 
         let strCHJ = '';
         if (this.channelJoin){
-            strCHJ = `<#${this.channelJoin.id}>`;
+            strCHJ = `${this.channelJoin}`;
         }
 
         let strCHL = '';
         if (this.channelLeave){
-            strCHL = `<#${this.channelLeave.id}>`;
+            strCHL = `${this.channelLeave}`;
         }
 
-        const str = `Роли, упоминаемые в сборах: ${strT}\nРоли для новоприбывших: ${strN}\nКанал для уведомлений о прибытии: ${strCHJ}\nУведомление о прибытии: ${this.messageJoin}\nУведомление о принятии правил: ${this.messageAccept}\nКанал для уведомлений об уходе: ${strCHL}\nУведомление об уходе: ${this.messageLeave}`;
+        let strLog = '';
+        if (this.logChannel){
+            strLog = `${this.logChannel}`;
+        }
+
+        const str = `Роли, упоминаемые в сборах: ${strT}\nРоли для новоприбывших: ${strN}\nКанал для уведомлений о прибытии: ${strCHJ}\nУведомление о прибытии: ${this.messageJoin}\nУведомление о принятии правил: ${this.messageAccept}\nКанал для уведомлений об уходе: ${strCHL}\nУведомление об уходе: ${this.messageLeave}\nКанал с логами: ${strLog}`;
         return str;
     }
 }

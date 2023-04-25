@@ -3,7 +3,7 @@ const {Events, EmbedBuilder} = require('discord.js');
 module.exports = {
     name: Events.GuildMemberUpdate,
     
-    execute(oldMember, newMember) {
+    async execute(oldMember, newMember) {
         if (oldMember.pending && !newMember.pending){
             const settings = newMember.client.settings.get(newMember.guild.id);
             if (settings.channelJoin){

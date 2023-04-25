@@ -4,14 +4,14 @@ module.exports = {
     data: new SlashCommandBuilder()
             .setName('передать')
             .setDescription('Передача лидерства в существующем сборе')
-            .addUserOption(option =>
-                option.setName('пользователь')
-                    .setDescription('Пользователь, которому вы хотите передать лидерство. Начните вводить его ник и выберите из списка.')
-                    .setRequired(true))
             .addStringOption(option =>
                 option.setName('id')
                     .setDescription('ID изменяемой активности')
                     .setRequired(true))
+            .addUserOption(option =>
+                option.setName('пользователь')
+                    .setDescription('Пользователь, которому вы хотите передать лидерство. Начните вводить его ник и выберите из списка.')
+                    .setRequired(true))           
             .addStringOption(option =>
                 option.setName('причина')
                     .setDescription('Если считаете нужным, укажите причину передачи лидерства')),
@@ -55,7 +55,13 @@ module.exports = {
         //запись сообщения в логи
         const logMess = await interaction.fetchReply();
         setTimeout(() => {
-            logMess.delete().catch(err => console.log('Ошибка удаления лога передачи сбора: ' + err.message));
+            logMess.delete().catch(err => {
+                console.log('Ошибка удаления лога передачи сбора: ' + err.message)
+                if (interaction.guildId){
+                    const sett = interaction.client.settings.get(interaction.guildId);
+                    sett.sendLog(`Ошибка удаления лога передачи сбора: ${err.message}`, 'Запись логов: ошибка');
+                }
+            });
         }, 86400000);
     }
 };

@@ -46,7 +46,13 @@ module.exports = {
         //запись уведомления в логи
         const logMess = await interaction.fetchReply();
         setTimeout(() => {
-            logMess.delete().catch(err => console.log('Ошибка удаления сообщения лога удаления сбора (каво?): ' + err.message));
+            logMess.delete().catch(err => {
+                console.log('Ошибка удаления сообщения лога удаления сбора (каво?): ' + err.message)
+                if (interaction.guildId){
+                    const sett = interaction.client.settings.get(interaction.guildId);
+                    sett.sendLog(`Ошибка удаления сообщения лога удаления сбора (каво?): ${err.message}`, 'Запись логов: ошибка');
+                }
+            });
         }, 86400000);
         fireteam.message.delete();    
     }

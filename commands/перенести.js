@@ -5,7 +5,11 @@ const setDate = require('../utility/date_set.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('перенести')
-        .setDescription('Переносит ваш уже созданный сбор на другое время')
+        .setDescription('Переносит ваш уже созданный сбор на другое время')        
+        .addStringOption(option =>
+            option.setName('id')
+                .setDescription('ID изменяемой активности')
+                .setRequired(true))
         .addStringOption(option => 
             option.setName('время')
                 .setDescription('Новое время начала сбора по мск в формате "ЧЧ:ММ"')
@@ -14,10 +18,6 @@ module.exports = {
             option.setName('дата')
                 .setDescription('Новая дата сбора в формате "ДД.ММ". Оставьте пустым для сегодняшней даты')
                 .setRequired(false))
-        .addStringOption(option =>
-            option.setName('id')
-                .setDescription('ID изменяемой активности')
-                .setRequired(true))
         .addStringOption(option =>
             option.setName('причина')
                 .setDescription('Если считаете нужным, укажите причину переноса')),
@@ -74,7 +74,13 @@ module.exports = {
         //загрузка сообщения в логи
         const logMess = await interaction.fetchReply();
         setTimeout(() => {
-            logMess.delete().catch(err => console.log('Ошибка удаления лога переноса сбора: ' + err.message));
+            logMess.delete().catch(err => {
+                console.log('Ошибка удаления лога переноса сбора: ' + err.message)
+                if (interaction.guildId){
+                    const sett = interaction.client.settings.get(interaction.guildId);
+                    sett.sendLog(`Ошибка удаления лога переноса сбора: ${err.message}`, 'Запись логов: ошибка');
+                }
+            });
         }, 86400000);
     }
 }

@@ -17,6 +17,6 @@ module.exports = {
         await Settings.initSettings().catch(err => console.log(`Ошибка инициализации настроек серверов: ${err.message}`));    
         FireteamUntimed.initAll().catch(err => console.log(`Ошибка загрузки сборов по готовности: ${err.message}`)); 
         FireteamRes.initAll().catch(err => console.log(`Ошибка загрузки стандартных сборов: ${err.message}`)); 
-        CustomActivity.initAll().catch(err => console.log(`Ошибка загрузки кастомных сборов по готовности: ${err.message}`));
+        CustomActivity.initAll().catch(err => console.log(`Ошибка загрузки кастомных сборов: ${err.message}`));
     },
 };

@@ -31,7 +31,7 @@ module.exports = {
 
         const embedBanner = new TextInputBuilder()
             .setCustomId('embedBanner')
-            .setLabel('Баннер эмбеда. По умолчанию ваш аватар')
+            .setLabel('Баннер эмбеда. Тоже только URL')
             .setStyle(TextInputStyle.Short)
             .setRequired(false);
         const embedFooter = new TextInputBuilder()
@@ -46,7 +46,7 @@ module.exports = {
         const actionRow3 = new ActionRowBuilder().addComponents(embedBanner);
         const actionRow4 = new ActionRowBuilder().addComponents(embedFooter);
 
-        modal.addComponents(actionRow0, actionRow1, actionRow2, actionRow3, actionRow4);
+        modal.addComponents(actionRow1, actionRow0, actionRow2, actionRow3, actionRow4);
         //отправляет форму пользователю
         await interaction.showModal(modal);
     }

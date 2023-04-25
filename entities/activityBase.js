@@ -78,7 +78,7 @@ module.exports = class ActivityBase extends Base{
         }
     }
     //рассылка оповещений в личные сообщения
-    sendAlerts(reason){
+    async sendAlerts(reason){
         switch(reason){
             case 'del': //рассылка при удалении активности
                 if (!this.message){
@@ -86,9 +86,15 @@ module.exports = class ActivityBase extends Base{
                 }
                 this.members.forEach( async (us, id) =>{
                     if (this.leader.id != id) {
-                        const embed = ActivityBase.client.genEmbed(`Активность «${this.name}», в которую вы были записаны, была отменёна пользователем ${this.leader}.`, 'Уведомление');
+                        const embed = ActivityBase.client.genEmbed(`Активность «${this.name}» была отменёна пользователем ${this.leader}.`, 'Уведомление');
                         us.send({embeds:[embed, this.message.embeds[0]]})
-                        .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
+                        .catch(err =>{
+                            console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
+                            if (this.guildId){
+                                const sett = ActivityBase.client.settings.get(this.guildId);
+                                sett.sendLog(`Ошибка рассылки (удаление сбора ${this.name} ${this.id}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
+                            }
+                        });
                     } //рассылает оповещение всем участникам кроме лидера                   
                 });
                 break;
@@ -97,9 +103,15 @@ module.exports = class ActivityBase extends Base{
                     break;
                 }
                 this.members.forEach( async (us, id) =>{
-                    const embed = ActivityBase.client.genEmbed(`Активность «${this.name}», в которую вы были записаны, была отменёна администратором. Более подробная информация в канале сбора.`, 'Уведомление');
+                    const embed = ActivityBase.client.genEmbed(`Активность «${this.name}» была отменёна администратором. Более подробная информация в канале сбора.`, 'Уведомление');
                     us.send({embeds:[embed, this.message.embeds[0]]})
-                    .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`)); 
+                    .catch(err =>{
+                        console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
+                        if (this.guildId){
+                            const sett = ActivityBase.client.settings.get(this.guildId);
+                            sett.sendLog(`Ошибка рассылки (админское удаление сбора ${this.name} ${this.id}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
+                        }
+                    }); 
                 });
                 break;
             case 'start': //рассылка при скором начале активности
@@ -110,7 +122,13 @@ module.exports = class ActivityBase extends Base{
                     if (id != this.leader.id){
                         const embed = ActivityBase.client.genEmbed(`Активность «${this.name}» начата лидером (${this.leader}) активности!`, 'Уведомление');
                         us.send({embeds:[embed, this.message.embeds[0]]})
-                        .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`)); 
+                        .catch(err =>{
+                            console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
+                            if (this.guildId){
+                                const sett = ActivityBase.client.settings.get(this.guildId);
+                                sett.sendLog(`Ошибка рассылки (старт сбора ${this.name} ${this.id}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
+                            }
+                        }); 
                     }                 
                 });
         }
@@ -123,18 +141,32 @@ module.exports = class ActivityBase extends Base{
         embed.fields[1].value = this.state;
         if (this.state == 'Закрыт'){
             this.delTimer = setTimeout(() => {
-                if (this.message){
-                    this.message.delete().catch(`Ошибка удаления сбора ${this.id}`);                  
-                }
+                this.message.delete().catch(err =>{
+                    console.log(`Ошибка автоматического удаления сообщения сбора ${this.name} ${this.id}: ${err.message}`);
+                    if (this.guildId){
+                        const sett = ActivityBase.client.settings.get(this.guildId);
+                        sett.sendLog(`Ошибка автоматического удаления сообщения сбора ${this.name} ${this.id}: ${err.message}`, 'Запись логов: ошибка');
+                    }
+                });    
             }, this.day);
-            if (this.message){
-                this.message.edit({content: '', embeds: [embed], components: []}).catch(() => console.log(`Ошибка закрытия сбора ${this.id}`));
-            }
+            this.message.edit({content: '', embeds: [embed], components: []}).catch(err =>{
+                console.log(`Ошибка закрытия сбора ${this.name} ${this.id}: ${err.message}`);
+                if (this.guildId){
+                    const sett = ActivityBase.client.settings.get(this.guildId);
+                    sett.sendLog(`Ошибка закрытия сбора ${this.name} ${this.id}: ${err.message}`, 'Запись логов: ошибка');
+                }
+            });          
             return;
         }
         embed.fields[2].value = `${this.leader}`;
         embed.fields[3].value = this.getMembersString();
-        this.message.edit({embeds: [embed]}).catch((err) => console.log(`Ошибка изменения сбора ${this.name} (${this.id}): ${err.message}`));
+        this.message.edit({embeds: [embed]}).catch(err =>{
+            console.log(`Ошибка изменения сбора ${this.name} ${this.id}: ${err.message}`);
+            if (this.guildId){
+                const sett = ActivityBase.client.settings.get(this.guildId);
+                sett.sendLog(`Ошибка изменения сбора ${this.name} ${this.id}: ${err.message}`, 'Запись логов: ошибка');
+            }
+        });
         
     }
     updateMessage(){

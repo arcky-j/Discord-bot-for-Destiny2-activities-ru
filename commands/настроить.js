@@ -58,6 +58,14 @@ module.exports = {
                         .setDescription('Канал для уведомлений об уходе с сервера')))
         .addSubcommand(subcommand =>
             subcommand
+                .setName('канал_логов')
+                .setDescription('Назначить канал для уведомлений бота')
+                .addChannelOption(option => 
+                    option
+                        .setName('канал_для_логов')
+                        .setDescription('Канал для уведомлений')))
+        .addSubcommand(subcommand =>
+            subcommand
                 .setName('уведомления')
                 .setDescription('Настройка сообщений, уведомляющих о прибытии и уходе'))
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
@@ -158,7 +166,26 @@ module.exports = {
                 interaction.reply({embeds: [embed]});
                 return;
             }
+            
         }
+
+        if (interaction.options.getSubcommand() === 'канал_логов'){
+            const channel = interaction.options.getChannel('канал_для_логов');
+            const sett = interaction.client.settings.get(interaction.guild.id);
+            sett.setLogChannel(channel);
+            //если чат не введён, то он просто сбрасывается
+            if (!channel){
+                const embed = interaction.client.genEmbed(`Вы не выбрали ни одного канала`, 'Успех! Канал для логов бота сброшен');
+                interaction.reply({embeds: [embed]});
+                return;
+            }
+            if (channel){
+                const embed = interaction.client.genEmbed(`${channel}`, 'Успех! Канал оповещений бота установлен');
+                interaction.reply({embeds: [embed]});
+                return;
+            }
+        }
+        
         if (interaction.options.getSubcommand() === 'уведомления'){
             const modal = new ModalBuilder()
             .setTitle('Настройка сообщений')

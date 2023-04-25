@@ -44,7 +44,7 @@ module.exports = class ActivityRes extends ActivityDate{
         const embed = this.message.embeds[0];
         embed.fields[4].value = this.getReservsString();
     }
-    sendAlerts(reason){
+    async sendAlerts(reason){
         switch(reason){
             case 'uptime': //рассылка при скором начале активности
                 if (!this.message){
@@ -54,7 +54,13 @@ module.exports = class ActivityRes extends ActivityDate{
                 this.reservs.forEach( async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
                     const embed = ActivityRes.client.genEmbed(`Активность «${this.name}» начнётся в ближайшие **10 минут**! Вы были записаны в резерв и получаете это сообщение, потому что боевая группа меньше необходимого!`, 'Уведомление');
                     us.send({embeds:[embed, this.message.embeds[0]]})
-                    .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
+                    .catch(err =>{
+                        console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
+                        if (this.guildId){
+                            const sett = ActivityRes.client.settings.get(this.guildId);
+                            sett.sendLog(`Ошибка рассылки (скорое начало сбора ${this.name} ${this.id}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
+                        }
+                    });
                 });
                 //super.sendAlerts(reason);
             default: super.sendAlerts(reason);
