@@ -75,12 +75,14 @@ module.exports = class ActivityDate extends ActivityBron{
                     break;
                 }
                 this.members.forEach( async (us, id) =>{ //оповещает всех участников
-                    us.send({content: `Активность «${this.name}» начнётся в ближайшие **10 минут**!\n`, embeds: this.message.embeds})
+                    const embed = ActivityDate.client.genEmbed(`Активность «${this.name}» начнётся в ближайшие **10 минут**!`, 'Уведомление');
+                    us.send({embeds:[embed, this.message.embeds[0]]})
                     .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
                 });
                 if (this.bron.size > 0 && this.members.size < this.quantity)
                 this.bron.forEach( async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
-                    us.send({content:`Активность «${this.name}» начнётся в ближайшие **10 минут**! Вам было забронировано место, поэтому вы получаете это сообщение!`, embeds: this.message.embeds})
+                    const embed = ActivityDate.client.genEmbed(`Активность «${this.name}» начнётся в ближайшие **10 минут**! Вам было забронировано место, поэтому вы получаете это сообщение!`, 'Уведомление');
+                    us.send({embeds:[embed, this.message.embeds[0]]})
                     .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
                 });
                 break;
@@ -89,9 +91,11 @@ module.exports = class ActivityDate extends ActivityBron{
                     break;
                 }
                 this.members.forEach( async (us, id) =>{
-                    if (this.leaderId != id) //рассылает оповещение всем участникам кроме лидера
-                    us.send({content: `Активность «${this.name}» перенесёна пользователем ${this.getLeader().tag}! Новое время: ${this.getDateString()}`, embeds: this.message.embeds})
-                    .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
+                    if (this.leader.id != id) {//рассылает оповещение всем участникам кроме лидера
+                        const embed = ActivityDate.client.genEmbed(`Активность «${this.name}» перенесёна пользователем ${this.leader}! Новое время: ${this.getDateString()}`, 'Уведомление');
+                        us.send({embeds:[embed, this.message.embeds[0]]})
+                        .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
+                    }                 
                 });
                 break;
             default: super.sendAlerts(reason);

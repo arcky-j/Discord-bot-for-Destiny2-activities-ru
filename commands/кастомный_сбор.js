@@ -13,6 +13,10 @@ module.exports = {
             option.setName('время_дата')
                 .setDescription('Время и дата. Просто строка, можно ввести приблизительные сроки')
                 .setRequired(true))
+        .addStringOption(option =>
+            option.setName('описание')
+                .setDescription('Более подробное описание активности')
+                .setRequired(true))
         .addBooleanOption(option => 
             option.setName('тэги')
                 .setDescription('Нужны ли общие тэги участников? По умолчанию: false')
@@ -25,9 +29,6 @@ module.exports = {
             option.setName('требования')
                 .setDescription('Ваши требования к участникам (необязательно)'))
         .addStringOption(option =>
-            option.setName('описание')
-                .setDescription('Ваши дополнительные заметки (необязательно)'))
-        .addStringOption(option =>
             option.setName('медиа')
                 .setDescription('Ссылка на картинку или гифку для оформления (ТОЛЬКО URL!)'))
         .addStringOption(option =>
@@ -37,7 +38,7 @@ module.exports = {
 
     async execute(interaction) {
         //получение данных из команды
-        let actName = interaction.options.getString('заголовок');
+        const actName = interaction.options.getString('заголовок');
         const timeDate = interaction.options.getString('время_дата');
         const requiries = interaction.options.getString('требования');     
         const descript = interaction.options.getString('описание');          
@@ -52,7 +53,7 @@ module.exports = {
             const sett = interaction.client.settings.get(interaction.guild.id);
             if (sett.rolesToTag || sett.rolesToTag.size > 0){
                 sett.rolesToTag.forEach((val) => {
-                    strTags += `<@&${val.id}> `;
+                    strTags += `${val} `;
                 });
             }
         }      
@@ -69,17 +70,18 @@ module.exports = {
             embDesc += `Требования: ${requiries}\n`;
         } 
         if (descript){
-            embDesc += `\n${descript}\n`;
-            if (role){
-                embDesc += `*При записи вы получите роль* ${role}`;
-            }
+            embDesc += `\n${descript}\n`;           
         } 
+        if (role){
+            embDesc += `*При записи вы получите роль* ${role}`;
+        }
             
         //формирование embed
         const id = interaction.client.generateId(interaction.client.activities);    
         //отправка сообщения
-        const lastMess = await interaction.channel.send({content: '*Строительные работы*'});
-        const activity = new CustomActivity(id, lastMess, actName, Infinity, interaction.member, timeDate, role.id);
+        const embedStr = interaction.client.genEmbed(`*Строительные работы*`, `${actName}`, embColor);
+        const lastMess = await interaction.channel.send({content: strTags, embeds:[embedStr]});
+        const activity = new CustomActivity(id, lastMess, actName, Infinity, interaction.user, timeDate, role);
         try {
             const embed = activity.createEmbed(embColor, embDesc, bannerUrl, media);
             const row = activity.createActionRow();
@@ -87,18 +89,19 @@ module.exports = {
             activity.message = mess1;
             setTimeout(() => {
                 activity.refreshMessage();
-            }, 150);     
+            }, 250);     
         } catch (err){
-            lastMess.delete();
-            await interaction.reply({content: `Ошибка при создании сбора: ${err.message}`, ephemeral: true});
+            await lastMess.delete().catch();
+            const embed = interaction.client.genEmbed(`Ошибка при создании сбора: ${err.message}`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }  
         //формирование внутренней структуры данных
-        //const lastMess = interaction.channel.lastMessage;
         lastMess.customId = id;
+        lastMess.customActivity = true;
         interaction.client.activities.set(id, activity);
         //уведомление, если всё прошло успешно
-        await interaction.reply({content: 'Сбор создан', ephemeral: true});
-
+        const embed = interaction.client.genEmbed(`Сбор ${actName} создан`, 'Успех!');
+        interaction.reply({embeds: [embed], ephemeral:true});
     }
 }

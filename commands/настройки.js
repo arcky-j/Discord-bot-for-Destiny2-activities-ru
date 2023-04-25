@@ -13,8 +13,9 @@ module.exports = {
             .setTitle(`Конфигурация бота для сервера ${interaction.guild.name}`)
             .setDescription(`${settings.getString()}`)
             .setThumbnail(interaction.guild.iconURL())
+            .setColor(interaction.user.accentColor)
             .setTimestamp(new Date());
-        
+                  
         interaction.reply({embeds: [embed]});
     }
 }

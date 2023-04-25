@@ -6,12 +6,16 @@ module.exports = {
         const client= message.client;
         //если удалённое сообщение хранилось как сообщение сбора или лог, удаляет и из своей памяти
         if (message.customId){
-            if (client.fireteams.has(message.customId)){
-                client.fireteams.get(message.customId).delete();
-                client.fireteams.delete(message.customId);
-            }
-            if (client.activities.has(message.customId)){
-                client.activities.delete(message.customId);
+            if (message.fireteam){
+                if (client.fireteams.has(message.customId)){
+                    client.fireteams.get(message.customId).delete();
+                    client.fireteams.delete(message.customId);
+                }              
+            } else if (message.customActivity){
+                if (client.activities.has(message.customId)){
+                    client.activities.get(message.customId).delete();
+                    client.activities.delete(message.customId);
+                }              
             }
         }
     },

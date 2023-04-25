@@ -19,7 +19,7 @@ module.exports = class ActivityRes extends ActivityDate{
         if (this.reservs.has(user.id)){ //проверка на запись в резерв
             this.reservs.delete(user.id);
         } else {
-            if (user.id == this.leaderId){ //проверка на лидерство
+            if (user.id == this.leader.id){ //проверка на лидерство
                 throw new Error('Лидер не может записаться в резерв!'); 
             }
             
@@ -52,7 +52,8 @@ module.exports = class ActivityRes extends ActivityDate{
                 }
                 if (this.reservs.size > 0 && this.members.size < this.quantity)
                 this.reservs.forEach( async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
-                    us.send({content:`Активность «${this.name}» начнётся в ближайшие **10 минут**! Вы были записаны в резерв и получаете это сообщение, потому что боевая группа меньше необходимого!`, embeds: this.message.embeds})
+                    const embed = ActivityRes.client.genEmbed(`Активность «${this.name}» начнётся в ближайшие **10 минут**! Вы были записаны в резерв и получаете это сообщение, потому что боевая группа меньше необходимого!`, 'Уведомление');
+                    us.send({embeds:[embed, this.message.embeds[0]]})
                     .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
                 });
                 //super.sendAlerts(reason);
@@ -65,7 +66,7 @@ module.exports = class ActivityRes extends ActivityDate{
             return '...';
         }
         this.reservs.forEach(function(value1, value2){
-            str += `<@${value2}>\n`;
+            str += `${value1}\n`;
         });
         return str; //возвращает строку со всеми резервистами в столбик
     }

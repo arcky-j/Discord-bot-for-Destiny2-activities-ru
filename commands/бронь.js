@@ -35,35 +35,40 @@ module.exports = {
         const fireteam = interaction.client.fireteams.get(id);
 
         if (!fireteam){
-            await interaction.reply({content: 'Неверный ID. Возможно, активность уже началась', ephemeral:true});
+            const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
         //проверка на лидерство
-        if (user.id != fireteam.leaderId){
-            await interaction.reply({content: 'Только лидер может управлять бронью сбора!', ephemeral:true});
+        if (user.id != fireteam.leader.id){
+            const embed = interaction.client.genEmbed(`Только лидер может управлять бронью сбора!`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
-        //попытка добавления пользователя
+        
         if (interaction.options.getSubcommand() === 'добавить'){
             try{
                 fireteam.bronAdd(userNew);
             } catch (err){
-                await interaction.reply({content: err.message, ephemeral:true});
+                const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
+                interaction.reply({embeds: [embed], ephemeral:true});
                 return;
             }
-            //редактирование сообщения
-            await interaction.reply({content: 'Вы успешно забронировали место Стражу!', ephemeral:true});
+            const embed = interaction.client.genEmbed(`Вы успешно забронировали место для ${userNew}!`, 'Успех!');
+            interaction.reply({embeds: [embed], ephemeral:true});
         }
         //попытка удаления пользователя
         if (interaction.options.getSubcommand() === 'удалить'){
             try{
                 fireteam.bronDel(userNew.id);
             } catch (err){
-                await interaction.reply({content: err.message, ephemeral:true});
+                const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
+                interaction.reply({embeds: [embed], ephemeral:true});
                 return;
             }
-            //редактирование сообщения
-            await interaction.reply({content: 'Вы успешно отозвали бронь Стража!', ephemeral:true});
+
+            const embed = interaction.client.genEmbed(`Вы успешно отозвали бронь для ${userNew}!`, 'Успех!');
+            interaction.reply({embeds: [embed], ephemeral:true});
         }       
     }
 };

@@ -73,8 +73,8 @@ module.exports = {
             sett.setRoleTags(role1, role2, role3, role4, role5);
             //если первая роль не введена, то роли сбрасываются
             if (!role1){
-                const embed = new EmbedBuilder().setTitle('Роли для сборов сброшены').setDescription(`Вы не выбрали ни одной роли`);
-                await interaction.reply({embeds: [embed]});
+                const embed = interaction.client.genEmbed(`Вы не выбрали ни одной роли`, 'Успех! Роли для сборов сброшены');
+                interaction.reply({embeds: [embed]});
                 return;
             } 
             const rat = [];
@@ -93,11 +93,11 @@ module.exports = {
             }
             let str = '';
             rat.forEach((val) =>{
-                str += `<@&${val.id}>\n`;
+                str += `${val}\n`;
             });
             //оповещает о проделанной работе
-            const embed = new EmbedBuilder().setTitle('Роли для сборов установлены').setDescription(`${str}`);
-            await interaction.reply({embeds: [embed]});
+            const embed = interaction.client.genEmbed(`${str}`, 'Успех! Роли для сборов установлены');
+            interaction.reply({embeds: [embed]});
             return;
         }
 
@@ -109,8 +109,8 @@ module.exports = {
             sett.setRolesForNew(role1, role2, role3);
             //если первая роль не введена, то роли сбрасываются
             if (!role1){
-                const embed = new EmbedBuilder().setTitle('Роли для новичков сервера сброшены').setDescription(`Вы не выбрали ни одной роли`);
-                await interaction.reply({embeds: [embed]});
+                const embed = interaction.client.genEmbed(`Вы не выбрали ни одной роли`, 'Успех! Роли для новичков сервера сброшены');
+                interaction.reply({embeds: [embed]});
                 return;
             } 
             const rat = [];
@@ -123,12 +123,12 @@ module.exports = {
             }
             let str = '';
             rat.forEach((val) =>{
-                str += `<@&${val.id}>\n`;
+                str += `${val}\n`;
             });
 
             //оповещает о проделанной работе
-            const embed = new EmbedBuilder().setTitle('Роли для новичков сервера установлены').setDescription(`${str}`);
-            await interaction.reply({embeds: [embed]});
+            const embed = interaction.client.genEmbed(`${str}`, 'Успех! Роли для новичков сервера установлены');
+            interaction.reply({embeds: [embed]});
             return;
         }
 
@@ -139,23 +139,23 @@ module.exports = {
             sett.setJLChannels(channelJ, channelL);
             //если чат не введён, то он просто сбрасывается
             if (!channelJ && !channelL){
-                const embed = new EmbedBuilder().setTitle('Каналы оповещений сброшены').setDescription(`Вы не выбрали ни одного канала`);
-                await interaction.reply({embeds: [embed]});
+                const embed = interaction.client.genEmbed(`Вы не выбрали ни одного канала`, 'Успех! Каналы оповещений сброшены');
+                interaction.reply({embeds: [embed]});
                 return;
             }
             if (channelJ && channelL){
-                const embed = new EmbedBuilder().setTitle('Каналы оповещений установлены').setDescription(`<#${channelJ.id}> - канал для уведомлений о новоприбывших и <#${channelL.id}> - канал уведомлений о ушедших`);
-                await interaction.reply({embeds: [embed]});
+                const embed = interaction.client.genEmbed(`${channelJ} - канал для уведомлений о новоприбывших и ${channelL} - канал уведомлений о ушедших`, 'Успех! Каналы оповещений установлены');
+                interaction.reply({embeds: [embed]});
                 return;
             }
             if (channelJ){
-                const embed = new EmbedBuilder().setTitle('Каналы оповещений установлены').setDescription(`<#${channelJ.id}> - канал для уведомлений о новоприбывших`);
-                await interaction.reply({embeds: [embed]});
+                const embed = interaction.client.genEmbed(`${channelJ} - канал для уведомлений о новоприбывших`, 'Успех! Каналы оповещений установлены');
+                interaction.reply({embeds: [embed]});
                 return;
             }
             if (channelL){
-                const embed = new EmbedBuilder().setTitle('Каналы оповещений установлены').setDescription(`<#${channelL.id}> - канал уведомлений о ушедших`);
-                await interaction.reply({embeds: [embed]});
+                const embed = interaction.client.genEmbed(`${channelL} - канал уведомлений о ушедших`, 'Успех! Каналы оповещений установлены');
+                interaction.reply({embeds: [embed]});
                 return;
             }
         }

@@ -103,7 +103,8 @@ for(const file of modalFiles){
         console.log(`[WARNING] The Modal at ${modalPath} is missing a required "name" or "execute" property`);
     }
 }
-Base.client = client;
 client.generateId = require('./utility/id_generator');
+client.genEmbed = require('./utility/gen_embed');
+Base.client = client;
 //запуск бота
 client.login(process.env.TOKEN);

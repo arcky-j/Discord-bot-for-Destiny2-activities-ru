@@ -2,18 +2,20 @@
 module.exports = {
     name: 'cancel_activity',
     async execute(interaction){
-        const user = interaction.member;
+        const user = interaction.user;
         //поиск нужной боевой группы
         const activity = interaction.client.activities.get(interaction.message.customId);
-        if (!activity){
-            await interaction.reply({content: `Скорее всего, активность уже стартовала. Возможно, произошла непредвиденная ошибка`, ephemeral: true});
+        if (!activity || activity.state == 'Закрыт'){
+            const embed = interaction.client.genEmbed(`Скорее всего, активность уже стартовала. Возможно, произошла непредвиденная ошибка`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
         //попытка удаления Стража
         try {
             activity.remove(user.id);
         } catch (err) {
-            await interaction.reply({content: err.message, ephemeral: true});
+            const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }        
         //обновление сообщения сбора

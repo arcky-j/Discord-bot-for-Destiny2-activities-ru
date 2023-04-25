@@ -50,14 +50,14 @@ module.exports = class FireteamRes extends ActivityRes{
     }
 
     remove(id){
-        if (id == this.leaderId){ //проверка на лидерство
+        if (id == this.leader.id){ //проверка на лидерство
             throw new Error('Лидер не может покинуть боевую группу!');
         }
         super.remove(id);
     }
 
     changeLeader(user){
-        if (user.id == this.leaderId){ //проверка на случай попытки сменить себя на себя
+        if (user.id == this.leader.id){ //проверка на случай попытки сменить себя на себя
             throw new Error('Лидер пытается сменить себя на себя! чзх? я не буду это комментировать...');
         }
 
@@ -66,16 +66,16 @@ module.exports = class FireteamRes extends ActivityRes{
         }
 
         if (this.members.has(user.id)){ 
-            this.leaderId = user.id; //если новый лидер был в боевой группе, просто передаёт лидерство
+            this.leader = user; //если новый лидер был в боевой группе, просто передаёт лидерство
         } else{
             //если нового лидера нет ни в боевой группе, ни в резерве              
             if (this.state == 'Заполнен'){                    
-                this.members.delete(this.leaderId); //если группа была заполнена, удаляет предыдущего лидера
+                this.members.delete(this.leader.id); //если группа была заполнена, удаляет предыдущего лидера
                 this.members.set(user.id, user); //и только потом записывает нового лидера в боевую группу 
-                this.leaderId = user.id;                
+                this.leader = user;                
             } else {
                 this.members.set(user.id, user); //если места есть, просто добавляет нового Стража и делает его лидером
-                this.leaderId = user.id; 
+                this.leader = user; 
             }
             this.checkQuantity();
         }   
@@ -153,7 +153,7 @@ module.exports = class FireteamRes extends ActivityRes{
             channel: team.message.channelId,
             name: team.name,
             quantity: team.quantity,
-            leaderId: team.leaderId,
+            leader: team.leader.id,
             date: team.date.toJSON(),
             members: new Array(),
             reservs: new Array(),
@@ -195,7 +195,8 @@ module.exports = class FireteamRes extends ActivityRes{
             throw new Error('Сообщение сбора не обнаружено');
         }
         message.customId = data.id;
-        const leader = await this.client.users.fetch(data.leaderId).catch();
+        message.fireteam = true;
+        const leader = await this.client.users.fetch(data.leader).catch();
         if (!leader){
             message.delete().catch();
             throw new Error('Лидер сбора не обнаружен');

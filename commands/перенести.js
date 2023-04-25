@@ -12,8 +12,8 @@ module.exports = {
                 .setRequired(true))
         .addStringOption(option => 
             option.setName('дата')
-                .setDescription('Новая дата сбора в формате "ДД.ММ"')
-                .setRequired(true))
+                .setDescription('Новая дата сбора в формате "ДД.ММ". Оставьте пустым для сегодняшней даты')
+                .setRequired(false))
         .addStringOption(option =>
             option.setName('id')
                 .setDescription('ID изменяемой активности')
@@ -32,15 +32,18 @@ module.exports = {
         //поиск нужной боевой группы
         const fireteam = interaction.client.fireteams.get(id);
         if (fireteam instanceof ActivityUntimed){
-            await interaction.reply({content: `Попытка перенести активность, где даты-времени нет в принципе, не пройдёт`, ephemeral: true});
+            const embed = interaction.client.genEmbed(`Попытка перенести активность, где даты-времени нет в принципе, не пройдёт`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
         if (!fireteam || fireteam.state == 'Закрыт'){
-            await interaction.reply({content: `Неверный ID. Возможно, активность уже началась`, ephemeral: true});
+            const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
-        if (fireteam.leaderId != user.id){ //проверка на лидерство
-            await interaction.reply({content:'Только лидер может перенести сбор', ephemeral: true});
+        if (fireteam.leader.id != user.id){ //проверка на лидерство
+            const embed = interaction.client.genEmbed(`Только лидер может перенести сбор`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
         let rDate;
@@ -48,30 +51,30 @@ module.exports = {
         try {
             rDate = setDate(time, date);
         } catch (err){
-            await interaction.reply({content: err.message, ephemeral:true});
+            const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
         //попытка дату сменить
         try{
             fireteam.changeDate(rDate);
         } catch (err){
-            await interaction.reply({content: err.message, ephemeral:true});
+            const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
         //рассылка уведомлений
         if (reason){
-            interaction.reply({content: `Сбор ${fireteam.name} ID (${id}) был успешно перенесён на ${fireteam.getDateString()}!\nПричина: ${reason}`});
+            const embed = interaction.client.genEmbed(`Сбор ${fireteam.name} ID (${id}) был успешно перенесён на ${fireteam.getDateString()}!\nПричина: ${reason}`, 'Успех!');
+            await interaction.reply({embeds: [embed]});
         } else {
-            interaction.reply({content: `Сбор ${fireteam.name} ID (${id}) был успешно перенесён на ${fireteam.getDateString()}!`});
+            const embed = interaction.client.genEmbed(`Сбор ${fireteam.name} ID (${id}) был успешно перенесён на ${fireteam.getDateString()}!`, 'Успех!');
+            await interaction.reply({embeds: [embed]});
         }
         //загрузка сообщения в логи
         const logMess = await interaction.fetchReply();
         setTimeout(() => {
-            try{
-                logMess.delete();
-            } catch (err){
-                console.log('Ошибка удаления лога переноса сбора: ' + err.message);
-            }
+            logMess.delete().catch(err => console.log('Ошибка удаления лога переноса сбора: ' + err.message));
         }, 86400000);
     }
 }

@@ -5,7 +5,8 @@ module.exports = class ActivityBase extends Base{
     message;
     name;
     quantity;
-    leaderId;
+    leader;
+    guildId;
     members = new Map();
     state;
     states = new Map([[0, 'Закрыт'], [1, 'Открыт'], [2, 'Заполнен']]);
@@ -20,8 +21,11 @@ module.exports = class ActivityBase extends Base{
         this.message = mess;
         this.name = name;
         this.quantity = quant;
-        this.leaderId = leader.id;
-        //this.members.set(leader.id, leader);
+        this.leader = leader;
+        this.leader.id = leader.id;
+        if (mess.guildId){
+            this.guildId = mess.guildId;
+        }
         this.state = this.states.get(1);
     }
 
@@ -51,7 +55,7 @@ module.exports = class ActivityBase extends Base{
     }
 
     changeLeader(user){
-        if (user.id == this.leaderId){ //проверка на случай попытки сменить себя на себя
+        if (user.id == this.leader.id){ //проверка на случай попытки сменить себя на себя
             throw new Error('Лидер пытается сменить себя на себя! чзх? я не буду это комментировать...');
         }
 
@@ -59,7 +63,7 @@ module.exports = class ActivityBase extends Base{
             throw new Error('Возмутительно! Я не думал, что кому-то придёт назначать лидером бота, но и к этому я был готов');
         }
        
-        this.leaderId = user.id; 
+        this.leader = user; 
         
         this.refreshMessage();
     }
@@ -81,9 +85,11 @@ module.exports = class ActivityBase extends Base{
                     break;
                 }
                 this.members.forEach( async (us, id) =>{
-                    if (this.leaderId != id) //рассылает оповещение всем участникам кроме лидера
-                    us.send({content: `Активность «${this.name}», в которую вы были записаны, была отменёна пользователем ${this.getLeader().tag}.`, embeds:this.message.embeds})
-                    .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
+                    if (this.leader.id != id) {
+                        const embed = ActivityBase.client.genEmbed(`Активность «${this.name}», в которую вы были записаны, была отменёна пользователем ${this.leader}.`, 'Уведомление');
+                        us.send({embeds:[embed, this.message.embeds[0]]})
+                        .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
+                    } //рассылает оповещение всем участникам кроме лидера                   
                 });
                 break;
             case 'admin_del': //рассылка при удалении активности администратором
@@ -91,8 +97,9 @@ module.exports = class ActivityBase extends Base{
                     break;
                 }
                 this.members.forEach( async (us, id) =>{
-                    us.send({content: `Активность «${this.name}», в которую вы были записаны, была отменёна администратором. Более подробная информация в канале сбора.`, embeds: this.message.embeds})
-                    .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
+                    const embed = ActivityBase.client.genEmbed(`Активность «${this.name}», в которую вы были записаны, была отменёна администратором. Более подробная информация в канале сбора.`, 'Уведомление');
+                    us.send({embeds:[embed, this.message.embeds[0]]})
+                    .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`)); 
                 });
                 break;
             case 'start': //рассылка при скором начале активности
@@ -100,9 +107,11 @@ module.exports = class ActivityBase extends Base{
                     break;
                 }               
                 this.members.forEach(async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
-                    if (id != this.leaderId)
-                    us.send({content:`Активность «${this.name}» начата лидером активности!`, embeds: this.message.embeds})
-                    .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));                      
+                    if (id != this.leader.id){
+                        const embed = ActivityBase.client.genEmbed(`Активность «${this.name}» начата лидером (${this.leader}) активности!`, 'Уведомление');
+                        us.send({embeds:[embed, this.message.embeds[0]]})
+                        .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`)); 
+                    }                 
                 });
         }
     }
@@ -123,15 +132,15 @@ module.exports = class ActivityBase extends Base{
             }
             return;
         }
-        embed.fields[2].value = `<@${this.leaderId}>`;
+        embed.fields[2].value = `${this.leader}`;
         embed.fields[3].value = this.getMembersString();
-        this.message.edit({embeds: [embed]}).catch(() => console.log(`Ошибка изменения сбора ${this.id}`));
+        this.message.edit({embeds: [embed]}).catch((err) => console.log(`Ошибка изменения сбора ${this.name} (${this.id}): ${err.message}`));
         
     }
     updateMessage(){
         const embed = this.message.embeds[0];
         embed.fields[1].value = this.state;
-        embed.fields[2].value = `<@${this.leaderId}>`;
+        embed.fields[2].value = `${this.leader}>`;
         embed.fields[3].value = this.getMembersString();
         return embed;
     }
@@ -143,7 +152,7 @@ module.exports = class ActivityBase extends Base{
     getMembersString(){
         let str = '';
         this.members.forEach(function(value1, value2, mp){
-            str += `<@${value2}>\n`;
+            str += `${value1}\n`;
         });
         return str; //возвращает строку со всеми участниками боевой группы в столбик
     }
@@ -155,12 +164,12 @@ module.exports = class ActivityBase extends Base{
     //несколько устаревшие, но не самые деструктивные методы, которые где-то ещё есть
     //вспомогательный метод для нахождения лидера боевой группы
     getLeader(){
-        const lead = this.members.get(this.leaderId);
+        const lead = this.members.get(this.leader.id);
         return lead;
     }
     //вспомогательный метод для проверки пользователя на лидерство
     isLeader(id){
-        if (id == this.leaderId){
+        if (id == this.leader.id){
             return true;
         } else {
             return false;

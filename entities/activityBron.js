@@ -21,14 +21,22 @@ module.exports = class ActivityBron extends ActivityBase{
         super(id, mess, name, quant, leader);        
         this.bronSize = Math.ceil(quant/2 - 1);
         if (br1){
-            this.bron.set(br1.id, br1);
-            br1.send({content: `Вы были записаны лидером активности в ${name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность? ID: ${this.id}`, components:[this.rowBr]})
-            .then(m => this.bronMessages.set(br1.id, m)).catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
+            const embed = ActivityBron.client.genEmbed(`Вы были записаны лидером активности в ${name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность?`, 'Уведомление', undefined, undefined, this.id);
+            br1.send({embeds: [embed], components:[this.rowBr]})
+            .then(m => {
+                this.bron.set(br1.id, br1);
+                this.bronMessages.set(br1.id, m);
+            })
+            .catch(err => console.log(`Ошибка бронирования пользователя ${us.tag}: ${err.message}`));
         }
         if (br2){
-            this.bron.set(br2.id, br2);
-            br2.send({content: `Вы были записаны лидером активности в ${name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность? ID: ${this.id}`, components:[this.rowBr]})
-            .then(m => this.bronMessages.set(br2.id, m)).catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
+            const embed = ActivityBron.client.genEmbed(`Вы были записаны лидером активности в ${name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность?`, 'Уведомление', undefined, undefined, this.id);
+            br2.send({embeds: [embed], components:[this.rowBr]})
+            .then(m => {
+                this.bron.set(br2.id, br2);
+                this.bronMessages.set(br2.id, m);
+            })
+            .catch(err => console.log(`Ошибка бронирования пользователя ${us.tag}: ${err.message}`));
         }       
     }
 
@@ -43,7 +51,7 @@ module.exports = class ActivityBron extends ActivityBase{
         if (this.members.has(user.id)){ //проверка на присутствие в боевой группе
             throw new Error('Пользователь уже записан в боевую группу!'); 
         } 
-        if (user.id == this.leaderId){ //проверка на присутствие в боевой группе
+        if (user.id == this.leader.id){ //проверка на присутствие в боевой группе
             throw new Error('Нельзя забронировать место лидеру, что это вообще за чушь?'); 
         } 
         if (this.bron.has(user.id)){ //проверка на присутствие в списке брони
@@ -58,14 +66,15 @@ module.exports = class ActivityBron extends ActivityBase{
         if (user.bot){ //проверка на случай, если кто-то насильно догадается записать в сбор бота
             throw new Error('Возмутительно! Я не думал, что кому-то придёт в голову совать в сбор бота, но и к этому я был готов');
         }   
-        user.send({content: `Вы были записаны лидером активности в ${this.name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность? ID: ${this.id}`, components:[this.rowBr]})
+        const embed = ActivityBron.client.genEmbed(`Вы были записаны лидером активности в ${this.name}. Ссылка на сбор: ${this.message.url}\nПодтверждаете свою готовность?`, 'Уведомление', undefined, undefined, this.id);
+        user.send({embeds: [embed], components:[this.rowBr]})
         .then(m => {
             this.bron.set(user.id, user);
             this.bronMessages.set(user.id, m);
             this.checkQuantity();
             this.refreshMessage();
         })
-        .catch(err => console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`));
+        .catch(err => console.log(`Ошибка бронирования пользователя ${us.tag}: ${err.message}`));
         
     }
     //удаление из брони
@@ -74,7 +83,8 @@ module.exports = class ActivityBron extends ActivityBase{
             throw new Error('Пользователю не было забронировано место!'); 
         }
         const mess = this.bronMessages.get(id);
-        mess.edit({content: 'Ваша бронь была отозвана! :(', components: []}).catch();
+        const embed = ActivityBron.client.genEmbed(`Ваша бронь в ${this.name} (${this.id}) была отозвана!`, 'Уведомление');
+        mess.edit({embeds: [embed], components: []}).catch();
         this.bron.delete(id);
         this.bronMessages.delete(id); 
         this.checkQuantity();
@@ -87,7 +97,8 @@ module.exports = class ActivityBron extends ActivityBase{
         }
         this.bron.delete(user.id);
         const mess = this.bronMessages.get(user.id);
-        mess.edit({content: 'Вы успешно записаны в сбор! Бронь снята.', components: []})
+        const embed = ActivityBron.client.genEmbed(`Вы успешно записаны в ${this.name} (${this.id})! Бронь снята`, 'Уведомление');
+        mess.edit({embeds: [embed], components: []})
         .then(() =>{
             this.bronMessages.delete(user.id);
             this.members.set(user.id, user);
@@ -111,11 +122,11 @@ module.exports = class ActivityBron extends ActivityBase{
     getMembersString(){
         let str = '';
         this.members.forEach(function(value1, value2, mp){
-            str += `<@${value1.id}>\n`;
+            str += `${value1}\n`;
         });
         if (this.bron){
             this.bron.forEach(function(value1, value2, mp){
-                str += `#бронь\n`;
+                str += `#бронь (${value1})\n`;
             });
         }       
         return str;

@@ -27,11 +27,10 @@ module.exports = class ActivityUntimed extends ActivityBron{
     refreshMessage(){
         super.refreshMessage();
         if (this.state == 'Заполнен'){
-            const leader = this.members.get(this.leaderId);
             try{
-                leader.send({content:`Ваш сбор по готовности заполнился стражами!`, embeds: this.message.embeds});
+                this.leader.send({content:`Ваш сбор по готовности заполнен!`, embeds: this.message.embeds});
             } catch(err){
-                console.log(`Ошибка рассылки для пользователя ${leader.tag}: ${err.message}`);
+                console.log(`Ошибка рассылки для пользователя ${this.leader.tag}: ${err.message}`);
             }
         }
     }

@@ -24,38 +24,30 @@ module.exports = {
         const fireteam = client.fireteams.get(id);
         
         if (!fireteam || fireteam.state == 'Закрыт'){
-            await interaction.reply({content:'Неверный ID. Возможно, активность уже началась и в скором времени удалится сама', ephemeral: true});
+            const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась и в скором времени удалится сама`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;                        
         }
 
-        if (fireteam.leaderId != user.id){ //проверка на лидерство
-            await interaction.reply({content:'Ты же не лидер, чтобы это удалить', ephemeral: true});
+        if (fireteam.leader.id != user.id){ //проверка на лидерство
+            const embed = interaction.client.genEmbed(`Только лидер может отменить сбор!`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
         fireteam.sendAlerts('del');
         //удаление сообщения
         if (reason) {
-            await interaction.reply({content:`Сбор в ${fireteam.name} (ID: ${id}) успешно удалён!\nПричина: ${reason}`});
+            const embed = interaction.client.genEmbed(`Сбор в ${fireteam.name} (ID: ${id}) успешно удалён!\nПричина: ${reason}`, 'Успех!');
+            await interaction.reply({embeds: [embed]});
         } else {
-            await interaction.reply({content:`Сбор в ${fireteam.name} (ID: ${id}) успешно удалён!`});
+            const embed = interaction.client.genEmbed(`Сбор в ${fireteam.name} (ID: ${id}) успешно удалён!`, 'Успех!');
+            await interaction.reply({embeds: [embed]});
         }  
         //запись уведомления в логи
         const logMess = await interaction.fetchReply();
         setTimeout(() => {
-            try{
-                logMess.delete();
-            } catch (err){
-                console.log('Ошибка удаления сообщения лога удаления сбора (каво?): ' + err.message);
-            }
+            logMess.delete().catch(err => console.log('Ошибка удаления сообщения лога удаления сбора (каво?): ' + err.message));
         }, 86400000);
-        // fireteam.state = 'Закрыт';
-        // fireteam.refreshMessage();
-        fireteam.message.delete();
-        //удаление всех данных и рассылка уведомлений 
-        // try {
-        //     client.fireteams.delete(id);
-        // } catch (err){
-        //     console.log('гитара');
-        // }       
+        fireteam.message.delete();    
     }
 };

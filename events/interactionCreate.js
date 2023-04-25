@@ -19,7 +19,8 @@ module.exports = {
                 
             } catch (error){ //и оповещает пользователя, если что-то пошло не так
                 console.error(error);
-                await interaction.reply({content: 'Произошла ошибка при исполнении команды', ephemeral: true});
+                const embed = interaction.client.genEmbed(`Произошла ошибка при исполнении команды: ${error.message}`, 'Ошибка!');
+                interaction.reply({embeds: [embed], ephemeral:true});
             }
             //по этому принципу работают обработки и других интеракций
         }
@@ -37,7 +38,8 @@ module.exports = {
                 await button.execute(interaction);
             } catch (error){
                 console.log(error);
-                await interaction.reply({content: 'Произошла ошибка при нажатии кнопки :(', ephemeral: true});
+                const embed = interaction.client.genEmbed(`Произошла ошибка при нажатии кнопки: ${error.message}`, 'Ошибка!');
+                interaction.reply({embeds: [embed], ephemeral:true});
             }
         }
         //действия при срабатывании команды контекстного меню
@@ -53,7 +55,8 @@ module.exports = {
                 await contextCommand.execute(interaction);
             } catch (error){
                 console.log(error);
-                await interaction.reply({content: 'Произошла ошибка при использовании контекстной комманды :(', ephemeral: true});
+                const embed = interaction.client.genEmbed(`Произошла ошибка при использовании контекстной комманды: ${error.message}`, 'Ошибка!');
+                interaction.reply({embeds: [embed], ephemeral:true});
             }
         }
         //действия при отправке формы
@@ -68,7 +71,8 @@ module.exports = {
                 await modal.execute(interaction);
             } catch (error){
                 console.log(error);
-                await interaction.reply({content: 'Произошла ошибка при отправке формы :(', ephemeral: true});
+                const embed = interaction.client.genEmbed(`Произошла ошибка при отправке формы: ${error.message}`, 'Ошибка!');
+                interaction.reply({embeds: [embed], ephemeral:true});
             }
         }
     } 

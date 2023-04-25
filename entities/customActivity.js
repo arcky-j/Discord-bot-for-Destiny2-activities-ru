@@ -5,15 +5,18 @@ const path = require('node:path');
 
 module.exports = class CustomActivity extends ActivityBase{
     date;
-    roleId;
+    role;
     guild;
     pathToActivities = path.join('.', 'data', 'customActivities');
 
     constructor(id, mess, name, quant, leader, date, role){
         super(id, mess, name, quant, leader);
-        this.guild = leader.guild;
         this.date = date;
-        this.roleId = role;
+        if (role){
+            this.role = role;
+            CustomActivity.client.guilds.fetch(role.guild.id)
+            .then(guild => this.guild = guild);
+        }        
     }
 
     createActionRow(){
@@ -46,8 +49,10 @@ module.exports = class CustomActivity extends ActivityBase{
             {name: 'Лидер', value: `...`, inline: true},
             {name: 'Участники', value: '...', inline: false}
         )
-        .setThumbnail(banner)
         .setFooter({text: `ID: ${this.id}`});
+        if (banner){
+            embed.setThumbnail(banner)
+        }
         if (media){
             embed.setImage(media);
         }
@@ -56,16 +61,15 @@ module.exports = class CustomActivity extends ActivityBase{
 
     add(user){
         super.add(user);
-        if (this.roleId){
-            user.roles.add(this.roleId).catch();
+        if (this.role){
+            this.guild.members.fetch(user.id).then(gMember => gMember.roles.add(this.role.id).catch());           
         }
     }
 
     remove(id){
-        const member = this.members.get(id);
         super.remove(id);
-        if (member && this.roleId){
-            member.roles.remove(this.roleId).catch();
+        if (this.role){
+            this.guild.members.fetch(id).then(gMember => gMember.roles.remove(this.role.id).catch());           
         }
     }
 
@@ -150,10 +154,10 @@ module.exports = class CustomActivity extends ActivityBase{
             name: activity.name,
             quantity: activity.quantity,
             date: activity.date,
-            leaderId: activity.leaderId,
+            leader: activity.leader.id,
             members: new Array(),
             state: activity.state,
-            role: activity.roleId,
+            role: activity.role.id,
             guild: activity.guild.id
         };
 
@@ -161,7 +165,7 @@ module.exports = class CustomActivity extends ActivityBase{
             activity.members.forEach((val, id) =>{
                 data.members.push(id);
             });
-        }       
+        } 
         return JSON.stringify(data);
     }
 
@@ -176,19 +180,30 @@ module.exports = class CustomActivity extends ActivityBase{
             throw new Error('Сообщение сбора не обнаружено');
         }
         message.customId = data.id;
-        const guild = await this.client.guilds.fetch(data.guild).catch();
-        if (!guild){
-            throw new Error('Сервер сбора не обнаружен');
+        message.customActivity = true;
+        let guild;
+        let role;
+        if (data.role){
+            guild = await this.client.guilds.fetch(data.guild).catch();
+            if (!guild){
+                message.delete().catch();
+                throw new Error('Сервер сбора не обнаружен');
+            }
+            role = await guild.roles.fetch(data.role).catch();
+            if (!role){
+                message.delete().catch();
+                throw new Error('Роль сбора не обнаружен');
+            }
         }
-        const leader = await guild.members.fetch(data.leaderId).catch();
+        const leader = await this.client.users.fetch(data.leader).catch();
         if (!leader){
             message.delete().catch();
             throw new Error('Лидер сбора не обнаружен');
         }
-        const activity = new CustomActivity(data.id, message, data.name, data.quantity, leader, data.date, data.role);
+        const activity = new CustomActivity(data.id, message, data.name, data.quantity, leader, data.date, role);
         if (data.members.length > 0){
             await data.members.forEach(async (val) =>{               
-                const user = await guild.members.fetch(val).catch();
+                const user = await this.client.users.fetch(val).catch();
                 if (user){
                     activity.members.set(val, user);
                 }               

@@ -156,7 +156,7 @@ module.exports = {
         const sett = interaction.client.settings.get(interaction.guild.id);
         if (sett.rolesToTag || sett.rolesToTag.size > 0){
             sett.rolesToTag.forEach((val) => {
-                strTags += `<@&${val.id}> `;
+                strTags += `${val} `;
             });
         }
         //оформление embed
@@ -298,7 +298,8 @@ module.exports = {
             actName = `Мастер ${actName}`;
         }       
         //отправка сообщения
-        const lastMess = await interaction.channel.send({content: `${strTags} *Строительные работы*`});
+        const embedStr = interaction.client.genEmbed(`*Строительные работы*`, `${actName}`, embColor);
+        const lastMess = await interaction.channel.send({content: strTags, embeds:[embedStr]});
         let fireteam;  
         try{
             if (time || date){
@@ -312,18 +313,20 @@ module.exports = {
             fireteam.message = mess1;
             setTimeout(() => {
                 fireteam.refreshMessage();
-            }, 150);    
+            }, 250);    
         } catch (err){
-            lastMess.delete();
-            await interaction.reply({content: `Ошибка при создании сбора: ${err.message}`, ephemeral: true});
+            await lastMess.delete().catch();
+            const embed = interaction.client.genEmbed(`Ошибка при создании сбора: ${err.message}`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }         
         //формирование внутренней структуры данных
         //const lastMess = interaction.channel.lastMessage;
         lastMess.customId = id;
+        lastMess.fireteam = true;
         interaction.client.fireteams.set(id, fireteam);
         //уведомление, если всё прошло успешно
-        await interaction.reply({content: 'Сбор создан', ephemeral: true});
-
+        const embed = interaction.client.genEmbed(`Сбор ${actName} создан`, 'Успех!');
+        interaction.reply({embeds: [embed], ephemeral:true});
     }
 }

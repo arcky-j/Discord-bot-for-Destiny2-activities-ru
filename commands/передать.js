@@ -27,34 +27,35 @@ module.exports = {
         const fireteam = interaction.client.fireteams.get(id);
 
         if (!fireteam || fireteam.state == 'Закрыт'){
-            await interaction.reply({content: 'Неверный ID. Возможно, активность уже началась', ephemeral:true});
+            const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
-        if (fireteam.leaderId != user.id){ //проверка на лидерство
-            await interaction.reply({content:'Только лидер может передать сбор! Что довольно логично', ephemeral: true});
+        if (fireteam.leader.id != user.id){ //проверка на лидерство
+            const embed = interaction.client.genEmbed(`Только лидер может управлять сбором`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
         //попытка передачи лидерства
         try{
             fireteam.changeLeader(userNew);
         } catch (err){
-            await interaction.reply({content: err.message, ephemeral:true});
+            const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
         //уведомление в чат сбора
         if (reason){
-            await interaction.reply({content: `В сборе ${fireteam.name} (ID: ${id}) сменился Лидер! <@${user.id}> => <@${userNew.id}>\nПричина: ${reason}` });
+            const embed = interaction.client.genEmbed(`В сборе ${fireteam.name} (ID: ${id}) сменился Лидер! ${user} => ${userNew}\nПричина: ${reason}`, 'Уведомление');
+            await interaction.reply({embeds: [embed]});
         } else {
-            await interaction.reply({content: `В сборе ${fireteam.name} (ID: ${id}) сменился Лидер! <@${user.id}> => <@${userNew.id}>` });
+            const embed = interaction.client.genEmbed(`В сборе ${fireteam.name} (ID: ${id}) сменился Лидер! ${user} => ${userNew}`, 'Уведомление');
+            await interaction.reply({embeds: [embed]});
         }     
         //запись сообщения в логи
         const logMess = await interaction.fetchReply();
         setTimeout(() => {
-            try{
-                logMess.delete();
-            } catch (err){
-                console.log('Ошибка удаления лога передачи сбора: ' + err.message);
-            }
+            logMess.delete().catch(err => console.log('Ошибка удаления лога передачи сбора: ' + err.message));
         }, 86400000);
     }
 };
