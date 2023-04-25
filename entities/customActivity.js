@@ -168,10 +168,12 @@ module.exports = class CustomActivity extends ActivityBase{
             leader: activity.leader.id,
             members: new Array(),
             state: activity.state,
-            role: activity.role.id,
-            guild: activity.guild.id
+            role: undefined,
+            guild: activity.guildId
         };
-
+        if (activity.role){
+            data.role = activity.role.id;
+        }
         if (activity.members.size > 0){
             activity.members.forEach((val, id) =>{
                 data.members.push(id);
