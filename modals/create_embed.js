@@ -11,10 +11,10 @@ module.exports = {
         const embBanner = interaction.fields.getTextInputValue('embedBanner');
         const embFooter = interaction.fields.getTextInputValue('embedFooter');
 
-        const user = await interaction.client.users.fetch(interaction.user.id);
+        //const user = await interaction.client.users.fetch(interaction.user.id);
 
-        const color = user.accentColor;
-        //const color = getRandomColor();
+        //const color = user.accentColor;
+        const color = getRandomColor();
         //формирует пользовательский embed
         const embed = new EmbedBuilder()
             .setDescription(embDecs)
