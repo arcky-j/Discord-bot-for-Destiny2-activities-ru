@@ -47,28 +47,25 @@ module.exports = {
         }
         
         if (interaction.options.getSubcommand() === 'добавить'){
-            try{
-                fireteam.bronAdd(userNew);
-            } catch (err){
+            try {
+                await fireteam.bronAdd(userNew);
+                const embed = interaction.client.genEmbed(`Вы успешно забронировали место для ${userNew}!`, 'Успех!');
+                interaction.reply({embeds: [embed], ephemeral:true}); 
+            } catch (err) {
                 const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
-                return;
-            }
-            const embed = interaction.client.genEmbed(`Вы успешно забронировали место для ${userNew}!`, 'Успех!');
-            interaction.reply({embeds: [embed], ephemeral:true});
+            }    
         }
         //попытка удаления пользователя
         if (interaction.options.getSubcommand() === 'удалить'){
-            try{
-                fireteam.bronDel(userNew.id);
-            } catch (err){
+            try {
+                await fireteam.bronDel(userNew.id);
+                const embed = interaction.client.genEmbed(`Вы успешно отозвали бронь для ${userNew}!`, 'Успех!');
+                interaction.reply({embeds: [embed], ephemeral:true});
+            } catch (err) {
                 const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
-                return;
-            }
-
-            const embed = interaction.client.genEmbed(`Вы успешно отозвали бронь для ${userNew}!`, 'Успех!');
-            interaction.reply({embeds: [embed], ephemeral:true});
+            }                     
         }       
     }
 };

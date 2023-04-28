@@ -16,14 +16,12 @@ module.exports = {
         }
         //попытка передачи лидерства
         try{
-            activity.start();
-        } catch (err){
+            await activity.start();
+            const embed = interaction.client.genEmbed(`Активность успешно начата. Сбор закрыт`, 'Успех!');
+            interaction.reply({embeds: [embed], ephemeral:true});
+        } catch(err){
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
-            return;
         }
-         
-        interaction.update({embeds: activity.message.embeds});
-
     }
 }

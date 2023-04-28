@@ -14,14 +14,12 @@ module.exports = {
                 return;
             }
 
-            try{
-                await command.execute(interaction); //пробует выполнить метод execute
-                
-            } catch (error){ //и оповещает пользователя, если что-то пошло не так
+            command.execute(interaction).catch(error => {
                 console.error(error);
                 const embed = interaction.client.genEmbed(`Произошла ошибка при исполнении команды: ${error.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
-            }
+            }); //пробует выполнить метод execute
+                
             //по этому принципу работают обработки и других интеракций
         }
         //действия при срабатывании кнопки
@@ -33,14 +31,11 @@ module.exports = {
                 console.error(`No button handler matching ${interaction.customId} was found`);
                 return;
             }
-
-            try{
-                await button.execute(interaction);
-            } catch (error){
+            button.execute(interaction).catch(error => {
                 console.log(error);
                 const embed = interaction.client.genEmbed(`Произошла ошибка при нажатии кнопки: ${error.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
-            }
+            });
         }
         //действия при срабатывании команды контекстного меню
         if (interaction.isUserContextMenuCommand()) {
@@ -51,13 +46,12 @@ module.exports = {
                 return;
             }
 
-            try{
-                await contextCommand.execute(interaction);
-            } catch (error){
+            contextCommand.execute(interaction).catch(error => {
                 console.log(error);
                 const embed = interaction.client.genEmbed(`Произошла ошибка при использовании контекстной комманды: ${error.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
-            }
+            });
+
         }
         //действия при отправке формы
         if (interaction.isModalSubmit()){
@@ -67,13 +61,12 @@ module.exports = {
                 return;
             }
 
-            try{
-                await modal.execute(interaction);
-            } catch (error){
+            modal.execute(interaction).catch(error => {
                 console.log(error);
                 const embed = interaction.client.genEmbed(`Произошла ошибка при отправке формы: ${error.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
-            }
+            });
+
         }
     } 
 }

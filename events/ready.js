@@ -11,7 +11,7 @@ module.exports = {
         //оповещает в консоли, ставит первый статус и подгружает нужные кэши
         //console.log(`${client.user.tag} на связи и готов фаршмачить`);
         client.user.setPresence({activities: [{name: 'побег из микроволновки', type: 0}]}); //напоминаю, что все статусы созданы под образ босса Шпиля Хранителя и их всегда можно поменять  
-        setInterval(() => {
+        setInterval(async () => {
             client.user.setPresence(getRandomPresence());
         }, 3600000);//3600000
         await Settings.initSettings().catch(err => console.log(`Ошибка инициализации настроек серверов: ${err.message}`));    

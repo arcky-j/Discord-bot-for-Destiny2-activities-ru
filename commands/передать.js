@@ -37,25 +37,25 @@ module.exports = {
             return;
         }
         //попытка передачи лидерства
-        try{
-            fireteam.changeLeader(userNew);
-        } catch (err){
+        try {
+            await fireteam.changeLeader(userNew);
+        } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
         //уведомление в чат сбора
         if (reason){
-            const embed = interaction.client.genEmbed(`В сборе ${fireteam.name} (ID: ${id}) сменился Лидер! ${user} => ${userNew}\nПричина: ${reason}`, 'Уведомление');
-            await interaction.reply({embeds: [embed]});
+            const embed = interaction.client.genEmbed(`В сборе ${fireteam} сменился Лидер! ${user} => ${userNew}\nПричина: ${reason}`, 'Уведомление');
+            interaction.reply({embeds: [embed]});
         } else {
-            const embed = interaction.client.genEmbed(`В сборе ${fireteam.name} (ID: ${id}) сменился Лидер! ${user} => ${userNew}`, 'Уведомление');
-            await interaction.reply({embeds: [embed]});
+            const embed = interaction.client.genEmbed(`В сборе ${fireteam} сменился Лидер! ${user} => ${userNew}`, 'Уведомление');
+            interaction.reply({embeds: [embed]});
         }     
         //запись сообщения в логи
         const logMess = await interaction.fetchReply();
         setTimeout(() => {
-            logMess.delete().catch(err => {
+            logMess.delete().catch(async err => {
                 console.log('Ошибка удаления лога передачи сбора: ' + err.message)
                 if (interaction.guildId){
                     const sett = interaction.client.settings.get(interaction.guildId);

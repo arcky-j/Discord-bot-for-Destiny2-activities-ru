@@ -15,15 +15,13 @@ module.exports = {
             return;
         }
         //попытка передачи лидерства
-        try{
-            fireteam.start();
-        } catch (err){
+        try {
+            await fireteam.start();
+            const embed = interaction.client.genEmbed(`Активность успешно начата. Сбор закрыт`, 'Успех!');
+            interaction.reply({embeds: [embed], ephemeral:true});
+        } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
-            return;
         }
-         
-        interaction.update({embeds: fireteam.message.embeds});
-
     }
 }

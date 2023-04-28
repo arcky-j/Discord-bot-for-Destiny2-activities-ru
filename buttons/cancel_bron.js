@@ -14,16 +14,14 @@ module.exports = {
             return;
         }
 
+        //попытка удалить Стража из брони
         try {
-            //попытка удалить Стража из брони
-            fireteam.bronDel(user.id);
+            await fireteam.bronDel(user.id);
+            const embed = interaction.client.genEmbed(`Бронь удалена`, 'Успех!');
+            interaction.reply({embeds: [embed], ephemeral:true});
         } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
-            return;
         }        
-        //редактирование сообщения
-        const embed = interaction.client.genEmbed(`Бронь удалена`, 'Успех!');
-        interaction.reply({embeds: [embed], ephemeral:true});
     }
 }

@@ -81,9 +81,21 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
         this.refreshMessage();
     }
 
-    refreshMessage(){
-        super.refreshMessage();
+    async refreshMessage(){
+        if (!this.message){
+            return;
+        }
+        await super.refreshMessage();
         this.save();
+    }
+
+    updateMessage(){
+        if (!this.message){
+            return;
+        }
+        const embed = super.updateMessage();
+        this.save();
+        return embed;
     }
 
     static async initAll(){
@@ -107,14 +119,14 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
                             fireteam.checkQuantity();
                             fireteam.refreshMessage();
                         }, 10000);
-                        console.log(`Загружена боевая группа ${fireteam.name} (${fireteam.id})`);
+                        console.log(`Загружена боевая группа ${fireteam}`);
                         if (fireteam.guildId){
                             const sett = FireteamUntimed.client.settings.get(fireteam.guildId);
-                            sett.sendLog(`Загружена боевая группа ${fireteam.name} (${fireteam.id})`, 'Запись логов: успех');
+                            sett.sendLog(`Загружена боевая группа ${fireteam}`, 'Запись логов: успех');
                         }
                     } catch (err){
                         console.log(`Невозможно загрузить боевую группу ${val}. Причина: ${err.message} Производится удаление...`);
-                        fs.unlink(path.join(pathToFireteams, val), (err) => {
+                        fs.unlink(path.join(pathToFireteams, val), async (err) => {
                             if (err){
                                 console.error(err);
                             }
@@ -125,34 +137,35 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
         }
     }
 
-    save(){
+    async save(){
         const pathToTeam = path.join(this.pathToFireteams, `fireteam_${this.id}.json`);
-        const data = FireteamUntimed.toJSON(this);
-        fs.writeFile(pathToTeam, data, (err) =>{
+        const data = await FireteamUntimed.toJSON(this);
+        fs.writeFile(pathToTeam, data, async (err) =>{
             if (err){
                 console.error(err);
                 if (this.guildId){
                     const sett = FireteamUntimed.client.settings.get(this.guildId);
-                    sett.sendLog(`Не удалось сохранить в файл ${this.name} (${this.id}): ${err.message}`, 'Запись логов: ошибка');
+                    sett.sendLog(`Не удалось сохранить в файл ${this}: ${err.message}`, 'Запись логов: ошибка');
                 }
             }
         })
     }
 
-    delete(){
+    async delete(){
         const pathToTeam = path.join(this.pathToFireteams, `fireteam_${this.id}.json`);
-        fs.unlink(pathToTeam, (err) =>{
+        fs.unlink(pathToTeam, async (err) =>{
             if (err){
                 console.error(err);
                 if (this.guildId){
                     const sett = FireteamUntimed.client.settings.get(this.guildId);
-                    sett.sendLog(`Не удалось удалить файл с ${this.name} (${this.id}): ${err.message}`, 'Запись логов: ошибка');
+                    sett.sendLog(`Не удалось удалить файл с ${this}: ${err.message}`, 'Запись логов: ошибка');
                 }
             }
         });
+        super.delete();
     }
 
-    static toJSON(team){
+    static async toJSON(team){
         if (!(team instanceof FireteamUntimed)){
             return;
         }

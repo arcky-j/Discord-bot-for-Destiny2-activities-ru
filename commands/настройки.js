@@ -8,6 +8,11 @@ module.exports = {
         
     async execute(interaction) {
         //interaction.client.cacheManager.saveSetting();
+        if (!interaction.inGuild()){
+            const embed = interaction.client.genEmbed(`Это исключительно серверная команда`, 'Ошибка!');
+            interaction.reply({embeds: [embed]});
+            return;
+        }
         const settings = interaction.client.settings.get(interaction.guild.id);
         //const user = await interaction.client.users.fetch(interaction.user.id);
         const embed = new EmbedBuilder()

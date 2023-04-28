@@ -11,14 +11,12 @@ module.exports = {
             return;
         }
         //попытка записи Стража
-        try{
-            fireteam.add(user);
+        try {
+            const embed = await fireteam.addUpdate(user);
+            interaction.update({embeds: [embed]});
         } catch (err){
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
-            return;
-        }     
-        interaction.update({embeds: fireteam.message.embeds});
-
+        }
     }
 }

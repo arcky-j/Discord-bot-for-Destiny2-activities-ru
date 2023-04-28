@@ -72,6 +72,7 @@ class Settings extends Base{
         }
         this.save();
     }
+
     setLogChannel(ch){
         this.logChannel = undefined;
         if (ch){
@@ -79,6 +80,7 @@ class Settings extends Base{
         }
         this.save();
     }
+
     setJALMessages(messJ, messA, messL){
         if (messJ){
             this.messageJoin = messJ;
@@ -159,10 +161,10 @@ class Settings extends Base{
         }
     }
 
-    save(){
+    async save(){
         const pathGuildSetting = path.join(this.pathToSettings, `guild_${this.guildId}.json`);
-        const data = Settings.toJSON(this);
-        fs.writeFile(pathGuildSetting, data, (error) =>{
+        const data = await Settings.toJSON(this);
+        fs.writeFile(pathGuildSetting, data, async (error) =>{
             if (error){
                 console.error(error);
                 this.sendLog(`Не удалось сохранить файл с настройками сервера`, 'Запись логов: ошибка');
@@ -170,10 +172,10 @@ class Settings extends Base{
         });
     }
 
-    delete(){
+    async delete(){
         const pathGuildSetting = path.join(this.pathToSettings, `guild_${this.guildId}.json`);
         Settings.client.settings.delete(this.guildId);
-        fs.unlink(pathGuildSetting, (error) =>{
+        fs.unlink(pathGuildSetting, async (error) =>{
             if (error){
                 console.error(error);
                 this.sendLog(`Не удалось удалить файл с настройками сервера`, 'Запись логов: ошибка');
@@ -182,11 +184,11 @@ class Settings extends Base{
 
     }
 
-    static initSingle(guild){
+    static async initSingle(guild){
         const sett = new Settings(guild.id);
         const pathGuildSetting = path.join('.', 'data', 'settings', `guild_${guild.id}.json`);
         const settJSON = JSON.stringify(sett);
-        fs.appendFile(pathGuildSetting, settJSON, (err) => {
+        fs.appendFile(pathGuildSetting, settJSON, async (err) => {
             if (err){
                 console.log(`Ошибка при создании файла настроек для сервера "${val.name}": ${err.message}`);
                 throw err;
@@ -217,7 +219,7 @@ class Settings extends Base{
                 console.log(`Файл настроек для сервера "${val.name}" не обнаружен; настройки сервера не загружены; запуск инициализации...`);  
                 const sett = new Settings(id);              
                 const settJSON = JSON.stringify(sett);
-                fs.appendFile(pathGuildSetting, settJSON, (err) => {
+                fs.appendFile(pathGuildSetting, settJSON, async (err) => {
                     if (err){
                         console.log(`Ошибка при создании файла настроек для сервера "${val.name}": ${err.message}`);
                         throw err;
@@ -230,7 +232,7 @@ class Settings extends Base{
         console.log('Объекты настроек серверов инициализированны');
     }
 
-    static toJSON(sett){
+    static async toJSON(sett){
         if (!(sett instanceof Settings)){
             return;
         }

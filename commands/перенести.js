@@ -46,35 +46,35 @@ module.exports = {
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
-        let rDate;
         //установка новой даты через специальный метод
+        let rDate;
         try {
             rDate = setDate(time, date);
-        } catch (err){
-            const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
+        } catch (err) {
+            const embed = interaction.client.genEmbed(`Не удалось установить дату: ${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
-        }
+        }   
         //попытка дату сменить
-        try{
-            fireteam.changeDate(rDate);
-        } catch (err){
+        try {
+            await fireteam.changeDate(rDate);
+        } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
         //рассылка уведомлений
         if (reason){
-            const embed = interaction.client.genEmbed(`Сбор ${fireteam.name} ID (${id}) был успешно перенесён на ${fireteam.getDateString()}!\nПричина: ${reason}`, 'Успех!');
-            await interaction.reply({embeds: [embed]});
+            const embed = interaction.client.genEmbed(`Сбор ${fireteam} был успешно перенесён на ${fireteam.getDateString()}!\nПричина: ${reason}`, 'Успех!');
+            interaction.reply({embeds: [embed]});
         } else {
-            const embed = interaction.client.genEmbed(`Сбор ${fireteam.name} ID (${id}) был успешно перенесён на ${fireteam.getDateString()}!`, 'Успех!');
-            await interaction.reply({embeds: [embed]});
+            const embed = interaction.client.genEmbed(`Сбор ${fireteam} был успешно перенесён на ${fireteam.getDateString()}!`, 'Успех!');
+            interaction.reply({embeds: [embed]});
         }
         //загрузка сообщения в логи
         const logMess = await interaction.fetchReply();
         setTimeout(() => {
-            logMess.delete().catch(err => {
+            logMess.delete().catch(async err => {
                 console.log('Ошибка удаления лога переноса сбора: ' + err.message)
                 if (interaction.guildId){
                     const sett = interaction.client.settings.get(interaction.guildId);

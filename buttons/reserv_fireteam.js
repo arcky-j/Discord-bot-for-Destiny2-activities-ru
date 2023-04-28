@@ -13,14 +13,11 @@ module.exports = {
         }
         //попытка записи в резервы
         try {
-            fireteam.moveReserv(user);
+            const embed = await fireteam.moveReservUpdate(user);           
+            interaction.update({embeds: [embed]});
         } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
-            interaction.reply({embeds: [embed], ephemeral:true});
-            return;
-        }        
-        //обновление сообщения сбора
-        interaction.update({embeds: fireteam.message.embeds});
-
+            await interaction.reply({embeds: [embed], ephemeral:true});
+        }
     }
 }

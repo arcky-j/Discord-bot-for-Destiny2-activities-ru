@@ -22,17 +22,17 @@ module.exports = class ActivityDate extends ActivityBron{
         this.sendAlerts('dateChange'); 
         this.refreshMessage();
     }
-    setTimer(){
+    async setTimer(){
         if (this.today > this.date){
             this.state = this.states.get(0);
             return;
         }        
         const t = this.date - this.today - this.tenMinutes; 
         if (this.t > 2147483647){
-            this.interval = setInterval(() => {
+            this.interval = setInterval(async () => {
                 if (this.t < 2147483647){
-                    this.setTimer();
                     clearInterval(this.interval);
+                    this.setTimer();
                 }
             }, this.day * 20);
             return;
@@ -40,7 +40,7 @@ module.exports = class ActivityDate extends ActivityBron{
         this.timer = setTimeout(() => {
             if (this.date - this.today > this.tenMinutes)
             this.sendAlerts('uptime');
-            setTimeout(() => {
+            setTimeout(async () => {
                 try{
                     this.state = this.states.get(0);
                     this.refreshMessage();
@@ -75,25 +75,25 @@ module.exports = class ActivityDate extends ActivityBron{
                     break;
                 }
                 this.members.forEach( async (us, id) =>{ //оповещает всех участников
-                    const embed = ActivityDate.client.genEmbed(`Активность «${this.name}» начнётся в ближайшие **10 минут**!`, 'Уведомление');
+                    const embed = ActivityDate.client.genEmbed(`Активность «${this}» начнётся в ближайшие **10 минут**!`, 'Уведомление');
                     us.send({embeds:[embed, this.message.embeds[0]]})
                     .catch(err =>{
                         console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
                         if (this.guildId){
                             const sett = ActivityDate.client.settings.get(this.guildId);
-                            sett.sendLog(`Ошибка рассылки (скорое начало сбора ${this.name} ${this.id}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
+                            sett.sendLog(`Ошибка рассылки (скорое начало сбора ${this}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
                         }
                     });
                 });
                 if (this.bron.size > 0 && this.members.size < this.quantity)
                 this.bron.forEach( async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
-                    const embed = ActivityDate.client.genEmbed(`Активность «${this.name}» начнётся в ближайшие **10 минут**! Вам было забронировано место, поэтому вы получаете это сообщение!`, 'Уведомление');
+                    const embed = ActivityDate.client.genEmbed(`Активность «${this}» начнётся в ближайшие **10 минут**! Вам было забронировано место, поэтому вы получаете это сообщение!`, 'Уведомление');
                     us.send({embeds:[embed, this.message.embeds[0]]})
                     .catch(err =>{
                         console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
                         if (this.guildId){
                             const sett = ActivityDate.client.settings.get(this.guildId);
-                            sett.sendLog(`Ошибка рассылки (скорое начало сбора сбора ${this.name} ${this.id}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
+                            sett.sendLog(`Ошибка рассылки (скорое начало сбора ${this}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
                         }
                     });
                 });
@@ -104,13 +104,13 @@ module.exports = class ActivityDate extends ActivityBron{
                 }
                 this.members.forEach( async (us, id) =>{
                     if (this.leader.id != id) {//рассылает оповещение всем участникам кроме лидера
-                        const embed = ActivityDate.client.genEmbed(`Активность «${this.name}» перенесёна пользователем ${this.leader}! Новое время: ${this.getDateString()}`, 'Уведомление');
+                        const embed = ActivityDate.client.genEmbed(`Активность «${this}» перенесёна пользователем ${this.leader}! Новое время: ${this.getDateString()}`, 'Уведомление');
                         us.send({embeds:[embed, this.message.embeds[0]]})
                         .catch(err =>{
                             console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
                             if (this.guildId){
                                 const sett = ActivityDate.client.settings.get(this.guildId);
-                                sett.sendLog(`Ошибка рассылки (смена даты сбора ${this.name} ${this.id}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
+                                sett.sendLog(`Ошибка рассылки (смена даты сбора ${this}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
                             }
                         });
                     }                 
@@ -119,18 +119,18 @@ module.exports = class ActivityDate extends ActivityBron{
             default: super.sendAlerts(reason);
         }
     }
-    delete(){
+    async delete(){
         clearInterval(this.interval);
         clearTimeout(this.timer);
         super.delete();
     }
-    refreshMessage(){
+    async refreshMessage(){
         this.refreshDate();
         super.refreshMessage();
     }
     updateMessage(){
         this.refreshDate();
-        super.updateMessage();
+        return super.updateMessage();
     }
     refreshDate(){
         const embed = this.message.embeds[0];

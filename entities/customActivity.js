@@ -73,15 +73,25 @@ module.exports = class CustomActivity extends ActivityBase{
         }
     }
 
-    refreshMessage(){
+    async refreshMessage(){
+        if (!this.message){
+            return;
+        }
         this.refreshDate();
-        super.refreshMessage();
+        await super.refreshMessage();
         this.save();
     }
+
     updateMessage(){
+        if (!this.message){
+            return;
+        }
         this.refreshDate();
-        super.updateMessage();
+        const embed = super.updateMessage();
+        this.save();
+        return embed;
     }
+
     refreshDate(){
         const embed = this.message.embeds[0];
         embed.fields[0].value = this.date;
@@ -115,7 +125,7 @@ module.exports = class CustomActivity extends ActivityBase{
                         }
                     } catch (err){
                         console.log(`Невозможно загрузить кастомную активность ${val}. Причина: ${err.message} Производится удаление...`);
-                        fs.unlink(path.join(pathToActivities, val), (err) => {
+                        fs.unlink(path.join(pathToActivities, val), async (err) => {
                             if (err){
                                 console.error(err);
                             }
@@ -126,34 +136,35 @@ module.exports = class CustomActivity extends ActivityBase{
         }
     }
 
-    save(){
+    async save(){
         const pathToActivity = path.join(this.pathToActivities, `activity_${this.id}.json`);
-        const data = CustomActivity.toJSON(this);
-        fs.writeFile(pathToActivity, data, (err) =>{
+        const data = await CustomActivity.toJSON(this);
+        fs.writeFile(pathToActivity, data, async (err) =>{
             if (err){
                 console.error(err);
                 if (this.guildId){
                     const sett = CustomActivity.client.settings.get(this.guildId);
-                    sett.sendLog(`Не удалось сохранить в файл ${this.name} (${this.id}): ${err.message}`, 'Запись логов: ошибка');
+                    sett.sendLog(`Не удалось сохранить в файл ${this}): ${err.message}`, 'Запись логов: ошибка');
                 }
             }
         })
     }
 
-    delete(){
+    async delete(){
         const pathToActivity = path.join(this.pathToActivities, `activity_${this.id}.json`);
-        fs.unlink(pathToActivity, (err) =>{
+        fs.unlink(pathToActivity, async (err) =>{
             if (err){
                 console.error(err);
                 if (this.guildId){
                     const sett = CustomActivity.client.settings.get(this.guildId);
-                    sett.sendLog(`Не удалось удалить файл с ${this.name} (${this.id}): ${err.message}`, 'Запись логов: ошибка');
+                    sett.sendLog(`Не удалось удалить файл с ${this}): ${err.message}`, 'Запись логов: ошибка');
                 }
             }
         });
+        super.delete();
     }
 
-    static toJSON(activity){
+    static async toJSON(activity){
         if (!(activity instanceof CustomActivity)){
             return;
         }

@@ -54,19 +54,18 @@ module.exports = {
                 return;
             }
             //попытка добавления пользователя
-            try{
-                fireteam.add(userNew);
-            } catch (err){
+            try {
+                await fireteam.addRefresh(userNew);
+            } catch (err) {
                 const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
                 return;
             }
-            //личное уведомление пользователю
-            const embedDM = interaction.client.genEmbed(`Вы были записаны в активность ${fireteam.name} на ${fireteam.getDateString()} администратором ${user}`, 'Уведомление');
-            userNew.send({embeds: [embedDM]});
-            //редактирование сообщения
+            const embedDM = interaction.client.genEmbed(`Вы были записаны в активность ${fireteam} администратором ${user}`, 'Уведомление');
+            userNew.send({embeds: [embedDM]});         
             const embed = interaction.client.genEmbed(`Вы записали Стража в группу!`, 'Успех!');
             interaction.reply({embeds: [embed], ephemeral:true});
+                  
         }
 
         if (interaction.options.getSubcommand() === 'удалить_стража'){
@@ -81,19 +80,18 @@ module.exports = {
                 return;
             }
             //попытка удаления члена группы
-            try{
-                fireteam.remove(userNew.id);
-            } catch (err){
+            try {
+                await fireteam.removeRefresh(userNew.id);
+            } catch (err) {
                 const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
                 return;
             }
             //оповещение пользователя
-            const embedDM = interaction.client.genEmbed(`Вы были удалены из активности ${fireteam.name} администратором ${user}`, 'Уведомление');
+            const embedDM = interaction.client.genEmbed(`Вы были удалены из активности ${fireteam} администратором ${user}`, 'Уведомление');
             userNew.send({embeds: [embedDM]});
-            //изменение сообщения
             const embed = interaction.client.genEmbed(`Вы удалили Стража из группы!`, 'Успех!');
-            interaction.reply({embeds: [embed], ephemeral:true});
+            interaction.reply({embeds: [embed], ephemeral:true});         
         }
 
         if (interaction.options.getSubcommand() === 'удалить_сбор'){
@@ -109,11 +107,11 @@ module.exports = {
             try {
                 fireteam.sendAlerts('admin_del');
                 fireteam.message.delete().catch();
-                const embed = interaction.client.genEmbed(`Сбор ${fireteam.name} (ID: ${fireteam.id}) был удалён администратором ${interaction.user} по причине: ${reason}`, 'Уведомление');
+                const embed = interaction.client.genEmbed(`Сбор ${fireteam} был удалён администратором ${interaction.user} по причине: ${reason}`, 'Уведомление');
                 interaction.channel.send({embeds: [embed]});
                 const lastMess = interaction.channel.lastMessage;              
                 setTimeout(() => {
-                    lastMess.delete().catch(err => {
+                    lastMess.delete().catch(async err => {
                         console.log('Ошибка удаления сообщения лога удаления сбора (каво?): ' + err.message);
                         if (interaction.guildId){
                             const sett = interaction.client.settings.get(interaction.guildId);
@@ -127,7 +125,7 @@ module.exports = {
                 return;
             }
             const embed = interaction.client.genEmbed(`Активность была удалена. Её участники оповещены.`, 'Успех!');
-            interaction.reply({embeds: [embed], ephemeral:true});
+            interaction.reply({embeds: [embed], ephemeral:true});        
         }
     }
 };

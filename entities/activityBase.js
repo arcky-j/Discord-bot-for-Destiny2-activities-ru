@@ -41,6 +41,16 @@ module.exports = class ActivityBase extends Base{
         }
         this.members.set(user.id, user);
         this.checkQuantity();
+        //await this.refreshMessage();
+    }
+
+    addUpdate(user){
+        this.add(user);
+        return this.updateMessage();
+    }
+
+    addRefresh(user){
+        this.add(user);
         this.refreshMessage();
     }
 
@@ -51,6 +61,15 @@ module.exports = class ActivityBase extends Base{
         
         this.members.delete(id); //удаление из боевой группы
         this.checkQuantity();
+    }
+
+    removeUpdate(id){
+        this.remove(id);
+        return this.updateMessage();
+    }
+
+    removeRefresh(id){
+        this.remove(id);
         this.refreshMessage();
     }
 
@@ -64,9 +83,9 @@ module.exports = class ActivityBase extends Base{
         }
        
         this.leader = user; 
-        
         this.refreshMessage();
     }
+
     checkQuantity(){
         if (this.state == 'Закрыт'){
             return;
@@ -86,13 +105,13 @@ module.exports = class ActivityBase extends Base{
                 }
                 this.members.forEach( async (us, id) =>{
                     if (this.leader.id != id) {
-                        const embed = ActivityBase.client.genEmbed(`Активность «${this.name}» была отменёна пользователем ${this.leader}.`, 'Уведомление');
+                        const embed = ActivityBase.client.genEmbed(`Активность «${this}» была отменёна пользователем ${this.leader}.`, 'Уведомление');
                         us.send({embeds:[embed, this.message.embeds[0]]})
-                        .catch(err =>{
+                        .catch(async err =>{
                             console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
                             if (this.guildId){
                                 const sett = ActivityBase.client.settings.get(this.guildId);
-                                sett.sendLog(`Ошибка рассылки (удаление сбора ${this.name} ${this.id}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
+                                sett.sendLog(`Ошибка рассылки (удаление сбора ${this}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
                             }
                         });
                     } //рассылает оповещение всем участникам кроме лидера                   
@@ -103,13 +122,13 @@ module.exports = class ActivityBase extends Base{
                     break;
                 }
                 this.members.forEach( async (us, id) =>{
-                    const embed = ActivityBase.client.genEmbed(`Активность «${this.name}» была отменёна администратором. Более подробная информация в канале сбора.`, 'Уведомление');
+                    const embed = ActivityBase.client.genEmbed(`Активность «${this}» была отменёна администратором. Более подробная информация в канале сбора.`, 'Уведомление');
                     us.send({embeds:[embed, this.message.embeds[0]]})
-                    .catch(err =>{
+                    .catch(async err =>{
                         console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
                         if (this.guildId){
                             const sett = ActivityBase.client.settings.get(this.guildId);
-                            sett.sendLog(`Ошибка рассылки (админское удаление сбора ${this.name} ${this.id}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
+                            sett.sendLog(`Ошибка рассылки (админское удаление сбора ${this}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
                         }
                     }); 
                 });
@@ -120,51 +139,51 @@ module.exports = class ActivityBase extends Base{
                 }               
                 this.members.forEach(async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
                     if (id != this.leader.id){
-                        const embed = ActivityBase.client.genEmbed(`Активность «${this.name}» начата лидером (${this.leader}) активности!`, 'Уведомление');
+                        const embed = ActivityBase.client.genEmbed(`Активность «${this}» начата лидером (${this.leader}) активности!`, 'Уведомление');
                         us.send({embeds:[embed, this.message.embeds[0]]})
-                        .catch(err =>{
+                        .catch(async err =>{
                             console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
                             if (this.guildId){
                                 const sett = ActivityBase.client.settings.get(this.guildId);
-                                sett.sendLog(`Ошибка рассылки (старт сбора ${this.name} ${this.id}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
+                                sett.sendLog(`Ошибка рассылки (старт сбора ${this}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
                             }
                         }); 
                     }                 
                 });
         }
     }
-    refreshMessage(){
-        if (!this.message){
-            return;
-        }
+    async refreshMessage(){       
         const embed = this.message.embeds[0];
         embed.fields[1].value = this.state;
         if (this.state == 'Закрыт'){
+            if (this.delTimer){
+                return;
+            }
             this.delTimer = setTimeout(() => {
-                this.message.delete().catch(err =>{
-                    console.log(`Ошибка автоматического удаления сообщения сбора ${this.name} ${this.id}: ${err.message}`);
+                this.message.delete().catch(async err =>{
+                    console.log(`Ошибка автоматического удаления сообщения сбора ${this}: ${err.message}`);
                     if (this.guildId){
                         const sett = ActivityBase.client.settings.get(this.guildId);
-                        sett.sendLog(`Ошибка автоматического удаления сообщения сбора ${this.name} ${this.id}: ${err.message}`, 'Запись логов: ошибка');
+                        sett.sendLog(`Ошибка автоматического удаления сообщения сбора ${this}: ${err.message}`, 'Запись логов: ошибка');
                     }
                 });    
             }, this.day);
-            this.message.edit({content: '', embeds: [embed], components: []}).catch(err =>{
-                console.log(`Ошибка закрытия сбора ${this.name} ${this.id}: ${err.message}`);
+            this.message.edit({content: '', embeds: [embed], components: []}).catch(async err =>{
+                console.log(`Ошибка закрытия сбора ${this}: ${err.message}`);
                 if (this.guildId){
                     const sett = ActivityBase.client.settings.get(this.guildId);
-                    sett.sendLog(`Ошибка закрытия сбора ${this.name} ${this.id}: ${err.message}`, 'Запись логов: ошибка');
+                    sett.sendLog(`Ошибка закрытия сбора ${this}: ${err.message}`, 'Запись логов: ошибка');
                 }
             });          
             return;
         }
         embed.fields[2].value = `${this.leader}`;
         embed.fields[3].value = this.getMembersString();
-        this.message.edit({embeds: [embed]}).catch(err =>{
-            console.log(`Ошибка изменения сбора ${this.name} ${this.id}: ${err.message}`);
+        this.message.edit({embeds: [embed]}).catch(async err =>{
+            console.log(`Ошибка изменения сбора ${this}: ${err.message}`);
             if (this.guildId){
                 const sett = ActivityBase.client.settings.get(this.guildId);
-                sett.sendLog(`Ошибка изменения сбора ${this.name} ${this.id}: ${err.message}`, 'Запись логов: ошибка');
+                sett.sendLog(`Ошибка изменения сбора ${this}: ${err.message}`, 'Запись логов: ошибка');
             }
         });
         
@@ -172,11 +191,11 @@ module.exports = class ActivityBase extends Base{
     updateMessage(){
         const embed = this.message.embeds[0];
         embed.fields[1].value = this.state;
-        embed.fields[2].value = `${this.leader}>`;
+        embed.fields[2].value = `${this.leader}`;
         embed.fields[3].value = this.getMembersString();
         return embed;
     }
-    delete(){
+    async delete(){
         clearTimeout(this.delTimer);
         this.message = undefined;
     }
@@ -193,22 +212,8 @@ module.exports = class ActivityBase extends Base{
         this.sendAlerts('start');
         this.refreshMessage();
     }
-    //несколько устаревшие, но не самые деструктивные методы, которые где-то ещё есть
-    //вспомогательный метод для нахождения лидера боевой группы
-    getLeader(){
-        const lead = this.members.get(this.leader.id);
-        return lead;
-    }
-    //вспомогательный метод для проверки пользователя на лидерство
-    isLeader(id){
-        if (id == this.leader.id){
-            return true;
-        } else {
-            return false;
-        }
-    }
-    //вспомогательный метод для проверки пользователя на присутствие в боевой группе
-    hasMember(id){
-        return this.members.has(id);
+
+    toString(){
+        return `${this.name} (ID: ${this.id})`;
     }
 }

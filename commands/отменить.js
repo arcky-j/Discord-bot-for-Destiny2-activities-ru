@@ -37,16 +37,16 @@ module.exports = {
         fireteam.sendAlerts('del');
         //удаление сообщения
         if (reason) {
-            const embed = interaction.client.genEmbed(`Сбор в ${fireteam.name} (ID: ${id}) успешно удалён!\nПричина: ${reason}`, 'Успех!');
-            await interaction.reply({embeds: [embed]});
+            const embed = interaction.client.genEmbed(`Сбор в ${fireteam} успешно удалён!\nПричина: ${reason}`, 'Успех!');
+            interaction.reply({embeds: [embed]});
         } else {
-            const embed = interaction.client.genEmbed(`Сбор в ${fireteam.name} (ID: ${id}) успешно удалён!`, 'Успех!');
-            await interaction.reply({embeds: [embed]});
+            const embed = interaction.client.genEmbed(`Сбор в ${fireteam} успешно удалён!`, 'Успех!');
+            interaction.reply({embeds: [embed]});
         }  
         //запись уведомления в логи
         const logMess = await interaction.fetchReply();
         setTimeout(() => {
-            logMess.delete().catch(err => {
+            logMess.delete().catch(async err => {
                 console.log('Ошибка удаления сообщения лога удаления сбора (каво?): ' + err.message)
                 if (interaction.guildId){
                     const sett = interaction.client.settings.get(interaction.guildId);

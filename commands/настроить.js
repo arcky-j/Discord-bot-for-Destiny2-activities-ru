@@ -105,8 +105,8 @@ module.exports = {
             });
             //оповещает о проделанной работе
             const embed = interaction.client.genEmbed(`${str}`, 'Успех! Роли для сборов установлены');
-            interaction.reply({embeds: [embed]});
-            return;
+            interaction.reply({embeds: [embed]}); 
+            return;       
         }
 
         if (interaction.options.getSubcommand() === 'роли_для_новичков'){
@@ -136,7 +136,7 @@ module.exports = {
 
             //оповещает о проделанной работе
             const embed = interaction.client.genEmbed(`${str}`, 'Успех! Роли для новичков сервера установлены');
-            interaction.reply({embeds: [embed]});
+            interaction.reply({embeds: [embed]});       
             return;
         }
 

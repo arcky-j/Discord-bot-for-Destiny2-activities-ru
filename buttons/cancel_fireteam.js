@@ -12,14 +12,11 @@ module.exports = {
         }
         //попытка удаления Стража
         try {
-            fireteam.remove(user.id);
+            const embed = await fireteam.removeUpdate(user.id);
+            interaction.update({embeds: [embed]});
         } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
-            return;
-        }        
-        //обновление сообщения сбора
-        interaction.update({embeds: fireteam.message.embeds});
-
+        }
     }
 }

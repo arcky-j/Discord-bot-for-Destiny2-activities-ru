@@ -1,6 +1,6 @@
 //просто функция для получения псевдо-рандомного цвета в rgb
 function getRandomColor(){
-    const rand = Math.floor(Math.random()*19);
+    const rand = Math.floor(Math.random()*20);
     switch(rand){
         case 0: return 0xed7777; //алый
         case 1: return 0xd1271b; //красный

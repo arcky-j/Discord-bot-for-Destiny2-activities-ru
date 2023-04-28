@@ -143,14 +143,16 @@ module.exports = {
         const media = interaction.options.getString('медиа'); 
         //установка даты через специальный метод
         let rDate;
-        try {
-            if (time || date)
-            rDate = setDate(time, date);
-        } catch (err){
-            await interaction.reply({content: err.message, ephemeral:true});
-            return;
-        }      
-        
+        if (time || date){
+            try {
+                rDate = setDate(time, date);
+            } catch (err) {
+                const embed = interaction.client.genEmbed(`Не удалось установить дату: ${err.message}`, 'Ошибка!');
+                interaction.reply({embeds: [embed], ephemeral:true});
+                return;
+            } 
+        }
+             
         //добавление тэгов ролей, если такие есть
         let strTags = '';
         const sett = interaction.client.settings.get(interaction.guild.id);
@@ -313,7 +315,7 @@ module.exports = {
             fireteam.message = mess1;
             setTimeout(() => {
                 fireteam.refreshMessage();
-            }, 250);    
+            }, 200);    
         } catch (err){
             await lastMess.delete().catch();
             const embed = interaction.client.genEmbed(`Ошибка при создании сбора: ${err.message}`, 'Ошибка!');
@@ -322,6 +324,7 @@ module.exports = {
         }         
         //формирование внутренней структуры данных
         //const lastMess = interaction.channel.lastMessage;
+        if (interaction.replied) return;
         lastMess.customId = id;
         lastMess.fireteam = true;
         interaction.client.fireteams.set(id, fireteam);

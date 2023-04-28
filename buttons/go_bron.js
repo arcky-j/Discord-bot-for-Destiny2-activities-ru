@@ -14,16 +14,15 @@ module.exports = {
             return;
         }
 
+        //попытка перевести стража из брони в боевую группу
         try {
-            //попытка перевести стража из брони в боевую группу
-            fireteam.bronToMember(user);
+            await fireteam.bronToMember(user);
+            const embed = interaction.client.genEmbed(`Бронь подтверждена`, 'Успех!');
+            interaction.reply({embeds: [embed], ephemeral:true});
         } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
-            return;
-        }        
-        //обновление сообщения
-        const embed = interaction.client.genEmbed(`Бронь подтверждена`, 'Успех!');
-        interaction.reply({embeds: [embed], ephemeral:true});
+        }
+      
     }
 }

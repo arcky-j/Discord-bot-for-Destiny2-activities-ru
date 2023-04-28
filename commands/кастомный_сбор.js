@@ -89,7 +89,7 @@ module.exports = {
             activity.message = mess1;
             setTimeout(() => {
                 activity.refreshMessage();
-            }, 250);     
+            }, 200);     
         } catch (err){
             await lastMess.delete().catch();
             const embed = interaction.client.genEmbed(`Ошибка при создании сбора: ${err.message}`, 'Ошибка!');
@@ -100,8 +100,8 @@ module.exports = {
         lastMess.customId = id;
         lastMess.customActivity = true;
         interaction.client.activities.set(id, activity);
-        //уведомление, если всё прошло успешно
+        //уведомление, если всё прошло успешно          
         const embed = interaction.client.genEmbed(`Сбор ${actName} создан`, 'Успех!');
-        interaction.reply({embeds: [embed], ephemeral:true});
+        interaction.reply({embeds: [embed], ephemeral:true}); 
     }
 }

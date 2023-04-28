@@ -5,5 +5,6 @@ module.exports = {
     async execute(guild) {
         const settings = guild.client.settings.get(guild.id);
         settings.delete();
+        //delete settings;
     },
 };
