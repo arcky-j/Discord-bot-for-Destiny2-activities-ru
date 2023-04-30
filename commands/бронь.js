@@ -48,7 +48,7 @@ module.exports = {
         
         if (interaction.options.getSubcommand() === 'добавить'){
             try {
-                await fireteam.bronAdd(userNew);
+                fireteam.bronAdd(userNew);
                 const embed = interaction.client.genEmbed(`Вы успешно забронировали место для ${userNew}!`, 'Успех!');
                 interaction.reply({embeds: [embed], ephemeral:true}); 
             } catch (err) {
@@ -59,7 +59,7 @@ module.exports = {
         //попытка удаления пользователя
         if (interaction.options.getSubcommand() === 'удалить'){
             try {
-                await fireteam.bronDel(userNew.id);
+                fireteam.bronDel(userNew.id);
                 const embed = interaction.client.genEmbed(`Вы успешно отозвали бронь для ${userNew}!`, 'Успех!');
                 interaction.reply({embeds: [embed], ephemeral:true});
             } catch (err) {

@@ -17,7 +17,6 @@ const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits
 
 //добавление к клиенту коллекций (по сути Map из javascript) для данных
 client.commands = new Collection(); //слэш-команды
-client.fireteams = new Collection(); //боевые группы (свой тип данных)
 client.settings = new Collection(); //настройки сервера (свой тип данных)
 client.actGens = new Collection(); 
 client.activities = new Collection(); 
@@ -103,6 +102,23 @@ for(const file of modalFiles){
         console.log(`[WARNING] The Modal at ${modalPath} is missing a required "name" or "execute" property`);
     }
 }
+
+client.selectMenus = new Collection(); //всплывающие окна
+
+const selectMenusPath = path.join(__dirname, 'selectMenus');
+const selectMenusFiles = fs.readdirSync(selectMenusPath).filter(file => file.endsWith('js'));
+
+for(const file of selectMenusFiles){
+    const selectMenuPath = path.join(selectMenusPath, file);
+    const selectMenu = require(selectMenuPath);
+    //если в объекте, который представляет всплывающее окно, есть свойства name и execute, то добавляем его в выше созданную коллекцию
+    if ('name' && 'execute' in selectMenu){
+        client.selectMenus.set(selectMenu.name, selectMenu);
+    } else{
+        console.log(`[WARNING] The Select Menu at ${selectMenuPath} is missing a required "name" or "execute" property`);
+    }
+}
+
 client.generateId = require('./utility/id_generator');
 client.genEmbed = require('./utility/gen_embed');
 Base.client = client;

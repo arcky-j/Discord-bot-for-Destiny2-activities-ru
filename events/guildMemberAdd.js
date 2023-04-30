@@ -4,6 +4,9 @@ module.exports = {
     name: Events.GuildMemberAdd,
     async execute(member) {
         const settings = member.client.settings.get(member.guild.id);
+        if (!settings){
+            return;
+        }
         if (settings.channelJoin){
             settings.sendJoinAlert(member); //оповещает о прибытии
         }

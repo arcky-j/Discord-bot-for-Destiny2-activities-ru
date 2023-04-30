@@ -5,6 +5,9 @@ module.exports = {
     async execute(member) {
         const client = member.client;
         const settings = client.settings.get(member.guild.id);
+        if (!settings){
+            return;
+        }
         if (settings.channelLeave){           
             settings.sendLeaveAlert(member);
         }           

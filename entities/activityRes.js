@@ -3,8 +3,8 @@ const ActivityDate = require("./activityDate");
 module.exports = class ActivityRes extends ActivityDate{
     reservs = new Map();
 
-    constructor(id, mess, name, quant, leader, date, br1, br2){
-        super(id, mess, name, quant, leader, date, br1, br2);
+    constructor(id, guildId, name, quant, leader, date, br1, br2){
+        super(id, guildId, name, quant, leader, date, br1, br2);
     }
 
     add(user){      

@@ -5,44 +5,18 @@ const path = require('node:path');
 
 module.exports = class FireteamUntimed extends ActivityUntimed{
     pathToFireteams = path.join('.', 'data', 'fireteamsUntimed');
-    constructor(id, mess, name, quant, leader, br1, br2){
-        super(id, mess, name, quant, leader, br1, br2);
+    constructor(id, guildId, name, quant, leader, br1, br2){
+        super(id, guildId, name, quant, leader, br1, br2);
         this.members.set(leader.id, leader);
     }
-
-    remove(id){
-        if (id == this.leader.id){ //проверка на лидерство
-            throw new Error('Лидер не может покинуть боевую группу!');
-        }
-        super.remove(id);
-    }
-
-    createActionRow(){
-        const row = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('go_fireteam')
-                    .setLabel('Я точно иду!')
-                    .setStyle(ButtonStyle.Success),
-                new ButtonBuilder()
-                    .setCustomId('cancel_fireteam')
-                    .setLabel('Я передумал')
-                    .setStyle(ButtonStyle.Danger),
-                new ButtonBuilder()
-                    .setCustomId('fireteam_start')
-                    .setLabel('Старт')
-                    .setStyle(ButtonStyle.Secondary)             
-            );
-        return row;
-    }
-
+    
     createEmbed(color, descript, banner, media){
         const embed = new EmbedBuilder()
         .setColor(color)
         .setTitle(this.name)
         .setDescription(descript)
         .addFields(
-            {name: 'Время и дата', value: `По готовности`, inline: true},
+            {name: 'Время и дата', value: `По готовности`, inline: false},
             {name: 'Статус', value: `Инициализация`, inline: true},
             {name: 'Лидер', value: `...`, inline: true},
             {name: 'Боевая группа', value: '...', inline: false}
@@ -53,6 +27,61 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
             embed.setImage(media);
         }
         return embed;
+    }
+
+    createActionRow(){
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('activity_go')
+                    .setLabel('Я точно иду!')
+                    .setStyle(ButtonStyle.Success),
+                new ButtonBuilder()
+                    .setCustomId('activity_cancel')
+                    .setLabel('Я передумал')
+                    .setStyle(ButtonStyle.Danger),
+                new ButtonBuilder()
+                    .setCustomId('settings')
+                    .setLabel('Настройки')
+                    .setStyle(ButtonStyle.Secondary)           
+            );
+        return row;
+    }
+
+    createSettingsRow(){
+        const row = new ActionRowBuilder()
+            .addComponents(               
+                new ButtonBuilder()
+                    .setCustomId('activity_start')
+                    .setLabel('Старт')
+                    .setStyle(ButtonStyle.Secondary),  
+                new ButtonBuilder()
+                    .setCustomId('change_leader')
+                    .setLabel('Передать лид.')
+                    .setStyle(ButtonStyle.Secondary),                   
+                new ButtonBuilder()
+                    .setCustomId('close')
+                    .setLabel('Отменить')
+                    .setStyle(ButtonStyle.Danger)      
+            );          
+        const row2 = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId('bron_add')
+                .setLabel('Добавить бронь')
+                .setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder()
+                .setCustomId('bron_delete')
+                .setLabel('Удалить бронь')
+                .setStyle(ButtonStyle.Secondary)
+        );
+        return [row, row2];
+    }
+
+    remove(id){
+        if (id == this.leader.id){ //проверка на лидерство
+            throw new Error('Лидер не может покинуть боевую группу!');
+        }
+        super.remove(id);
     }
 
     changeLeader(user){
@@ -114,7 +143,7 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
                     }
                     try{
                         const fireteam = await this.fromJSON(data);
-                        this.client.fireteams.set(fireteam.id, fireteam);
+                        this.client.activities.set(fireteam.id, fireteam);
                         setTimeout(() => {
                             fireteam.checkQuantity();
                             fireteam.refreshMessage();
@@ -181,7 +210,8 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
             state: team.state,
             bron: new Array(),
             bronMessages: new Array(),
-            bronChannels: new Array()
+            bronChannels: new Array(),
+            guild: team.guildId
         };
 
         team.members.forEach((val, id) =>{
@@ -217,7 +247,9 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
             message.delete().catch();
             throw new Error('Лидер сбора не обнаружен');
         }
-        const fireteam = new FireteamUntimed(data.id, message, data.name, data.quantity, leader);
+        const fireteam = new FireteamUntimed(data.id, data.guildId, data.name, data.quantity, leader);
+        fireteam.message = message;
+        fireteam.state = data.state;
         await data.members.forEach(async (val) =>{
             if (val != leader.id){
                 const user = await this.client.users.fetch(val).catch();

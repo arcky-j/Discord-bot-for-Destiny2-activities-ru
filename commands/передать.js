@@ -24,7 +24,7 @@ module.exports = {
         const channel = interaction.channel;
         const user = interaction.user;
         //поиск нужной боевой группы
-        const fireteam = interaction.client.fireteams.get(id);
+        const fireteam = interaction.client.activities.get(id);
 
         if (!fireteam || fireteam.state == 'Закрыт'){
             const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');
@@ -38,7 +38,7 @@ module.exports = {
         }
         //попытка передачи лидерства
         try {
-            await fireteam.changeLeader(userNew);
+            fireteam.changeLeader(userNew);
         } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});

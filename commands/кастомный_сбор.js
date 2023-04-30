@@ -79,27 +79,25 @@ module.exports = {
         //формирование embed
         const id = interaction.client.generateId(interaction.client.activities);    
         //отправка сообщения
-        const embedStr = interaction.client.genEmbed(`*Строительные работы*`, `${actName}`, embColor);
-        const lastMess = await interaction.channel.send({content: strTags, embeds:[embedStr]});
-        const activity = new CustomActivity(id, lastMess, actName, Infinity, interaction.user, timeDate, role);
+        const activity = new CustomActivity(id, interaction.guildId, actName, Infinity, interaction.user, timeDate, role);
         try {
             const embed = activity.createEmbed(embColor, embDesc, bannerUrl, media);
             const row = activity.createActionRow();
-            const mess1 = await lastMess.edit({content: strTags, embeds: [embed], components: [row]});
-            activity.message = mess1;
-            setTimeout(() => {
-                activity.refreshMessage();
-            }, 200);     
+            const mess1 = await interaction.channel.send({content: strTags, embeds: [embed], components: [row]});
+            mess1.customId = id;
+            //mess1.customActivity = true;
+            activity.message = mess1;  
         } catch (err){
-            await lastMess.delete().catch();
+            if (activity.message){
+                await activity.message.delete().catch();
+            }
             const embed = interaction.client.genEmbed(`Ошибка при создании сбора: ${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }  
-        //формирование внутренней структуры данных
-        lastMess.customId = id;
-        lastMess.customActivity = true;
+        //формирование внутренней структуры данных       
         interaction.client.activities.set(id, activity);
+        activity.refreshMessage();
         //уведомление, если всё прошло успешно          
         const embed = interaction.client.genEmbed(`Сбор ${actName} создан`, 'Успех!');
         interaction.reply({embeds: [embed], ephemeral:true}); 

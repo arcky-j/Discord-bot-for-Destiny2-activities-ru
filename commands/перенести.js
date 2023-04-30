@@ -30,7 +30,7 @@ module.exports = {
         const reason = interaction.options.getString('причина');
         const user = interaction.user;
         //поиск нужной боевой группы
-        const fireteam = interaction.client.fireteams.get(id);
+        const fireteam = interaction.client.activities.get(id);
         if (fireteam instanceof ActivityUntimed){
             const embed = interaction.client.genEmbed(`Попытка перенести активность, где даты-времени нет в принципе, не пройдёт`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
@@ -57,7 +57,7 @@ module.exports = {
         }   
         //попытка дату сменить
         try {
-            await fireteam.changeDate(rDate);
+            fireteam.changeDate(rDate);
         } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});

@@ -295,39 +295,35 @@ module.exports = {
             }
         }    
         //формирование embed
-        const id = interaction.client.generateId(interaction.client.fireteams);
+        const id = interaction.client.generateId(interaction.client.activities);
         if (difficulty == 'Мастер'){
             actName = `Мастер ${actName}`;
         }       
         //отправка сообщения
-        const embedStr = interaction.client.genEmbed(`*Строительные работы*`, `${actName}`, embColor);
-        const lastMess = await interaction.channel.send({content: strTags, embeds:[embedStr]});
         let fireteam;  
         try{
             if (time || date){
-                fireteam = new FireteamRes(id, lastMess, actName, quant, interaction.user, rDate, res1, res2);
+                fireteam = new FireteamRes(id, interaction.guildId, actName, quant, interaction.user, rDate, res1, res2);
             } else {
-                fireteam = new FireteamUntimed(id, lastMess, actName, quant, interaction.user, res1, res2);
+                fireteam = new FireteamUntimed(id, interaction.guildId, actName, quant, interaction.user, res1, res2);
             }
             const embed = fireteam.createEmbed(embColor, embDesc, bannerUrl, media);
             const row = fireteam.createActionRow();
-            const mess1 = await lastMess.edit({content: strTags, embeds: [embed], components: [row]});
-            fireteam.message = mess1;
-            setTimeout(() => {
-                fireteam.refreshMessage();
-            }, 200);    
+            const mess1 = await interaction.channel.send({content: strTags, embeds: [embed], components: [row]});
+            mess1.customId = id;
+            //mess1.fireteam = true;
+            fireteam.message = mess1;   
         } catch (err){
-            await lastMess.delete().catch();
+            if (fireteam.message){
+                await fireteam.message.delete().catch();
+            }     
             const embed = interaction.client.genEmbed(`Ошибка при создании сбора: ${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }         
-        //формирование внутренней структуры данных
-        //const lastMess = interaction.channel.lastMessage;
-        if (interaction.replied) return;
-        lastMess.customId = id;
-        lastMess.fireteam = true;
-        interaction.client.fireteams.set(id, fireteam);
+        //формирование внутренней структуры данных       
+        interaction.client.activities.set(id, fireteam);
+        fireteam.refreshMessage();
         //уведомление, если всё прошло успешно
         const embed = interaction.client.genEmbed(`Сбор ${actName} создан`, 'Успех!');
         interaction.reply({embeds: [embed], ephemeral:true});

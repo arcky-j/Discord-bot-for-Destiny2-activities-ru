@@ -1,22 +1,23 @@
-//код для кнопки записи в боевую группу
+//код для кнопки записи в резерв
 module.exports = {
-    name: 'go_fireteam',
-    async execute(interaction){    
+    name: 'activity_reserv',
+    async execute(interaction){
         const user = interaction.user;
         //поиск нужной боевой группы
-        const fireteam = interaction.client.fireteams.get(interaction.message.customId);
+        const fireteam = interaction.client.activities.get(interaction.message.customId);
+
         if (!fireteam || fireteam.state == 'Закрыт'){
             const embed = interaction.client.genEmbed(`Скорее всего, активность уже стартовала. Возможно, произошла непредвиденная ошибка`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
-        //попытка записи Стража
+        //попытка записи в резервы
         try {
-            const embed = await fireteam.addUpdate(user);
+            const embed = fireteam.moveReservUpdate(user);           
             interaction.update({embeds: [embed]});
-        } catch (err){
+        } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
-            interaction.reply({embeds: [embed], ephemeral:true});
+            await interaction.reply({embeds: [embed], ephemeral:true});
         }
     }
 }

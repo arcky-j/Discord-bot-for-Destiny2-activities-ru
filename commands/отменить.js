@@ -17,11 +17,10 @@ module.exports = {
         //получение данных из команды
         const id = interaction.options.getString('id');
         const reason = interaction.options.getString('причина');
-        const channel = interaction.channel;
         const user = interaction.user;
         const client = interaction.client;
         //поиск нужной боевой группы
-        const fireteam = client.fireteams.get(id);
+        const fireteam = client.activities.get(id);
         
         if (!fireteam || fireteam.state == 'Закрыт'){
             const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась и в скором времени удалится сама`, 'Ошибка!');

@@ -15,17 +15,14 @@ module.exports = class ActivityBase extends Base{
 
     //static client;
 
-    constructor(id, mess, name, quant, leader){
+    constructor(id, guildId, name, quant, leader){
         super();
         this.id = id;
-        this.message = mess;
         this.name = name;
         this.quantity = quant;
         this.leader = leader;
         this.leader.id = leader.id;
-        if (mess.guildId){
-            this.guildId = mess.guildId;
-        }
+        this.guildId = guildId;
         this.state = this.states.get(1);
     }
 

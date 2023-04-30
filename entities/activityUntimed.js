@@ -1,8 +1,8 @@
 const ActivityBron = require("./activityBron");
 
 module.exports = class ActivityUntimed extends ActivityBron{
-    constructor(id, mess, name, quant, leader, br1, br2){
-        super(id, mess, name, quant, leader, br1, br2);
+    constructor(id, guildId, name, quant, leader, br1, br2){
+        super(id, guildId, name, quant, leader, br1, br2);
         this.timer = setTimeout(async () => {
             try{
                 this.state = this.states.get(0);

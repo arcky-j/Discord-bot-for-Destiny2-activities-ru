@@ -55,6 +55,9 @@ module.exports = {
         }
         //действия при отправке формы
         if (interaction.isModalSubmit()){
+            if (interaction.customId == 'reason'){
+                return;
+            }
             const modal = interaction.client.modals.get(interaction.customId);
             if (!modal) {
                 console.error(`No modal handler matching ${interaction.customId} was found`);
@@ -64,6 +67,22 @@ module.exports = {
             modal.execute(interaction).catch(error => {
                 console.log(error);
                 const embed = interaction.client.genEmbed(`Произошла ошибка при отправке формы: ${error.message}`, 'Ошибка!');
+                interaction.reply({embeds: [embed], ephemeral:true});
+            });
+
+        }
+
+        if (interaction.isAnySelectMenu()){
+
+            const selectMenu = interaction.client.selectMenus.get(interaction.customId);
+            if (!selectMenu) {
+                console.error(`No select menu handler matching ${interaction.customId} was found`);
+                return;
+            }
+
+            selectMenu.execute(interaction).catch(error => {
+                console.log(error);
+                const embed = interaction.client.genEmbed(`Произошла ошибка при использовании меню выбора: ${error.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
             });
 

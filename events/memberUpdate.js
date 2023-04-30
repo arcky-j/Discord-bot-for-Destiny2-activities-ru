@@ -6,6 +6,9 @@ module.exports = {
     async execute(oldMember, newMember) {
         if (oldMember.pending && !newMember.pending){
             const settings = newMember.client.settings.get(newMember.guild.id);
+            if (!settings){
+                return;
+            }
             if (settings.channelJoin){
                 settings.sendAcceptAlert(newMember);
             }

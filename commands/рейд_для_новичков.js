@@ -1,8 +1,7 @@
 const {SlashCommandBuilder, PermissionFlagsBits} = require('discord.js');
-const ActivityRes = require('../entities/activityRes.js');
-const ActivityUntimed = require('../entities/activityUntimed.js');
 const setDate = require('../utility/date_set.js');
-const getRandomColor = require('../utility/get_random_color.js');
+const FireteamRes = require('../entities/fireteamRes.js');
+const FireteamUntimed = require('../entities/fireteamUntimed.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('рейд_для_новичков')
@@ -95,35 +94,32 @@ module.exports = {
         }
         //добавление требований и описания, если есть
         if (requiries){
-            embDesc += `Обучаем начинающих рейдеров! Все механики объясним, покажем и научим делать.\nЛюди на опыте, уступайте место новичкам!\nТребования: ${requiries}\n`;
+            embDesc += `Обучаем начинающих рейдеров! Все механики объясним, покажем и научим делать.\nТребования: ${requiries}\n`;
         } else {
-            embDesc += `Обучаем начинающих рейдеров! Все механики объясним, покажем и научим делать.\nЛюди на опыте, уступайте место новичкам!\n`;
+            embDesc += `Обучаем начинающих рейдеров! Все механики объясним, покажем и научим делать.\n`;
         }
         if (descript){
             embDesc += `\n${descript}\n`;
         }     
         actName = `Обучающий ${actName}`;
         //формирование embed
-        const id = interaction.client.generateId(interaction.client.fireteams);      
+        const id = interaction.client.generateId(interaction.client.activities);      
         //отправка сообщения
-        const lastMess = await interaction.channel.send({content: '*Строительные работы*'});
         let fireteam;  
         if (time || date){
-            fireteam = new ActivityRes(id, lastMess, actName, quant, interaction.user, rDate, res1, res2);
+            fireteam = new FireteamRes(id, interaction.guildId, actName, quant, interaction.user, rDate, res1, res2);
         } else {
-            fireteam = new ActivityUntimed(id, lastMess, actName, quant, interaction.user, res1, res2);
+            fireteam = new FireteamUntimed(id, interaction.guildId, actName, quant, interaction.user, res1, res2);
         }
         const embed = fireteam.createEmbed(embColor, embDesc, bannerUrl);
         const row = fireteam.createActionRow();
-        const mess1 = await lastMess.edit({content: strTags, embeds: [embed], components: [row]});
-        fireteam.message = mess1;
-        setTimeout(() => {
-            fireteam.refreshMessage();
-        }, 100);     
+        const mess1 = await interaction.channel.send({content: strTags, embeds: [embed], components: [row]});
+        mess1.customId = id;
+        fireteam.message = mess1;     
         //формирование внутренней структуры данных
-        //const lastMess = interaction.channel.lastMessage;
-        lastMess.customId = id;
-        interaction.client.fireteams.set(id, fireteam);
+        //const lastMess = interaction.channel.lastMessage;  
+        interaction.client.activities.set(id, fireteam);
+        fireteam.refreshMessage();
         //уведомление, если всё прошло успешно
         await interaction.reply({content: 'Сбор создан', ephemeral: true});
 

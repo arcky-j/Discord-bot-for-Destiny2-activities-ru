@@ -5,8 +5,8 @@ const path = require('node:path');
 
 module.exports = class FireteamRes extends ActivityRes{
     pathToFireteams = path.join('.', 'data', 'fireteamsRes');
-    constructor(id, mess, name, quant, leader, date, br1, br2){
-        super(id, mess, name, quant, leader, date, br1, br2);
+    constructor(id, guildId, name, quant, leader, date, br1, br2){
+        super(id, guildId, name, quant, leader, date, br1, br2);
         this.members.set(leader.id, leader);
     }
 
@@ -16,7 +16,7 @@ module.exports = class FireteamRes extends ActivityRes{
         .setTitle(this.name)
         .setDescription(descript)
         .addFields(
-            {name: 'Время и дата', value: `...`, inline: true},
+            {name: 'Время и дата', value: `...`, inline: false},
             {name: 'Статус', value: `Инициализация`, inline: true},
             {name: 'Лидер', value: `...`, inline: true},
             {name: 'Боевая группа', value: '...', inline: false},
@@ -34,19 +34,52 @@ module.exports = class FireteamRes extends ActivityRes{
         const row = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId('go_fireteam')
+                    .setCustomId('activity_go')
                     .setLabel('Я точно иду!')
                     .setStyle(ButtonStyle.Success),
                 new ButtonBuilder()
-                    .setCustomId('cancel_fireteam')
+                    .setCustomId('activity_cancel')
                     .setLabel('Я передумал')
                     .setStyle(ButtonStyle.Danger),
                 new ButtonBuilder()
-                    .setCustomId('reserv_fireteam')
+                    .setCustomId('activity_reserv')
                     .setLabel('Резерв')
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
+                    .setCustomId('settings')
+                    .setLabel('Настройки')
                     .setStyle(ButtonStyle.Secondary)               
             );
         return row;
+    }
+
+    createSettingsRow(){
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('change_date')
+                    .setLabel('Перенести')
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
+                    .setCustomId('change_leader')
+                    .setLabel('Передать лид.')
+                    .setStyle(ButtonStyle.Secondary),                   
+                new ButtonBuilder()
+                    .setCustomId('close')
+                    .setLabel('Отменить')
+                    .setStyle(ButtonStyle.Danger)          
+            );
+        const row2 = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId('bron_add')
+                .setLabel('Добавить бронь')
+                .setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder()
+                .setCustomId('bron_delete')
+                .setLabel('Удалить бронь')
+                .setStyle(ButtonStyle.Secondary)
+        );
+        return [row, row2];
     }
 
     remove(id){
@@ -118,7 +151,7 @@ module.exports = class FireteamRes extends ActivityRes{
                     }
                     try{
                         const fireteam = await this.fromJSON(data);
-                        this.client.fireteams.set(fireteam.id, fireteam);
+                        this.client.activities.set(fireteam.id, fireteam);
                         setTimeout(() => {
                             fireteam.checkQuantity();
                             fireteam.refreshMessage();
@@ -187,7 +220,8 @@ module.exports = class FireteamRes extends ActivityRes{
             state: team.state,
             bron: new Array(),
             bronMessages: new Array(),
-            bronChannels: new Array()
+            bronChannels: new Array(),
+            guild: team.guildId
         };
         team.members.forEach((val, id) =>{
             data.members.push(id);
@@ -229,7 +263,9 @@ module.exports = class FireteamRes extends ActivityRes{
             throw new Error('Лидер сбора не обнаружен');
         }
         const date = new Date(data.date);
-        const fireteam = new FireteamRes(data.id, message, data.name, data.quantity, leader, date);
+        const fireteam = new FireteamRes(data.id, data.guildId, data.name, data.quantity, leader, date);
+        fireteam.message = message;
+        fireteam.state = data.state;
         await data.members.forEach(async (val) =>{
             if (val != leader.id){
                 const user = await this.client.users.fetch(val).catch();

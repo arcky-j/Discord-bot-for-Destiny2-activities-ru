@@ -9,8 +9,8 @@ module.exports = class CustomActivity extends ActivityBase{
     guild;
     pathToActivities = path.join('.', 'data', 'customActivities');
 
-    constructor(id, mess, name, quant, leader, date, role){
-        super(id, mess, name, quant, leader);
+    constructor(id, guildId, name, quant, leader, date, role){
+        super(id, guildId, name, quant, leader);
         this.date = date;
         if (role){
             this.role = role;
@@ -19,32 +19,13 @@ module.exports = class CustomActivity extends ActivityBase{
         }        
     }
 
-    createActionRow(){
-        const row = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('go_activity')
-                    .setLabel('Я участвую!')
-                    .setStyle(ButtonStyle.Success),
-                new ButtonBuilder()
-                    .setCustomId('cancel_activity')
-                    .setLabel('Передумал')
-                    .setStyle(ButtonStyle.Danger),
-                new ButtonBuilder()
-                    .setCustomId('activity_start')
-                    .setLabel('Старт')
-                    .setStyle(ButtonStyle.Secondary)             
-            );
-        return row;
-    }
-    
     createEmbed(color, descript, banner, media){
         const embed = new EmbedBuilder()
         .setColor(color)
         .setTitle(this.name)
         .setDescription(descript)
         .addFields(
-            {name: 'Время и дата', value: `...`, inline: true},
+            {name: 'Время и дата', value: `...`, inline: false},
             {name: 'Статус', value: `Инициализация`, inline: true},
             {name: 'Лидер', value: `...`, inline: true},
             {name: 'Участники', value: '...', inline: false}
@@ -57,7 +38,49 @@ module.exports = class CustomActivity extends ActivityBase{
             embed.setImage(media);
         }
         return embed;
-    }    
+    }   
+
+    createActionRow(){
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('activity_go')
+                    .setLabel('Я участвую!')
+                    .setStyle(ButtonStyle.Success),
+                new ButtonBuilder()
+                    .setCustomId('activity_cancel')
+                    .setLabel('Передумал')
+                    .setStyle(ButtonStyle.Danger),
+                new ButtonBuilder()
+                    .setCustomId('settings')
+                    .setLabel('Настройки')
+                    .setStyle(ButtonStyle.Secondary)             
+            );
+        return row;
+    }
+    
+    createSettingsRow(){
+        const row = new ActionRowBuilder()
+            .addComponents(               
+                new ButtonBuilder()
+                    .setCustomId('activity_start')
+                    .setLabel('Старт')
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
+                    .setCustomId('change_date')
+                    .setLabel('Перенести')
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
+                    .setCustomId('change_leader')
+                    .setLabel('Передать лид.')
+                    .setStyle(ButtonStyle.Secondary),                    
+                new ButtonBuilder()
+                    .setCustomId('close')
+                    .setLabel('Отменить')
+                    .setStyle(ButtonStyle.Danger)         
+            );
+        return row;
+    } 
 
     add(user){
         super.add(user);
@@ -71,6 +94,11 @@ module.exports = class CustomActivity extends ActivityBase{
         if (this.role){
             this.guild.members.fetch(id).then(gMember => gMember.roles.remove(this.role.id).catch());           
         }
+    }
+
+    changeDate(date){
+        this.date = date;
+        this.refreshMessage();
     }
 
     async refreshMessage(){
@@ -118,10 +146,10 @@ module.exports = class CustomActivity extends ActivityBase{
                             activity.checkQuantity();
                             activity.refreshMessage();
                         }, 10000);
-                        console.log(`Загружена кастомная активность ${activity.name} (${activity.id})`);
+                        console.log(`Загружена кастомная активность ${activity}`);
                         if (activity.guildId){
                             const sett = CustomActivity.client.settings.get(activity.guildId);
-                            sett.sendLog(`Загружена кастомная активность ${activity.name} (${activity.id})`, 'Запись логов: успех');
+                            sett.sendLog(`Загружена кастомная активность ${activity}`, 'Запись логов: успех');
                         }
                     } catch (err){
                         console.log(`Невозможно загрузить кастомную активность ${val}. Причина: ${err.message} Производится удаление...`);
@@ -224,7 +252,9 @@ module.exports = class CustomActivity extends ActivityBase{
             message.delete().catch();
             throw new Error('Лидер сбора не обнаружен');
         }
-        const activity = new CustomActivity(data.id, message, data.name, data.quantity, leader, data.date, role);
+        const activity = new CustomActivity(data.id, guild.id, data.name, data.quantity, leader, data.date, role);
+        activity.message = message;
+        activity.state = data.state;
         if (data.members.length > 0){
             await data.members.forEach(async (val) =>{               
                 const user = await this.client.users.fetch(val).catch();
