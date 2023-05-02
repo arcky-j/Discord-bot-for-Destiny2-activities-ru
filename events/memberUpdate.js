@@ -9,16 +9,16 @@ module.exports = {
             if (!settings){
                 return;
             }
-            if (settings.channelJoin){
-                settings.sendAcceptAlert(newMember);
-            }
             if (settings.rolesForNew.length > 0){
                 newMember.roles.add(settings.rolesForNew).catch(err => {
                     console.log(`Ошибка с присвоением роли новичку сервера (${newMember.user.tag}): ${err.message}`);               
                     const sett = member.client.settings.get(newMember.guild.id);
                     sett.sendLog(`Не удалось присвоить роль/роли новичку сервера (${newMember}): ${err.message}`, 'Запись логов: ошибка');           
                 });
-            }           
+            } 
+            if (settings.channelJoin){
+                settings.sendAcceptAlert(newMember);
+            }                     
         }
     },
 };
