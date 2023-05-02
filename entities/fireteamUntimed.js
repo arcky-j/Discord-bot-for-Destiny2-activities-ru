@@ -247,7 +247,7 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
             message.delete().catch();
             throw new Error('Лидер сбора не обнаружен');
         }
-        const fireteam = new FireteamUntimed(data.id, data.guildId, data.name, data.quantity, leader);
+        const fireteam = new FireteamUntimed(data.id, data.guild, data.name, data.quantity, leader);
         fireteam.message = message;
         fireteam.state = data.state;
         await data.members.forEach(async (val) =>{

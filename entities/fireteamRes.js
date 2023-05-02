@@ -263,7 +263,7 @@ module.exports = class FireteamRes extends ActivityRes{
             throw new Error('Лидер сбора не обнаружен');
         }
         const date = new Date(data.date);
-        const fireteam = new FireteamRes(data.id, data.guildId, data.name, data.quantity, leader, date);
+        const fireteam = new FireteamRes(data.id, data.guild, data.name, data.quantity, leader, date);
         fireteam.message = message;
         fireteam.state = data.state;
         await data.members.forEach(async (val) =>{
