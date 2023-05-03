@@ -4,6 +4,8 @@ const FireteamRes = require('../entities/fireteamRes.js');
 const CustomActivity = require('../entities/customActivity.js');
 const {Events} = require('discord.js');
 const getRandomPresence = require('../utility/get_random_presence');
+const fs = require('node:fs');
+const path = require('node:path');
 //срабатывает при запуске бота
 module.exports = {
     name: Events.ClientReady,
@@ -18,5 +20,25 @@ module.exports = {
         FireteamUntimed.initAll().catch(err => console.log(`Ошибка загрузки сборов по готовности: ${err.message}`)); 
         FireteamRes.initAll().catch(err => console.log(`Ошибка загрузки стандартных сборов: ${err.message}`)); 
         CustomActivity.initAll().catch(err => console.log(`Ошибка загрузки кастомных сборов: ${err.message}`));
+
+        client.guilds.cache.forEach((val, id) =>{
+            const pathToGuardians = path.join('.', 'data', 'guardians', `guild_${id}`);
+            if (!fs.existsSync(pathToGuardians)){
+                fs.mkdirSync(pathToGuardians, {recursive: true});
+                console.log(`Создана директория ${pathToGuardians}`);
+            }
+            const guardians = fs.readdirSync(pathToGuardians).filter(f => f.endsWith('.json'));
+            if (guardians.length > 0){
+                guardians.forEach((valGuard) => {
+                    fs.readFile(path.join(pathToGuardians, valGuard), (error, data) =>{
+                        if (error){
+                            console.error(error);
+                        }
+                        const guard = JSON.parse(data);
+                        val.members.fetch(guard.member).catch(err => console.log(err));
+                    });
+                });
+            }         
+        });
     },
 };
