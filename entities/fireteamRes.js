@@ -110,7 +110,7 @@ module.exports = class FireteamRes extends ActivityRes{
                 this.members.set(user.id, user); //если места есть, просто добавляет нового Стража и делает его лидером
                 this.leader = user; 
             }
-            this.checkQuantity();
+            //this.checkQuantity();
         }   
         if (this.reservs.has(user.id)){
             this.reservs.delete(user.id);
@@ -153,7 +153,7 @@ module.exports = class FireteamRes extends ActivityRes{
                         const fireteam = await this.fromJSON(data);
                         this.client.activities.set(fireteam.id, fireteam);
                         setTimeout(() => {
-                            fireteam.checkQuantity();
+                            //fireteam.checkQuantity();
                             fireteam.refreshMessage();
                         }, 10000);
                         console.log(`Загружена боевая группа ${fireteam}`);

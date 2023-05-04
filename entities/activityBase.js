@@ -41,7 +41,7 @@ module.exports = class ActivityBase extends Base{
             throw new Error('Возмутительно! Я не думал, что кому-то придёт в голову совать в сбор бота, но и к этому я был готов');
         }
         this.members.set(user.id, user);
-        this.checkQuantity();
+        //this.checkQuantity();
         //await this.refreshMessage();
     }
 
@@ -61,7 +61,7 @@ module.exports = class ActivityBase extends Base{
         } 
         
         this.members.delete(id); //удаление из боевой группы
-        this.checkQuantity();
+        //this.checkQuantity();
     }
 
     removeUpdate(id){
@@ -153,7 +153,8 @@ module.exports = class ActivityBase extends Base{
                 });
         }
     }
-    async refreshMessage(){       
+    async refreshMessage(){
+        this.checkQuantity();      
         const embed = this.message.embeds[0];
         embed.fields[1].value = this.state;
         if (this.state == 'Закрыт'){
@@ -190,6 +191,7 @@ module.exports = class ActivityBase extends Base{
         
     }
     updateMessage(){
+        this.checkQuantity();
         const embed = this.message.embeds[0];
         embed.fields[1].value = this.state;
         embed.fields[2].value = `${this.leader}`;

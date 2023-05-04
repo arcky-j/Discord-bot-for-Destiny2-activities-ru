@@ -68,7 +68,7 @@ module.exports = class ActivityBron extends ActivityBase{
         .then(m => {
             this.bron.set(user.id, user);
             this.bronMessages.set(user.id, m);
-            this.checkQuantity();
+            //this.checkQuantity();
             this.refreshMessage();
         })
         .catch(async err =>{
@@ -90,7 +90,7 @@ module.exports = class ActivityBron extends ActivityBase{
         mess.edit({embeds: [embed], components: []}).catch();
         this.bron.delete(id);
         this.bronMessages.delete(id); 
-        this.checkQuantity();
+        //this.checkQuantity();
         this.refreshMessage();       
     }
     //перевод из брони в боевую группу

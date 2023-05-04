@@ -105,7 +105,7 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
                 this.members.set(user.id, user); //если места есть, просто добавляет нового Стража и делает его лидером
                 this.leader = user; 
             }
-            this.checkQuantity();
+            //this.checkQuantity();
         }   
         this.refreshMessage();
     }
@@ -145,7 +145,7 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
                         const fireteam = await this.fromJSON(data);
                         this.client.activities.set(fireteam.id, fireteam);
                         setTimeout(() => {
-                            fireteam.checkQuantity();
+                            //fireteam.checkQuantity();
                             fireteam.refreshMessage();
                         }, 10000);
                         console.log(`Загружена боевая группа ${fireteam}`);

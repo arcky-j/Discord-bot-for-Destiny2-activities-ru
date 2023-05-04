@@ -143,7 +143,7 @@ module.exports = class CustomActivity extends ActivityBase{
                         const activity = await this.fromJSON(data);
                         this.client.activities.set(activity.id, activity);
                         setTimeout(() => {
-                            activity.checkQuantity();
+                            //activity.checkQuantity();
                             activity.refreshMessage();
                         }, 10000);
                         console.log(`Загружена кастомная активность ${activity}`);
