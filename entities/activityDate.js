@@ -24,7 +24,7 @@ module.exports = class ActivityDate extends ActivityBron{
     }
     async setTimer(){
         if (this.today > this.date){
-            this.state = this.states.get(0);
+            this.state = this.states[0];
             return;
         }        
         const t = this.date - this.today - this.tenMinutes; 
@@ -42,7 +42,7 @@ module.exports = class ActivityDate extends ActivityBron{
             this.sendAlerts('uptime');
             setTimeout(async () => {
                 try{
-                    this.state = this.states.get(0);
+                    this.state = this.states[0];
                     this.refreshMessage();
                 } catch (err){
                     console.log('Ошибка таймера: ' + err.message)

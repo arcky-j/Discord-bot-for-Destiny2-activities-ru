@@ -9,11 +9,15 @@ module.exports = class ActivityBase extends Base{
     guildId;
     members = new Map();
     state;
-    states = new Map([[0, 'Закрыт'], [1, 'Открыт'], [2, 'Заполнен']]);
+    //states = new Map([[0, 'Закрыт'], [1, 'Открыт'], [2, 'Заполнен']]);
     delTimer;
     day = 86400000;
 
-    //static client;
+    states = {
+        0: 'Закрыт',
+        1: 'Открыт',
+        2: 'Заполнен'
+    }
 
     constructor(id, guildId, name, quant, leader){
         super();
@@ -23,14 +27,14 @@ module.exports = class ActivityBase extends Base{
         this.leader = leader;
         this.leader.id = leader.id;
         this.guildId = guildId;
-        this.state = this.states.get(1);
+        this.state = this.states[1];
     }
 
     add(user){
         if (this.members.has(user.id)){ //проверка на присутствие в боевой группе
             throw new Error('Пользователь уже записан!'); 
         } 
-        if (this.state == 'Заполнен'){ //проверка на количество стражей
+        if (this.state == this.states[2]){ //проверка на количество стражей
             throw new Error('Сбор уже укомплектован!');
         }
         if (user.bot){ //проверка на случай, если кто-то насильно догадается записать в сбор бота
@@ -84,13 +88,13 @@ module.exports = class ActivityBase extends Base{
     }
 
     checkQuantity(){
-        if (this.state == 'Закрыт'){
+        if (this.state == this.states[0]){
             return;
         }
         if (this.members.size == this.quantity){
-            this.state = this.states.get(2);
+            this.state = this.states[2];
         } else {
-            this.state = this.states.get(1);
+            this.state = this.states[1];
         }
     }
     //рассылка оповещений в личные сообщения
@@ -205,7 +209,7 @@ module.exports = class ActivityBase extends Base{
         return str; //возвращает строку со всеми участниками боевой группы в столбик
     }
     start(){
-        this.state = this.states.get(0);
+        this.state = this.states[0];
         this.sendAlerts('start');
         this.refreshMessage();
     }

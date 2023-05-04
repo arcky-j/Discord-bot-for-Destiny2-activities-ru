@@ -35,7 +35,14 @@ module.exports = {
                             console.error(error);
                         }
                         const guard = JSON.parse(data);
-                        val.members.fetch(guard.member).catch(err => console.log(err));
+                        val.members.fetch(guard.member).catch(err => {
+                            console.log(err);
+                            fs.unlink(path.join(pathToGuardians, valGuard), (error) =>{
+                                if (error){
+                                    console.error(error);
+                                }
+                            });
+                        });
                     });
                 });
             }         

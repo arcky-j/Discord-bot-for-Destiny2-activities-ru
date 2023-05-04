@@ -249,7 +249,7 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
         }
         const fireteam = new FireteamUntimed(data.id, data.guild, data.name, data.quantity, leader);
         fireteam.message = message;
-        fireteam.state = data.state;
+        //fireteam.state = data.state;
         await data.members.forEach(async (val) =>{
             if (val != leader.id){
                 const user = await this.client.users.fetch(val).catch();

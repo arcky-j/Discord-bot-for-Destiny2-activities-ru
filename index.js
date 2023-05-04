@@ -20,6 +20,7 @@ client.commands = new Collection(); //слэш-команды
 client.settings = new Collection(); //настройки сервера (свой тип данных)
 client.actGens = new Collection(); 
 client.activities = new Collection(); 
+client.mapVotes = new Collection(); 
 //загрузка исполняемого кода для команд
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));

@@ -57,7 +57,7 @@ module.exports = class ActivityBron extends ActivityBase{
         if (this.bron.size == this.bronSize){ //проверка на заполненность брони
             throw new Error('Вы уже забронировали максимум! Для этой активности это ' + this.bronSize + ' места'); 
         } 
-        if (this.state == 'Заполнен'){ //проверка на количество стражей с учётом брони
+        if (this.state == this.states[2]){ //проверка на количество стражей с учётом брони
             throw new Error('Сбор уже укомплектован!');
         }
         if (user.bot){ //проверка на случай, если кто-то насильно догадается записать в сбор бота
@@ -116,13 +116,13 @@ module.exports = class ActivityBron extends ActivityBase{
         super.changeLeader(user);
     }
     checkQuantity(){
-        if (this.state == 'Закрыт'){
+        if (this.state == this.states[0]){
             return;
         }
         if (this.members.size + this.bron.size == this.quantity){
-            this.state = this.states.get(2);
+            this.state = this.states[2];
         } else {
-            this.state = this.states.get(1);
+            this.state = this.states[1];
         }
     }
 

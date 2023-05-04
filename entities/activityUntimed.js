@@ -5,7 +5,7 @@ module.exports = class ActivityUntimed extends ActivityBron{
         super(id, guildId, name, quant, leader, br1, br2);
         this.timer = setTimeout(async () => {
             try{
-                this.state = this.states.get(0);
+                this.state = this.states[0];
                 this.refreshMessage();
             } catch (err){
                 console.log('Ошибка таймера: ' + err.message)
@@ -14,7 +14,7 @@ module.exports = class ActivityUntimed extends ActivityBron{
     }
 
     start(){
-        this.state = this.states.get(0);
+        this.state = this.states[0];
         clearTimeout(this.timer);
         this.sendAlerts('start');
         this.refreshMessage();
@@ -26,7 +26,7 @@ module.exports = class ActivityUntimed extends ActivityBron{
     }
     async refreshMessage(){
         super.refreshMessage();
-        if (this.state == 'Заполнен'){
+        if (this.state == this.states[2]){
             const embed = ActivityUntimed.client.genEmbed(`Ваш сбор по готовности (${this}) заполнен!`, 'Уведомление');
             this.leader.send({embeds: [embed, this.message.embeds[0]]})
             .catch(err => {
@@ -41,7 +41,7 @@ module.exports = class ActivityUntimed extends ActivityBron{
 
     updateMessage(){
         const embed = super.updateMessage();
-        if (this.state == 'Заполнен'){
+        if (this.state == this.states[2]){
             const embed = ActivityUntimed.client.genEmbed(`Ваш сбор по готовности (${this}) заполнен!`, 'Уведомление');
             this.leader.send({embeds: [embed, this.message.embeds[0]]})
             .catch(err => {

@@ -32,7 +32,7 @@ module.exports = {
         const userNew = interaction.options.getUser('пользователь');
         const user = interaction.user;
         //поиск нужной боевой группы
-        const fireteam = interaction.client.fireteams.get(id);
+        const fireteam = interaction.client.activities.get(id);
 
         if (!fireteam){
             const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');
