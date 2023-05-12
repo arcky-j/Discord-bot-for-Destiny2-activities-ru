@@ -16,10 +16,10 @@ module.exports = class FireteamRes extends ActivityRes{
         .setTitle(this.name)
         .setDescription(descript)
         .addFields(
-            {name: 'Время и дата', value: `...`, inline: false},
-            {name: 'Статус', value: `Инициализация`, inline: true},
-            {name: 'Лидер', value: `...`, inline: true},
-            {name: 'Боевая группа', value: '...', inline: false},
+            {name: 'Время и дата', value: `${this.getDateString()}`, inline: false},
+            {name: 'Статус', value: `Открыт`, inline: true},
+            {name: 'Лидер', value: `${this.leader}`, inline: true},
+            {name: 'Боевая группа', value: `${this.getMembersString()}`, inline: false},
             {name: 'Резерв', value: '...', inline: false}
         )
         .setThumbnail(banner)

@@ -17,9 +17,9 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
         .setDescription(descript)
         .addFields(
             {name: 'Время и дата', value: `По готовности`, inline: false},
-            {name: 'Статус', value: `Инициализация`, inline: true},
-            {name: 'Лидер', value: `...`, inline: true},
-            {name: 'Боевая группа', value: '...', inline: false}
+            {name: 'Статус', value: `Открыт`, inline: true},
+            {name: 'Лидер', value: `${this.leader}`, inline: true},
+            {name: 'Боевая группа', value: `${this.getMembersString()}`, inline: false}
         )
         .setThumbnail(banner)
         .setFooter({text: `ID: ${this.id}`});

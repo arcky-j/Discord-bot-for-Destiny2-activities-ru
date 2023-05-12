@@ -97,7 +97,7 @@ module.exports = {
         }  
         //формирование внутренней структуры данных       
         interaction.client.activities.set(id, activity);
-        activity.refreshMessage();
+        activity.save();
         //уведомление, если всё прошло успешно          
         const embed = interaction.client.genEmbed(`Сбор ${actName} создан`, 'Успех!');
         interaction.reply({embeds: [embed], ephemeral:true}); 

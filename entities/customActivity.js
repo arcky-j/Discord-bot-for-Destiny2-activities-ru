@@ -25,9 +25,9 @@ module.exports = class CustomActivity extends ActivityBase{
         .setTitle(this.name)
         .setDescription(descript)
         .addFields(
-            {name: 'Время и дата', value: `...`, inline: false},
-            {name: 'Статус', value: `Инициализация`, inline: true},
-            {name: 'Лидер', value: `...`, inline: true},
+            {name: 'Время и дата', value: `${this.date}`, inline: false},
+            {name: 'Статус', value: `Открыт`, inline: true},
+            {name: 'Лидер', value: `${this.leader}`, inline: true},
             {name: 'Участники', value: '...', inline: false}
         )
         .setFooter({text: `ID: ${this.id}`});

@@ -6,48 +6,50 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('генератор_сборов')
         .setDescription('Команда для создания сообщения с мастером сборов')
-            .addStringOption(option => 
-                option.setName('вид_сбора')
-                    .setDescription('Какие мастера создания сборов будет иметь сообщение')
-                    .setRequired(true)
-                    .addChoices(
-                        {name: 'Рейды', value: 'raids'},
-                        {name: 'Подземелья', value: 'dungs'},
-                        {name: 'Другое', value: 'custom'},
-                        {name: 'Рейды, Подземелья, Другое', value: 'all'},
-                        {name: 'Подземелья, Другое', value: 'dungs_custom'},                                            
-                        {name: 'Рейды, Подземелья', value: 'raids_dungs'},                                            
-                    ))
+            .addBooleanOption(option => 
+                option.setName('рейды')
+                    .setDescription('Будет ли сообщение содержать мастер сбора рейдов?')
+                    .setRequired(true))
+            .addBooleanOption(option => 
+                option.setName('подземелья')
+                    .setDescription('Будет ли сообщение содержать мастер сбора подземелий?')
+                    .setRequired(true))
+            .addBooleanOption(option => 
+                option.setName('другое')
+                    .setDescription('Будет ли сообщение содержать мастер общих сборов?')
+                    .setRequired(true))
             .addStringOption(option =>
                 option.setName('описание')
                     .setDescription('Дополнительная информация в сообщении'))
+            .addStringOption(option =>
+                option.setName('баннер')
+                    .setDescription('Баннер эмбеда по желанию (ТОЛЬКО URL)'))
             .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
     async execute(interaction) {
         //получение данных из команды
-        const typ = interaction.options.getString('вид_сбора');
+        const raids = interaction.options.getBoolean('рейды');
+        const dungs = interaction.options.getBoolean('подземелье');
+        const custom = interaction.options.getBoolean('другое');
         const descript = interaction.options.getString('описание');
+        const banner = interaction.options.getString('баннер');
 
-        const id = interaction.client.generateId(interaction.client.actGens);
+        //const id = interaction.client.generateId(interaction.client.actGens);
         //const message = await interaction.channel.send('*Строительные работы*');
-
-        switch (typ){
-            case 'raids': 
-                break;
-            case 'dungs':
-                break;
-            case 'custom':
-                break;
-            case 'all':
-                break;
-            case 'dungs_custom':
-                break;
-            case 'raids_dungs':
-                break;
+        if (!raids && !dungs && !custom){
+            const embed = interaction.client.genEmbed(`Вы не выбрали ни одной категории`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
+            return;
         }
 
-        
+        const gen = new GenBase(raids, dungs, custom, descript);
+        const embedGen = gen.createEmbed(banner);
+        const rowGen = gen.createActionRow();
 
-        interaction.reply({content: 'Данная команда недоступна в вашем регионе'});
+        const message = await interaction.channel.send({embeds: [embedGen], components: [rowGen]});
+        gen.message = message;
+
+        const embed = interaction.client.genEmbed(`Мастер сборов создан`, 'Успех!');
+        interaction.reply({embeds: [embed], ephemeral:true});
     }
 }
