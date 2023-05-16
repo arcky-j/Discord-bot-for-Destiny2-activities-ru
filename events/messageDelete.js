@@ -1,4 +1,4 @@
-const {Events, Collection} = require('discord.js');
+const {Events} = require('discord.js');
 //срабатывает при удалении сообщения
 module.exports = {
     name: Events.MessageDelete,

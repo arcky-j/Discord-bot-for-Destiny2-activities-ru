@@ -1,4 +1,4 @@
-const {Events, EmbedBuilder, GuildFeature} = require('discord.js');
+const {Events, GuildFeature} = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
 //срабатывает при вступлении пользователя на сервер

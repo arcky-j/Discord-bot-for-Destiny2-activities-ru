@@ -1,4 +1,4 @@
-const {Events, EmbedBuilder} = require('discord.js');
+const {Events} = require('discord.js');
  //срабатывает, если пользователь на сервере изменился
 module.exports = {
     name: Events.GuildMemberUpdate,

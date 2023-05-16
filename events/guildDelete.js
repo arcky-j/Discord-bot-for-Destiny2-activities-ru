@@ -1,4 +1,4 @@
-const {Events, EmbedBuilder, GuildFeature} = require('discord.js');
+const {Events} = require('discord.js');
 //срабатывает при вступлении пользователя на сервер
 module.exports = {
     name: Events.GuildDelete,

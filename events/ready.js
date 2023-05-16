@@ -1,9 +1,4 @@
-const Settings = require('../entities/settings.js');
-const FireteamUntimed = require('../entities/fireteamUntimed.js');
-const FireteamRes = require('../entities/fireteamRes.js');
-const CustomActivity = require('../entities/customActivity.js');
-const {Events} = require('discord.js');
-const getRandomPresence = require('../utility/get_random_presence');
+const {Settings, FireteamUntimed, FireteamRes, CustomActivity, getRandomPresence} = require('../fireteams_module');
 const fs = require('node:fs');
 const path = require('node:path');
 //срабатывает при запуске бота

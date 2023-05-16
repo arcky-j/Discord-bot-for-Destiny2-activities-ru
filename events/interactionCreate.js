@@ -1,5 +1,5 @@
 const {Events} = require('discord.js');
-
+const {activityButtonsHandle, mapVoteButtonsHandle} = require('../fireteams_module');
 //здесь обрабатываются все взаимодействия с пользователем
 module.exports = {
     name: Events.InteractionCreate,
@@ -25,41 +25,13 @@ module.exports = {
         //действия при срабатывании кнопки
         if (interaction.isButton()) {
 
+            if (interaction.customId.match(/activity/)){
+                activityButtonsHandle(interaction);
+            }
+
             if (interaction.customId.match(/mapVote/)){
-                const id = interaction.customId.split('_')[2];
-                const map = interaction.customId.split('_')[1];
-
-                const user = interaction.member;
-
-                const mapVote = interaction.client.mapVotes.get(id);
-
-                if (!mapVote.users.has(user.id)){
-                    const embed = interaction.client.genEmbed(`Отказано в доступе!`, 'Ошибка!');
-                    interaction.reply({embeds: [embed], ephemeral:true});
-                    return;
-                }
-                try{
-                    const messComps = mapVote.vote(map, user.id);           
-                    interaction.update({embeds: [messComps[0]], components: [messComps[1]]});
-                    return;
-                } catch (err){
-                    const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
-                    interaction.reply({embeds: [embed], ephemeral:true});
-                    return;
-                }
+                mapVoteButtonsHandle(interaction);
             }
-
-            const button = interaction.client.buttons.get(interaction.customId);
-
-            if (!button) {
-                console.error(`No button handler matching ${interaction.customId} was found`);
-                return;
-            }
-            button.execute(interaction).catch(error => {
-                console.log(error);
-                const embed = interaction.client.genEmbed(`Произошла ошибка при нажатии кнопки: ${error.message}`, 'Ошибка!');
-                interaction.reply({embeds: [embed], ephemeral:true});
-            });
         }
         //действия при срабатывании команды контекстного меню
         if (interaction.isUserContextMenuCommand()) {
@@ -91,22 +63,6 @@ module.exports = {
             modal.execute(interaction).catch(error => {
                 console.log(error);
                 const embed = interaction.client.genEmbed(`Произошла ошибка при отправке формы: ${error.message}`, 'Ошибка!');
-                interaction.reply({embeds: [embed], ephemeral:true});
-            });
-
-        }
-
-        if (interaction.isAnySelectMenu()){
-
-            const selectMenu = interaction.client.selectMenus.get(interaction.customId);
-            if (!selectMenu) {
-                console.error(`No select menu handler matching ${interaction.customId} was found`);
-                return;
-            }
-
-            selectMenu.execute(interaction).catch(error => {
-                console.log(error);
-                const embed = interaction.client.genEmbed(`Произошла ошибка при использовании меню выбора: ${error.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
             });
 

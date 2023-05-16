@@ -1,4 +1,6 @@
 const {SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder} = require('discord.js');
+const {getRandomColor} = require('../fireteams_module');
+
 //команда для отмены существующего сбора
 module.exports = {
     data: new SlashCommandBuilder()
@@ -49,5 +51,42 @@ module.exports = {
         modal.addComponents(actionRow1, actionRow0, actionRow2, actionRow3, actionRow4);
         //отправляет форму пользователю
         await interaction.showModal(modal);
+        const filter = inter => inter.user.id === interaction.user.id && inter.customId === 'create_embed';
+        const modalInt = await interaction.awaitModalSubmit({filter, time: 600000})
+        .catch(error => console.log(error));
+
+        const embTitle = modalInt.fields.getTextInputValue('embedTitle');
+        const embDecs = modalInt.fields.getTextInputValue('embedDesc');
+        const embMedia = modalInt.fields.getTextInputValue('embedMedia');
+        const embBanner = modalInt.fields.getTextInputValue('embedBanner');
+        const embFooter = modalInt.fields.getTextInputValue('embedFooter');
+
+        //const user = await interaction.client.users.fetch(interaction.user.id);
+
+        //const color = user.accentColor;
+        const color = getRandomColor();
+        //формирует пользовательский embed
+        const embed = new EmbedBuilder()
+            .setDescription(embDecs)
+            .setColor(color)
+            //.setThumbnail(user.displayAvatarURL()) //делает баннером аватар пользователя
+            .setTimestamp(new Date());
+        if (embTitle){
+            embed.setTitle(embTitle);
+        }
+        if (embMedia){
+            embed.setImage(embMedia);
+        }
+        if (embBanner){
+            embed.setThumbnail(embBanner);
+        }
+        if (embFooter){
+            embed.setFooter({text: embFooter});
+        }
+        try{
+            modalInt.reply({embeds: [embed]});
+        } catch (err){
+            modalInt.reply({content: `Ошибка! ${err.message}`, ephemeral: true});
+        }
     }
 };

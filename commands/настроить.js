@@ -216,6 +216,20 @@ module.exports = {
             modal.addComponents(row0, row1, row2);
             //отправка формы пользователю
             await interaction.showModal(modal);
+            const filter = inter => inter.user.id === interaction.user.id && inter.customId === 'messJS_modal';
+            const modalInt = await interaction.awaitModalSubmit({filter, time: 600000})
+            .catch(error => console.log(error));
+
+            //получает значения из всплывающего окна
+            const messJfield = modalInt.fields.getTextInputValue('messJ');
+            const messAfield = modalInt.fields.getTextInputValue('messA');
+            const messLfield = modalInt.fields.getTextInputValue('messL');
+            //загружает информацию в объект, отвечающий за ресет
+            const sett = interaction.client.settings.get(interaction.guild.id);
+            sett.setJALMessages(messJfield, messAfield, messLfield);
+
+            const embed = new EmbedBuilder().setTitle('Текста уведомлений о прибытии, принятии правил и уходе обновлены').setDescription(`Уведомление о прибытии: ${messJ}\nУведомление о принятии правил: ${messA}\nУведомление о уходе: ${messL}`);
+            await interaction.reply({embeds: [embed]});
         }
     }
 }

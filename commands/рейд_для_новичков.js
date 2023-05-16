@@ -1,7 +1,5 @@
 const {SlashCommandBuilder, PermissionFlagsBits} = require('discord.js');
-const setDate = require('../utility/date_set.js');
-const FireteamRes = require('../entities/fireteamRes.js');
-const FireteamUntimed = require('../entities/fireteamUntimed.js');
+const {dateSet, FireteamRes, FireteamUntimed} = require('../fireteams_module');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('рейд_для_новичков')
@@ -51,7 +49,7 @@ module.exports = {
         let rDate;
         try {
             if (time || date)
-            rDate = setDate(time, date);
+            rDate = dateSet(time, date);
         } catch (err){
             await interaction.reply({content: err.message, ephemeral:true});
             return;

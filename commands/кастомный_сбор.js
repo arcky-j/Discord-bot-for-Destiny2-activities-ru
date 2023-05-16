@@ -1,6 +1,5 @@
 const {SlashCommandBuilder, PermissionFlagsBits} = require('discord.js');
-const getRandomColor = require('../utility/get_random_color.js');
-const CustomActivity = require('../entities/customActivity.js');
+const {getRandomColor, CustomActivity} = require('../fireteams_module');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('кастомный_сбор')

@@ -16,6 +16,8 @@ module.exports = {
     async execute(interaction) {
         //получение данных из команды      
         if (interaction.options.getSubcommand() === 'голосование_карты'){
+            interaction.reply('Комманда временно недоступна');
+            return;
             const maps = interaction.options.getString('карты');
             const mapsSplit = maps.split(', ');
 

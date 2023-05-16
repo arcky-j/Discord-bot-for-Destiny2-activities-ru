@@ -1,8 +1,5 @@
 const {SlashCommandBuilder} = require('discord.js');
-const FireteamRes = require('../entities/fireteamRes.js');
-const FireteamUntimed = require('../entities/fireteamUntimed.js');
-const setDate = require('../utility/date_set.js');
-const getRandomColor = require('../utility/get_random_color');
+const {dateSet, getRandomColor, FireteamRes, FireteamUntimed} = require('../fireteams_module');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('сбор')
@@ -145,7 +142,7 @@ module.exports = {
         let rDate;
         if (time || date){
             try {
-                rDate = setDate(time, date);
+                rDate = dateSet(time, date);
             } catch (err) {
                 const embed = interaction.client.genEmbed(`Не удалось установить дату: ${err.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});

@@ -1,5 +1,4 @@
 const {SlashCommandBuilder} = require('discord.js');
-const ActivityUntimed = require('../entities/activityUntimed');
 //команда для отмены существующего сбора
 module.exports = {
     data: new SlashCommandBuilder()

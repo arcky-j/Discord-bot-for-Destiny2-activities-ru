@@ -1,5 +1,5 @@
-const {Events, EmbedBuilder, GuildFeature} = require('discord.js');
-const Settings = require('../entities/settings.js');
+const {Events} = require('discord.js');
+const {Settings} = require('../fireteams_module');
 //срабатывает при вступлении пользователя на сервер
 module.exports = {
     name: Events.GuildCreate,

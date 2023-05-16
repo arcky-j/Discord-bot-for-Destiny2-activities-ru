@@ -1,6 +1,5 @@
-const {SlashCommandBuilder, Activity} = require('discord.js');
-const ActivityUntimed = require('../entities/activityUntimed.js');
-const setDate = require('../utility/date_set.js');
+const {SlashCommandBuilder, } = require('discord.js');
+const {ActivityUntimed, dateSet} = require('../fireteams_module');
 //команда для переноса активности на новое время
 module.exports = {
     data: new SlashCommandBuilder()
@@ -49,7 +48,7 @@ module.exports = {
         //установка новой даты через специальный метод
         let rDate;
         try {
-            rDate = setDate(time, date);
+            rDate = dateSet(time, date);
         } catch (err) {
             const embed = interaction.client.genEmbed(`Не удалось установить дату: ${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
