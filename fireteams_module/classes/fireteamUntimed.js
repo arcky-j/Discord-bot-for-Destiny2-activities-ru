@@ -60,7 +60,7 @@ module.exports = class FireteamUntimed extends ActivityUntimed{
                     .setLabel('Передать лид.')
                     .setStyle(ButtonStyle.Secondary),                   
                 new ButtonBuilder()
-                    .setCustomId(`activityLead_close`)
+                    .setCustomId(`activityLead_close_${this.id}`)
                     .setLabel('Отменить')
                     .setStyle(ButtonStyle.Danger)      
             );          

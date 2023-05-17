@@ -4,7 +4,7 @@ module.exports = {
     async execute(interaction, activity, user){          
         const message = interaction.message;    
         if (message.components[3]){            
-            const rows = fireteam.createSettingsRow();
+            const rows = activity.createSettingsRow();
             interaction.update({components: [message.components[0], rows[0], rows[1]]});
             return;
         }
@@ -18,17 +18,22 @@ module.exports = {
         message.components.push(rowSel);
         message.edit({components: message.components});  
 
+        interaction.deferUpdate();
+
         const colFilter = i => {
-            i.deferUpdate();
-            return i.user.id === interaction.user.id && interaction.customId === `bronDeleteMenu_${activity.id}`;
+            return i.user.id === interaction.user.id && i.customId === `bronDeleteMenu_${activity.id}`;
         }
 
         const userSelectInteraction = await message.awaitMessageComponent({filter: colFilter, componentType: ComponentType.UserSelect, time: 60000})
         .catch(err => {
-            console.log(err.message);
-            message.components.pop();
-            message.edit({components: message.components});   
+            console.log(err.message);           
         });
+
+        if (!userSelectInteraction){
+            message.components.pop();
+            message.edit({components: message.components});
+            return;
+        }
         
         const userSelected = userSelectInteraction.users.get(userSelectInteraction.values[0]);
 
@@ -40,7 +45,7 @@ module.exports = {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             userSelectInteraction.reply({embeds: [embed], ephemeral:true});
         }
-        const row = fireteam.createActionRow();
+        const row = activity.createActionRow();
         message.edit({components: [row]}); 
     }
 }

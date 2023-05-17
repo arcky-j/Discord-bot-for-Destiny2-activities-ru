@@ -2,7 +2,7 @@ const {ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder} = requi
 
 module.exports = {
     async execute(interaction, activity, user){
-        const modal = ModalBuilder()
+        const modal = new ModalBuilder()
         .setCustomId(`reason_close_${activity.id}`)
         .setTitle('Передача лидерства');
 
@@ -17,7 +17,7 @@ module.exports = {
         modal.addComponents(actionRow0);
 
         await interaction.showModal(modal);
-        const filter = (interactionM) => interactionM.customId === `reason_${activity.id}`;
+        const filter = (interactionM) => interactionM.customId === `reason_close_${activity.id}`;
         const modalInt = await interaction.awaitModalSubmit({filter, time: 180000})
         .catch(err => {
             console.log(err.message);

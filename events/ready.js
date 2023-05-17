@@ -1,4 +1,5 @@
 const {Settings, FireteamUntimed, FireteamRes, CustomActivity, getRandomPresence} = require('../fireteams_module');
+const {Events} = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
 //срабатывает при запуске бота

@@ -1,4 +1,4 @@
-const {SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder} = require('discord.js');
+const {SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, EmbedBuilder} = require('discord.js');
 const {getRandomColor} = require('../fireteams_module');
 
 //команда для отмены существующего сбора

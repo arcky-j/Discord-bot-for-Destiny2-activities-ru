@@ -44,15 +44,15 @@ module.exports = class CustomActivity extends ActivityBase{
         const row = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId('activity_go')
+                    .setCustomId(`activity_go_${this.id}`)
                     .setLabel('Я участвую!')
                     .setStyle(ButtonStyle.Success),
                 new ButtonBuilder()
-                    .setCustomId('activity_cancel')
+                    .setCustomId(`activity_cancel_${this.id}`)
                     .setLabel('Передумал')
                     .setStyle(ButtonStyle.Danger),
                 new ButtonBuilder()
-                    .setCustomId('settings')
+                    .setCustomId(`activityLead_settings_${this.id}`)
                     .setLabel('Настройки')
                     .setStyle(ButtonStyle.Secondary)             
             );
@@ -63,19 +63,19 @@ module.exports = class CustomActivity extends ActivityBase{
         const row = new ActionRowBuilder()
             .addComponents(               
                 new ButtonBuilder()
-                    .setCustomId('activity_start')
+                    .setCustomId(`activityLead_start_${this.id}`)
                     .setLabel('Старт')
                     .setStyle(ButtonStyle.Secondary),
                 new ButtonBuilder()
-                    .setCustomId('change_date')
+                    .setCustomId(`activityLead_changeDate_${this.id}`)
                     .setLabel('Перенести')
                     .setStyle(ButtonStyle.Secondary),
                 new ButtonBuilder()
-                    .setCustomId('change_leader')
+                    .setCustomId(`activityLead_changeLeader_${this.id}`)
                     .setLabel('Передать лид.')
                     .setStyle(ButtonStyle.Secondary),                    
                 new ButtonBuilder()
-                    .setCustomId('close')
+                    .setCustomId(`activityLead_close_${this.id}`)
                     .setLabel('Отменить')
                     .setStyle(ButtonStyle.Danger)         
             );
