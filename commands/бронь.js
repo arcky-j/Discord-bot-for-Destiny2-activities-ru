@@ -29,10 +29,10 @@ module.exports = {
 
     async execute (interaction){
         const id = interaction.options.getString('id');
-        const userNew = interaction.options.getUser('пользователь');
-        const user = interaction.user;
+        const userNew = interaction.options.getMember('пользователь');
+        const user = interaction.member;
         //поиск нужной боевой группы
-        const fireteam = interaction.client.activities.get(id);
+        const fireteam = interaction.client.activities.cache.get(id);
 
         if (!fireteam){
             const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');

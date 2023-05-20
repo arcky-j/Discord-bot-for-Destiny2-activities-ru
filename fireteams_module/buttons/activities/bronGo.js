@@ -4,8 +4,7 @@ module.exports = {
         //попытка перевести стража из брони в боевую группу
         try {
             activity.bronToMember(user);
-            const embed = interaction.client.genEmbed(`Бронь подтверждена`, 'Успех!');
-            interaction.reply({embeds: [embed], ephemeral:true});
+            interaction.deferUpdate();
         } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});

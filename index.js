@@ -16,8 +16,7 @@ const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits
 //добавление к клиенту коллекций (по сути Map из javascript) для данных
 client.commands = new Collection(); //слэш-команды
 client.settings = new Collection(); //настройки сервера (свой тип данных)
-client.actGens = new Collection(); 
-client.activities = new Collection(); 
+//client.actGens = new Collection();
 client.mapVotes = new Collection(); 
 //загрузка исполняемого кода для команд
 const commandsPath = path.join(__dirname, 'commands');

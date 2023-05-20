@@ -35,7 +35,7 @@ module.exports = {
             return;
         }
 
-        const userSelected = userSelectInteraction.users.get(userSelectInteraction.values[0]);
+        const userSelected = userSelectInteraction.members.at(0);
 
         try {
             activity.bronAdd(userSelected);

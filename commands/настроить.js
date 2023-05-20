@@ -77,7 +77,7 @@ module.exports = {
             const role3 = interaction.options.getRole('роль3');
             const role4 = interaction.options.getRole('роль4');
             const role5 = interaction.options.getRole('роль5');
-            const sett = interaction.client.settings.get(interaction.guild.id);
+            const sett = interaction.client.d2clans.getConfig(interaction.guild.id);
             sett.setRoleTags(role1, role2, role3, role4, role5);
             //если первая роль не введена, то роли сбрасываются
             if (!role1){
@@ -113,7 +113,7 @@ module.exports = {
             const role1 = interaction.options.getRole('роль1');
             const role2 = interaction.options.getRole('роль2');
             const role3 = interaction.options.getRole('роль3');
-            const sett = interaction.client.settings.get(interaction.guild.id);
+            const sett = interaction.client.d2clans.getConfig(interaction.guild.id);
             sett.setRolesForNew(role1, role2, role3);
             //если первая роль не введена, то роли сбрасываются
             if (!role1){
@@ -143,7 +143,7 @@ module.exports = {
         if (interaction.options.getSubcommand() === 'каналы_уведомлений'){
             const channelJ = interaction.options.getChannel('канал_прибывших');
             const channelL = interaction.options.getChannel('канал_ушедших');
-            const sett = interaction.client.settings.get(interaction.guild.id);
+            const sett = interaction.client.d2clans.getConfig(interaction.guild.id);
             sett.setJLChannels(channelJ, channelL);
             //если чат не введён, то он просто сбрасывается
             if (!channelJ && !channelL){
@@ -171,7 +171,7 @@ module.exports = {
 
         if (interaction.options.getSubcommand() === 'канал_логов'){
             const channel = interaction.options.getChannel('канал_для_логов');
-            const sett = interaction.client.settings.get(interaction.guild.id);
+            const sett = interaction.client.d2clans.getConfig(interaction.guild.id);
             sett.setLogChannel(channel);
             //если чат не введён, то он просто сбрасывается
             if (!channel){
@@ -225,7 +225,7 @@ module.exports = {
             const messAfield = modalInt.fields.getTextInputValue('messA');
             const messLfield = modalInt.fields.getTextInputValue('messL');
             //загружает информацию в объект, отвечающий за ресет
-            const sett = interaction.client.settings.get(interaction.guild.id);
+            const sett = interaction.client.d2clans.getConfig(interaction.guild.id);
             sett.setJALMessages(messJfield, messAfield, messLfield);
 
             const embed = new EmbedBuilder().setTitle('Текста уведомлений о прибытии, принятии правил и уходе обновлены').setDescription(`Уведомление о прибытии: ${messJ}\nУведомление о принятии правил: ${messA}\nУведомление о уходе: ${messL}`);

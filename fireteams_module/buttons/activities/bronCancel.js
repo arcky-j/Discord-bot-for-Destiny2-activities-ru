@@ -4,8 +4,7 @@ module.exports = {
         //попытка удалить Стража из брони
         try {
             activity.bronDel(user.id);
-            const embed = interaction.client.genEmbed(`Бронь удалена`, 'Успех!');
-            interaction.reply({embeds: [embed], ephemeral:true});
+            interaction.deferUpdate();
         } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});

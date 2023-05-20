@@ -7,6 +7,13 @@ module.exports = async function(interaction){
     const mapVote = interaction.client.mapVotes.get(id);
 
     if (action == 'start' || action == 'close'){
+
+        if (user.id !== interaction.member.id){
+            const embed = interaction.client.genEmbed(`Отказано в доступе!`, 'Ошибка!');
+            interaction.reply({embeds: [embed], ephemeral:true});
+            return;
+        }
+
         const button = require(`../buttons/mapVotes/${action}`);
         button.execute(interaction, mapVote, user);
     }

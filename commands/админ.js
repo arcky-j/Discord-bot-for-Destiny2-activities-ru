@@ -43,10 +43,10 @@ module.exports = {
         const id = interaction.options.getString('id');
         //код при добавлении стража
         if (interaction.options.getSubcommand() === 'добавить_стража'){
-            const userNew = interaction.options.getUser('пользователь');
-            const user = interaction.user;
+            const userNew = interaction.options.getMember('пользователь');
+            const user = interaction.member;
             //поиск нужной боевой группы
-            const fireteam = interaction.client.activities.get(id);
+            const fireteam = interaction.client.d2clans.getActivity(interaction.guildId, id);
     
             if (!fireteam){
                 const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');
@@ -55,7 +55,7 @@ module.exports = {
             }
             //попытка добавления пользователя
             try {
-                await fireteam.addRefresh(userNew);
+                await fireteam.add(userNew);
             } catch (err) {
                 const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
@@ -69,10 +69,10 @@ module.exports = {
         }
 
         if (interaction.options.getSubcommand() === 'удалить_стража'){
-            const userNew = interaction.options.getUser('пользователь');
-            const user = interaction.user;
+            const userNew = interaction.options.getMember('пользователь');
+            const user = interaction.member;
             //поиск нужной боевой группы
-            const fireteam = interaction.client.activities.get(id);
+            const fireteam = interaction.client.d2clans.getActivity(interaction.guildId, id);
 
             if (!fireteam){
                 const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');
@@ -81,7 +81,7 @@ module.exports = {
             }
             //попытка удаления члена группы
             try {
-                await fireteam.removeRefresh(userNew.id);
+                await fireteam.remove(userNew.id);
             } catch (err) {
                 const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
@@ -97,7 +97,7 @@ module.exports = {
         if (interaction.options.getSubcommand() === 'удалить_сбор'){
             const reason = interaction.options.getString('причина');
             //поиск боевой группы
-            const fireteam = interaction.client.activities.get(id);
+            const fireteam = interaction.client.d2clans.getActivity(interaction.guildId, id);
             if (!fireteam){
                 const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});

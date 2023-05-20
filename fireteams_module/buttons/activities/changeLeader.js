@@ -44,7 +44,7 @@ module.exports = {
             return;
         }
 
-        const userSelected = userSelectInteraction.users.get(userSelectInteraction.values[0]);       
+        const userSelected = userSelectInteraction.members.at(0);       
 
         const modal = new ModalBuilder()
         .setCustomId(`reason_CL_${activity.id}`)

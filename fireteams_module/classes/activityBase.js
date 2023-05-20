@@ -1,4 +1,5 @@
 const Base = require("./base");
+const ActivityEvents = require('../consts/activityEvents');
 
 module.exports = class ActivityBase extends Base{
     id;
@@ -9,7 +10,6 @@ module.exports = class ActivityBase extends Base{
     guildId;
     members = new Map();
     state;
-    //states = new Map([[0, 'Закрыт'], [1, 'Открыт'], [2, 'Заполнен']]);
     delTimer;
     day = 86400000;
 
@@ -25,14 +25,15 @@ module.exports = class ActivityBase extends Base{
         this.name = name;
         this.quantity = quant;
         this.leader = leader;
-        this.leader.id = leader.id;
         this.guildId = guildId;
         this.state = this.states[1];
     }
 
     add(user){
         if (this.members.has(user.id)){ //проверка на присутствие в боевой группе
-            throw new Error('Пользователь уже записан!'); 
+            const err = new Error('Пользователь уже записан!');
+            this.client.emit(ActivityEvents.Error, this, err);
+            throw err; 
         } 
         if (this.state == this.states[2]){ //проверка на количество стражей
             throw new Error('Сбор уже укомплектован!');
@@ -40,19 +41,11 @@ module.exports = class ActivityBase extends Base{
         if (user.bot){ //проверка на случай, если кто-то насильно догадается записать в сбор бота
             throw new Error('Возмутительно! Я не думал, что кому-то придёт в голову совать в сбор бота, но и к этому я был готов');
         }
+
         this.members.set(user.id, user);
         //this.checkQuantity();
-        //await this.refreshMessage();
-    }
-
-    addUpdate(user){
-        this.add(user);
-        return this.updateMessage();
-    }
-
-    addRefresh(user){
-        this.add(user);
         this.refreshMessage();
+        this.client.emit(ActivityEvents.MemberAdd, this, user);
     }
 
     remove(id){
@@ -62,16 +55,8 @@ module.exports = class ActivityBase extends Base{
         
         this.members.delete(id); //удаление из боевой группы
         //this.checkQuantity();
-    }
-
-    removeUpdate(id){
-        this.remove(id);
-        return this.updateMessage();
-    }
-
-    removeRefresh(id){
-        this.remove(id);
         this.refreshMessage();
+        this.client.emit(ActivityEvents.MemberRemove, this, id);
     }
 
     changeLeader(user){
@@ -85,6 +70,7 @@ module.exports = class ActivityBase extends Base{
        
         this.leader = user; 
         this.refreshMessage();
+        this.client.emit(ActivityEvents.ChangedLeader, this, user);
     }
 
     checkQuantity(){
@@ -97,6 +83,7 @@ module.exports = class ActivityBase extends Base{
             this.state = this.states[1];
         }
     }
+
     //рассылка оповещений в личные сообщения
     async sendAlerts(reason){
         switch(reason){
@@ -153,11 +140,13 @@ module.exports = class ActivityBase extends Base{
                 });
         }
     }
+
     async refreshMessage(){
         this.checkQuantity();      
         const embed = this.message.embeds[0];
         embed.fields[1].value = this.state;
         if (this.state == 'Закрыт'){
+            this.client.emit(ActivityEvents.Closed, this);
             if (this.delTimer){
                 return;
             }
@@ -188,20 +177,15 @@ module.exports = class ActivityBase extends Base{
                 sett.sendLog(`Ошибка изменения сбора ${this}: ${err.message}`, 'Запись логов: ошибка');
             }
         });
-        
+        this.client.emit(ActivityEvents.MessageRefreshed, this);
     }
-    updateMessage(){
-        this.checkQuantity();
-        const embed = this.message.embeds[0];
-        embed.fields[1].value = this.state;
-        embed.fields[2].value = `${this.leader}`;
-        embed.fields[3].value = this.getMembersString();
-        return embed;
-    }
+
     async delete(){
         clearTimeout(this.delTimer);
         this.message = undefined;
+        this.client.emit(ActivityEvents.Deleted, this);
     }
+
     //вспомогательный метод для создания строки с участниками боевой группы
     getMembersString(){
         let str = '';
@@ -210,10 +194,12 @@ module.exports = class ActivityBase extends Base{
         });
         return str; //возвращает строку со всеми участниками боевой группы в столбик
     }
+
     start(){
         this.state = this.states[0];
         this.sendAlerts('start');
         this.refreshMessage();
+        this.client.emit(ActivityEvents.Started, this);
     }
 
     toString(){

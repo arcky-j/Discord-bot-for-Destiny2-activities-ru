@@ -1,4 +1,5 @@
 const ActivityBron = require("./activityBron");
+const ActivityEvents = require('../consts/activityEvents');
 
 module.exports = class ActivityUntimed extends ActivityBron{
     constructor(id, guildId, name, quant, leader, br1, br2){
@@ -18,12 +19,15 @@ module.exports = class ActivityUntimed extends ActivityBron{
         clearTimeout(this.timer);
         this.sendAlerts('start');
         this.refreshMessage();
+        this.client.emit(ActivityEvents.Started, this);
     }
+
     async delete(){
         clearTimeout(this.timer);
         super.delete();
 
     }
+    
     async refreshMessage(){
         super.refreshMessage();
         if (this.state == this.states[2]){

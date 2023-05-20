@@ -1,7 +1,5 @@
 //класс для сохранения и менеджмента настроек бота на сервере
 const {EmbedBuilder} = require('discord.js');
-const fs = require('node:fs');
-const path = require('node:path');
 const Base = require('./base');
 
 class Settings extends Base{
@@ -14,10 +12,6 @@ class Settings extends Base{
     channelLeave; //канал уведомлений о ливах 
     messageLeave; //уведомление о ливах
     logChannel;
-
-    pathToSettings = path.join('.', 'data', 'settings');
-
-    //static client;
 
     constructor(id){
         super();
@@ -44,7 +38,8 @@ class Settings extends Base{
         if (r4){
             this.rolesToTag.push(r4);
         }
-        this.save();
+        const clan = this.client.d2clans.get(this.guildId);
+        clan.settings.save();
     }
 
     setRolesForNew(r0, r1, r2){
@@ -58,7 +53,8 @@ class Settings extends Base{
         if (r2){
             this.rolesForNew.push(r2.id);
         }
-        this.save();
+        const clan = this.client.d2clans.get(this.guildId);
+        clan.settings.save();
     }
 
     setJLChannels(chJ, chL){
@@ -70,7 +66,8 @@ class Settings extends Base{
         if (chL){
             this.channelLeave = chL;
         }
-        this.save();
+        const clan = this.client.d2clans.get(this.guildId);
+        clan.settings.save();
     }
 
     setLogChannel(ch){
@@ -78,7 +75,8 @@ class Settings extends Base{
         if (ch){
             this.logChannel = ch;
         }
-        this.save();
+        const clan = this.client.d2clans.get(this.guildId);
+        clan.settings.save();
     }
 
     setJALMessages(messJ, messA, messL){
@@ -91,7 +89,8 @@ class Settings extends Base{
         if (messL){
             this.messageLeave = messL;
         }
-        this.save();
+        const clan = this.client.d2clans.get(this.guildId);
+        clan.settings.save();
     }
 
     async sendLog(message, title){
@@ -159,162 +158,6 @@ class Settings extends Base{
                 this.channelLeave = undefined;
             });
         }
-    }
-
-    async save(){
-        const pathGuildSetting = path.join(this.pathToSettings, `guild_${this.guildId}.json`);
-        const data = await Settings.toJSON(this);
-        fs.writeFile(pathGuildSetting, data, async (error) =>{
-            if (error){
-                console.error(error);
-                this.sendLog(`Не удалось сохранить файл с настройками сервера`, 'Запись логов: ошибка');
-            }
-        });
-    }
-
-    async delete(){
-        const pathGuildSetting = path.join(this.pathToSettings, `guild_${this.guildId}.json`);
-        Settings.client.settings.delete(this.guildId);
-        fs.unlink(pathGuildSetting, async (error) =>{
-            if (error){
-                console.error(error);
-                this.sendLog(`Не удалось удалить файл с настройками сервера`, 'Запись логов: ошибка');
-            }
-        });
-
-    }
-
-    static async initSingle(guild){
-        const sett = new Settings(guild.id);
-        const pathGuildSetting = path.join('.', 'data', 'settings', `guild_${guild.id}.json`);
-        const settJSON = JSON.stringify(sett);
-        fs.appendFile(pathGuildSetting, settJSON, async (err) => {
-            if (err){
-                console.log(`Ошибка при создании файла настроек для сервера "${val.name}": ${err.message}`);
-                throw err;
-            } 
-            console.log(`Файл "${pathGuildSetting}" (${guild.name}) создан!`);
-        });
-        this.client.settings.set(guild.id, sett);           
-    }
-
-    static async initSettings(){     
-        if (!fs.existsSync(path.join('.', 'data', 'settings'))){
-            fs.mkdirSync(path.join('.', 'data', 'settings'), {recursive: true});
-        }
-        this.client.guilds.cache.forEach(async (val, id) =>{
-            const pathGuildSetting = path.join('.', 'data', 'settings', `guild_${id}.json`);
-            if (fs.existsSync(pathGuildSetting)){
-                fs.readFile(pathGuildSetting, async (error, data) =>{
-                    if (error){
-                        console.error(error);
-                        throw error;
-                    }                  
-                    const sett = await Settings.fromJSON(JSON.parse(data));    
-                    this.client.settings.set(id, sett);       
-                    console.log(`Настройки для сервера ${val.name} загружены.`);
-                    sett.sendLog(`Настройки для сервера загружены.`, 'Запись логов');
-                });
-            } else {
-                console.log(`Файл настроек для сервера "${val.name}" не обнаружен; настройки сервера не загружены; запуск инициализации...`);  
-                const sett = new Settings(id);              
-                const settJSON = JSON.stringify(sett);
-                fs.appendFile(pathGuildSetting, settJSON, async (err) => {
-                    if (err){
-                        console.log(`Ошибка при создании файла настроек для сервера "${val.name}": ${err.message}`);
-                        throw err;
-                    }                    
-                    this.client.settings.set(id, sett);
-                    console.log(`Файл "${pathGuildSetting}" (${val.name}) создан!`);
-                });
-            }          
-        });
-        console.log('Объекты настроек серверов инициализированны');
-    }
-
-    static async toJSON(sett){
-        if (!(sett instanceof Settings)){
-            return;
-        }
-        
-        const data = {
-            guildId: sett.guildId,
-            rolesToTag: new Array(),
-            rolesForNew: new Array(),
-            channelJoin: undefined,
-            messageJoin: sett.messageJoin,
-            messageAccept: sett.messageAccept,
-            channelLeave: undefined,
-            messageLeave: sett.messageLeave,
-            logChannel: undefined
-        };
-
-        if (sett.rolesToTag.length > 0){
-            sett.rolesToTag.forEach(val =>{
-                data.rolesToTag.push(val.id);
-            });
-        }
-
-        if (sett.rolesForNew.length > 0){
-            sett.rolesForNew.forEach(val =>{
-                data.rolesForNew.push(val);
-            });
-        }
-        
-        if (sett.channelJoin){
-            data.channelJoin = sett.channelJoin.id;
-        }
-        if (sett.logChannel){
-            data.logChannel = sett.logChannel.id;
-        }
-        if (sett.channelLeave){
-            data.channelLeave = sett.channelLeave.id;
-        }
-        const dataJS = JSON.stringify(data);
-        return dataJS;
-    }
-
-    static async fromJSON(data){ //сделай то же, но для сохранения - для фетча хватит и айди - вдруг забудешь
-        const sett = new Settings(data.guildId);
-        const guild = await this.client.guilds.fetch(data.guildId);
-        if (data.rolesToTag.length > 0){
-            data.rolesToTag.forEach(async (value, index) => {
-                const role = await guild.roles.fetch(value).catch();
-                if (role){
-                    sett.rolesToTag.push(role);
-                }
-            });
-        }
-        if (data.rolesForNew.length > 0){
-            data.rolesForNew.forEach(async (value, index) => {
-                const role = await guild.roles.fetch(value).catch();
-                if (role){
-                    sett.rolesForNew.push(value);
-                }
-            });
-        }
-        if (data.channelJoin){
-            const ch = await this.client.channels.fetch(data.channelJoin).catch();
-            if (ch){
-                sett.channelJoin = ch;
-            }        
-        }  
-        if (data.channelLeave){
-            const ch = await this.client.channels.fetch(data.channelLeave).catch();
-            if (ch){
-                sett.channelLeave = ch;
-            }   
-        }
-        if (data.logChannel){
-            const ch = await this.client.channels.fetch(data.logChannel).catch();
-            if (ch){
-                sett.logChannel = ch;
-            }           
-        }  
-        sett.messageJoin = data.messageJoin;
-        sett.messageAccept = data.messageAccept;
-        sett.messageLeave = data.messageLeave;
-        return sett;
     }
 
     getString(){

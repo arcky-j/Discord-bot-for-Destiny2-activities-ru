@@ -16,10 +16,10 @@ module.exports = {
         //получение данных из команды
         const id = interaction.options.getString('id');
         const reason = interaction.options.getString('причина');
-        const user = interaction.user;
+        const user = interaction.member;
         const client = interaction.client;
         //поиск нужной боевой группы
-        const fireteam = client.activities.get(id);
+        const fireteam = client.d2clans.getActivity(interaction.guildId, id);
         
         if (!fireteam || fireteam.state == 'Закрыт'){
             const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась и в скором времени удалится сама`, 'Ошибка!');

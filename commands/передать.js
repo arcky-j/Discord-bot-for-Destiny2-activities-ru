@@ -19,12 +19,12 @@ module.exports = {
     async execute (interaction){
         //получение данных из команды
         const id = interaction.options.getString('id');
-        const userNew = interaction.options.getUser('пользователь');
+        const userNew = interaction.options.getMember('пользователь');
         const reason = interaction.options.getString('причина');
         const channel = interaction.channel;
-        const user = interaction.user;
+        const user = interaction.member;
         //поиск нужной боевой группы
-        const fireteam = interaction.client.activities.get(id);
+        const fireteam = interaction.client.d2clans.getActivity(interaction.guildId, id);
 
         if (!fireteam || fireteam.state == 'Закрыт'){
             const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');

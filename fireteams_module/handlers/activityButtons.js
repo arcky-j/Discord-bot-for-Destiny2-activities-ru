@@ -4,7 +4,7 @@ module.exports = async function(interaction){
 
     const user = interaction.user;
     //поиск нужной боевой группы
-    const activity = interaction.client.activities.get(id);
+    const activity = interaction.client.d2clans.getActivity(interaction.guildId, id);
 
     if (!activity || activity.state == 'Закрыт'){
         const embed = interaction.client.genEmbed(`Скорее всего, активность уже стартовала. Возможно, произошла непредвиденная ошибка`, 'Ошибка!');

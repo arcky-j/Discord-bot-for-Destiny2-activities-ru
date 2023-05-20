@@ -1,4 +1,5 @@
 const ActivityBron = require("./activityBron");
+const ActivityEvents = require('../consts/activityEvents');
 
 module.exports = class ActivityDate extends ActivityBron{
     date = new Date();
@@ -20,6 +21,7 @@ module.exports = class ActivityDate extends ActivityBron{
         clearTimeout(this.timer);
         this.setTimer();
         this.sendAlerts('dateChange'); 
+        this.client.emit(ActivityEvents.ChangedDate, this, date);
         this.refreshMessage();
     }
     async setTimer(){

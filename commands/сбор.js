@@ -135,8 +135,8 @@ module.exports = {
         const requiries = interaction.options.getString('требования');     
         const descript = interaction.options.getString('описание');  
         const difficulty = interaction.options.getString('сложность');
-        const res1 = interaction.options.getUser('бронь1');   
-        const res2 = interaction.options.getUser('бронь2'); 
+        const res1 = interaction.options.getMember('бронь1');   
+        const res2 = interaction.options.getMember('бронь2'); 
         const media = interaction.options.getString('медиа'); 
         //установка даты через специальный метод
         let rDate;
@@ -152,7 +152,7 @@ module.exports = {
              
         //добавление тэгов ролей, если такие есть
         let strTags = '';
-        const sett = interaction.client.settings.get(interaction.guild.id);
+        const sett = interaction.client.d2clans.getConfig(interaction.guild.id);
         if (sett.rolesToTag || sett.rolesToTag.size > 0){
             sett.rolesToTag.forEach((val) => {
                 strTags += `${val} `;
@@ -292,7 +292,7 @@ module.exports = {
             }
         }    
         //формирование embed
-        const id = interaction.client.generateId(interaction.client.activities);
+        const id = interaction.client.generateId(sett.clan.activities);
         if (difficulty == 'Мастер'){
             actName = `Мастер ${actName}`;
         }       
@@ -300,9 +300,9 @@ module.exports = {
         let fireteam;  
         try{
             if (time || date){
-                fireteam = new FireteamRes(id, interaction.guildId, actName, quant, interaction.user, rDate, res1, res2);
+                fireteam = new FireteamRes(id, interaction.guildId, actName, quant, interaction.member, rDate, res1, res2);
             } else {
-                fireteam = new FireteamUntimed(id, interaction.guildId, actName, quant, interaction.user, res1, res2);
+                fireteam = new FireteamUntimed(id, interaction.guildId, actName, quant, interaction.member, res1, res2);
             }
             const embed = fireteam.createEmbed(embColor, embDesc, bannerUrl, media);
             const row = fireteam.createActionRow();
@@ -319,8 +319,8 @@ module.exports = {
             return;
         }         
         //формирование внутренней структуры данных       
-        interaction.client.activities.set(id, fireteam);
-        fireteam.save();
+        interaction.client.d2clans.setActivity(interaction.guildId, fireteam);
+        fireteam.refreshMessage();
         //уведомление, если всё прошло успешно
         const embed = interaction.client.genEmbed(`Сбор ${actName} создан`, 'Успех!');
         interaction.reply({embeds: [embed], ephemeral:true});

@@ -1,6 +1,5 @@
-const alert = require('./consts/alerts');
-const error = require('./consts/errors');
-const events = require('./consts/events');
+const activityEvents = require('./consts/activityEvents');
+const activityErrors = require('./consts/activityErrors');
 
 const Base = require('./classes/base');
 const ABase = require('./classes/activityBase');
@@ -13,6 +12,9 @@ const FRes = require('./classes/fireteamRes');
 const CActivity = require('./classes/customActivity');
 const MapVote = require('./classes/mapVote');
 const Settings = require('./classes/settings');
+
+const mainActManager = require('./managment/mainActManager');
+const clanManager = require('./managment/clanManager')
 
 const dateSet = require('./utility/date_set');
 const genEmbed = require('./utility/gen_embed');
@@ -37,6 +39,9 @@ module.exports = {
     MapVote: MapVote,
     Settings: Settings,
 
+    MainActivitiesManager: mainActManager,
+    ClanManager: clanManager,
+
     dateSet: dateSet,
     genEmbed: genEmbed,
     genReasonModal: genReasonModal,
@@ -47,6 +52,6 @@ module.exports = {
     activityButtonsHandle: activityButtonsHandle,
     mapVoteButtonsHandle: mapVoteButtonsHandle,
 
-    Alerts: alert,
-    Errors: error
+    ActivityEvents: activityEvents,
+    ActivityErrors: activityErrors
 }

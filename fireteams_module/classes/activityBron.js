@@ -1,5 +1,6 @@
 const ActivityBase = require("./activityBase");
 const {ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
+const ActivityEvents = require('../consts/activityEvents');
 
 module.exports = class ActivityBron extends ActivityBase{
     bron = new Map(); //словарь для забронированных Стражей
@@ -43,6 +44,7 @@ module.exports = class ActivityBron extends ActivityBase{
         }
         super.remove(id);
     }
+
     //бронирование места Сражу
     bronAdd(user){
         if (this.members.has(user.id)){ //проверка на присутствие в боевой группе
@@ -80,6 +82,7 @@ module.exports = class ActivityBron extends ActivityBase{
         });
         
     }
+
     //удаление из брони
     bronDel(id){
         if (!this.bron.has(id)){ //проверка на присутствие в боевой группе
@@ -93,6 +96,7 @@ module.exports = class ActivityBron extends ActivityBase{
         //this.checkQuantity();
         this.refreshMessage();       
     }
+
     //перевод из брони в боевую группу
     bronToMember(user){
         if (!this.bron.has(user.id)){ //проверка на присутствие в боевой группе
@@ -109,12 +113,14 @@ module.exports = class ActivityBron extends ActivityBase{
         })
         .catch(async () => this.refreshMessage());     
     }
+
     changeLeader(user){
         if (this.bron.has(user.id)){
             this.bronToMember(user);
         }
         super.changeLeader(user);
     }
+    
     checkQuantity(){
         if (this.state == this.states[0]){
             return;

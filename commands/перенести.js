@@ -27,9 +27,9 @@ module.exports = {
         const date = interaction.options.getString('дата');
         const id = interaction.options.getString('id');
         const reason = interaction.options.getString('причина');
-        const user = interaction.user;
+        const user = interaction.member;
         //поиск нужной боевой группы
-        const fireteam = interaction.client.activities.get(id);
+        const fireteam = interaction.client.d2clans.getActivity(interaction.guildId, id);
         if (fireteam instanceof ActivityUntimed){
             const embed = interaction.client.genEmbed(`Попытка перенести активность, где даты-времени нет в принципе, не пройдёт`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});

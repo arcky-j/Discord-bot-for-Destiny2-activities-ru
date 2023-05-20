@@ -13,7 +13,7 @@ module.exports = {
             interaction.reply({embeds: [embed]});
             return;
         }
-        const settings = interaction.client.settings.get(interaction.guild.id);
+        const settings = interaction.client.d2clans.getConfig(interaction.guild.id);
         //const user = await interaction.client.users.fetch(interaction.user.id);
         const embed = new EmbedBuilder()
             .setTitle(`Конфигурация бота для сервера ${interaction.guild.name}`)
