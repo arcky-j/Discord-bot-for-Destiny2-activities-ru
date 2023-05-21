@@ -20,6 +20,7 @@ class MainActivityManager extends DiscManager{
 
     set(fireteam){
         this.cache.set(fireteam.id, fireteam);
+        this.save(fireteam);
     }
 
     get(id){

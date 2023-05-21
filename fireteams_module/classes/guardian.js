@@ -7,8 +7,10 @@ class Guardian extends Base{
         this.id = member.id;
         this.clanId = member.guild.id;
         this.member = member;
-        this.activitiesCount = actCount;
-        this.leaderCount = leadCount;
+        if (actCount) this.activitiesCount = actCount; 
+        else this.activitiesCount = 0;
+        if (leadCount) this.leaderCount = leadCount;
+        else this.leaderCount = 0;
         this.score = this.calcScore();
     }
 

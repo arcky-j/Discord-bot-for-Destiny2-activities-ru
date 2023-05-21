@@ -1,6 +1,7 @@
 const { ContextMenuCommandBuilder, ApplicationCommandType, PermissionFlagsBits } = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
+const {Guardian} = require('../fireteams_module');
 //команда контекстного меню для записи пользователя в кэш
 module.exports = {
     data: new ContextMenuCommandBuilder()
@@ -11,19 +12,13 @@ module.exports = {
     async execute (interaction){
         const user = interaction.targetUser;
         //записывает пользователя в кэш бота. всё
-        const pathToGuardians = path.join('.', 'data', 'guardians', `guild_${interaction.guildId}`);
-        if (!fs.existsSync(pathToGuardians)){
-            fs.mkdirSync(pathToGuardians, {recursive: true});
-            console.log(`Создана директория ${pathToGuardians}`);
+        const guardian = new Guardian(user);
+        const clan = interaction.client.d2clans.get(interaction.guildId);
+        if (clan.guardians.cache.has(user.id)){
+            interaction.reply({content: `Пользователь ${user} уже зарегистрирован!`, ephemeral:true});
+            return;
         }
-        const data = {member: interaction.targetMember.id};
-        const js = JSON.stringify(data);
-        fs.writeFile(path.join(pathToGuardians, `guardian_${interaction.targetMember.id}.json`), js, (error) =>{
-            if (error){
-                console.error(error);
-                settings.sendLog(`Не удалось сохранить в файл ${interaction.targetMember}: ${error.message}`, 'Запись логов: ошибка');
-            }
-        });
-        interaction.reply({content: `Вы успешно зарегистрировали ${user}. т.е. записали в кэш.`, ephemeral:true});
+        clan.guardians.set(guardian);
+        interaction.reply({content: `Вы успешно зарегистрировали ${user}. т.е. записали в кэш и сохранили в файл`, ephemeral:true});
     }
 };

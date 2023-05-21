@@ -48,8 +48,9 @@ module.exports = {
         
         //добавление тэгов ролей, если такие есть
         let strTags = '';
+        const clan = interaction.client.d2clans.get(interaction.guild.id);
         if (tags){        
-            const sett = interaction.client.d2clans.getConfig(interaction.guild.id);
+            const sett = clan.settings.config;
             if (sett.rolesToTag || sett.rolesToTag.size > 0){
                 sett.rolesToTag.forEach((val) => {
                     strTags += `${val} `;
@@ -76,7 +77,7 @@ module.exports = {
         }
             
         //формирование embed
-        const id = interaction.client.generateId(interaction.client.d2clans.get(interaction.guildId).activities);    
+        const id = interaction.client.generateId(clan.activities.cache);    
         //отправка сообщения
         const activity = new CustomActivity(id, interaction.guildId, actName, Infinity, interaction.member, timeDate, role);
         try {
@@ -95,8 +96,8 @@ module.exports = {
             return;
         }  
         //формирование внутренней структуры данных       
-        interaction.client.d2clans.setActivity(interaction.guildId, activity);
-        activity.save();
+        clan.activities.set(activity);
+        activity.refreshMessage();
         //уведомление, если всё прошло успешно          
         const embed = interaction.client.genEmbed(`Сбор ${actName} создан`, 'Успех!');
         interaction.reply({embeds: [embed], ephemeral:true}); 

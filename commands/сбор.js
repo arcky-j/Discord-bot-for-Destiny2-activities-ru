@@ -152,7 +152,8 @@ module.exports = {
              
         //добавление тэгов ролей, если такие есть
         let strTags = '';
-        const sett = interaction.client.d2clans.getConfig(interaction.guild.id);
+        const clan = interaction.client.d2clans.get(interaction.guild.id);
+        const sett = clan.settings.config;
         if (sett.rolesToTag || sett.rolesToTag.size > 0){
             sett.rolesToTag.forEach((val) => {
                 strTags += `${val} `;
@@ -292,7 +293,7 @@ module.exports = {
             }
         }    
         //формирование embed
-        const id = interaction.client.generateId(sett.clan.activities);
+        const id = interaction.client.generateId(clan.activities.cache);
         if (difficulty == 'Мастер'){
             actName = `Мастер ${actName}`;
         }       
@@ -319,7 +320,7 @@ module.exports = {
             return;
         }         
         //формирование внутренней структуры данных       
-        interaction.client.d2clans.setActivity(interaction.guildId, fireteam);
+        clan.activities.set(fireteam);
         fireteam.refreshMessage();
         //уведомление, если всё прошло успешно
         const embed = interaction.client.genEmbed(`Сбор ${actName} создан`, 'Успех!');

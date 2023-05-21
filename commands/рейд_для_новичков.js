@@ -57,7 +57,8 @@ module.exports = {
         
         //добавление тэгов ролей, если такие есть
         let strTags = '';
-        const sett = interaction.client.d2clans.getConfig(interaction.guild.id);
+        const clan = interaction.client.d2clans.get(interaction.guild.id);
+        const sett = clan.settings.config;
         if (sett.rolesToTag || sett.rolesToTag.size > 0){
             sett.rolesToTag.forEach((val) => {
                 strTags += `<@&${val.id}> `;
@@ -101,7 +102,7 @@ module.exports = {
         }     
         actName = `Обучающий ${actName}`;
         //формирование embed
-        const id = interaction.client.generateId(sett.clan.activities);      
+        const id = interaction.client.generateId(clan.activities.cache);      
         //отправка сообщения
         let fireteam;  
         if (time || date){
@@ -116,7 +117,7 @@ module.exports = {
         fireteam.message = mess1;     
         //формирование внутренней структуры данных
         //const lastMess = interaction.channel.lastMessage;  
-        interaction.client.d2clans.setActivity(interaction.guildId, fireteam);
+        clan.activities.set(fireteam);
         fireteam.refreshMessage();
         //уведомление, если всё прошло успешно
         await interaction.reply({content: 'Сбор создан', ephemeral: true});

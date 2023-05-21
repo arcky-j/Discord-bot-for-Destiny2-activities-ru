@@ -20,6 +20,7 @@ class GuardianManager extends DiscManager{
 
     set(guardian){
         this.cache.set(guardian.id, guardian);
+        this.save(guardian);
     }
 
     get(id){

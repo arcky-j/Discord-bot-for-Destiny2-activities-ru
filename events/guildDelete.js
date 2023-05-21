@@ -3,8 +3,6 @@ const {Events} = require('discord.js');
 module.exports = {
     name: Events.GuildDelete,
     async execute(guild) {
-        const settings = guild.client.settings.get(guild.id);
-        settings.delete();
-        //delete settings;
+        guild.client.d2clans.delete(guild.id);
     },
 };

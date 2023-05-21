@@ -12,6 +12,9 @@ const FRes = require('./classes/fireteamRes');
 const CActivity = require('./classes/customActivity');
 const MapVote = require('./classes/mapVote');
 const Settings = require('./classes/settings');
+const Clan = require('./classes/clan');
+const Guardian = require('./classes/guardian');
+
 
 const mainActManager = require('./managment/mainActManager');
 const clanManager = require('./managment/clanManager')
@@ -38,6 +41,8 @@ module.exports = {
     CustomActivity: CActivity,
     MapVote: MapVote,
     Settings: Settings,
+    Guardian: Guardian,
+    Clan: Clan,
 
     MainActivitiesManager: mainActManager,
     ClanManager: clanManager,

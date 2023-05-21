@@ -10,8 +10,6 @@ module.exports = {
         setInterval(async () => {
             client.user.setPresence(getRandomPresence());
         }, 3600000);//3600000
-        await Settings.initSettings().catch(err => console.log(`Ошибка инициализации настроек серверов: ${err.message}`));
-
         client.d2clans = new ClanManager();
     },
 };

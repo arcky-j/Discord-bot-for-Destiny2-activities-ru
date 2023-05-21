@@ -129,7 +129,7 @@ class SettingsManager extends DiscManager{
 
     async initSingle(guild){
         const sett = new Settings(guild.id);
-        const settJSON = JSON.stringify(sett);
+        const settJSON = this.toJSON(sett);
         fs.appendFile(this.path, settJSON, async (err) => {
             if (err){
                 console.log(`Ошибка при создании файла настроек для сервера "${val.name}": ${err.message}`);
@@ -148,7 +148,7 @@ class SettingsManager extends DiscManager{
                     console.error(error);
                     throw error;
                 }                  
-                const sett = this.fromJSON(data);    
+                const sett = await this.fromJSON(data);    
                 this.config = sett;       
                 console.log(`Настройки для сервера ${this.clan.guild.name} загружены.`);
                 sett.sendLog(`Настройки для сервера загружены.`, 'Запись логов');

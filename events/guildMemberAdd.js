@@ -1,11 +1,13 @@
 const {Events, GuildFeature} = require('discord.js');
+const {Guardian} = require('../fireteams_module');
 const fs = require('node:fs');
 const path = require('node:path');
 //срабатывает при вступлении пользователя на сервер
 module.exports = {
     name: Events.GuildMemberAdd,
     async execute(member) {
-        const settings = member.client.settings.get(member.guild.id);
+        const clan = member.client.d2clans.get(member.guild.id);
+        const settings = clan.settings.config;
         if (!settings){
             return;
         }
@@ -19,18 +21,7 @@ module.exports = {
                 sett.sendLog(`Не удалось присвоить роль/роли новичку сервера (${member}): ${err.message}`, 'Запись логов: ошибка');           
             });
         }
-        const pathToGuardians = path.join('.', 'data', 'guardians', `guild_${member.guild.id}`);
-        if (!fs.existsSync(pathToGuardians)){
-            fs.mkdirSync(pathToGuardians, {recursive: true});
-            console.log(`Создана директория ${pathToGuardians}`);
-        }
-        const data = {member: member.id};
-        const js = JSON.stringify(data);
-        fs.writeFile(path.join(pathToGuardians, `guardian_${member.id}.json`), js, (error) =>{
-            if (error){
-                console.error(error);
-                settings.sendLog(`Не удалось сохранить в файл ${member}: ${error.message}`, 'Запись логов: ошибка');
-            }
-        });
+        const guardian = new Guardian(member);
+        clan.guardians.save(guardian);
     },
 };
