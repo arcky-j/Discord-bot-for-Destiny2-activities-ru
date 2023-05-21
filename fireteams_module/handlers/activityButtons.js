@@ -2,7 +2,7 @@ module.exports = async function(interaction){
     const id = interaction.customId.split('_')[2];
     const action = interaction.customId.split('_')[1];
 
-    const user = interaction.user;
+    const user = interaction.member;
     //поиск нужной боевой группы
     const activity = interaction.client.d2clans.getActivity(interaction.guildId, id);
 

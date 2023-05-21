@@ -48,6 +48,7 @@ class MainActivityManager extends DiscManager{
     }
 
     delete(fireteam){
+        this.cache.delete(fireteam.id);
         if (fireteam instanceof CustomActivity){
             this.customActivitiesManager.delete(fireteam);
         }

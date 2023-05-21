@@ -154,14 +154,14 @@ class FireteamsResManager extends DiscManager{
                     }
                     try{
                         const fireteam = await this.fromJSON(data);
-                        this.clan.activities.set(fireteam.id, fireteam);
+                        this.clan.activities.set(fireteam);
                         setTimeout(() => {
                             //fireteam.checkQuantity();
                             fireteam.refreshMessage();
                         }, 10000);
                         console.log(`Загружена боевая группа ${fireteam}`);
                         if (this.clan.settings){
-                            const sett = this.client.settings.get(fireteam.guildId);
+                            const sett = this.clan.settings.config;
                             sett.sendLog(`Загружена боевая группа ${fireteam}`, 'Запись логов: успех');
                         }
                     } catch (err){

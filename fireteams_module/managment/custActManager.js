@@ -130,14 +130,14 @@ class CustomActivitiesManager extends DiscManager{
                     }
                     try{
                         const activity = await this.fromJSON(data);
-                        this.client.activities.cache.set(activity.id, activity);
+                        this.clan.activities.set(activity);
                         setTimeout(() => {
                             //activity.checkQuantity();
                             activity.refreshMessage();
                         }, 10000);
                         console.log(`Загружена кастомная активность ${activity}`);
                         if (activity.guildId){
-                            const sett = this.client.settings.get(activity.guildId);
+                            const sett = this.clan.settings.config;
                             sett.sendLog(`Загружена кастомная активность ${activity}`, 'Запись логов: успех');
                         }
                     } catch (err){

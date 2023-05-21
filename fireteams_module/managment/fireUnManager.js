@@ -8,10 +8,10 @@ class FireteamsUntimedManager extends DiscManager{
     constructor(clan){
         super();
         this.clan = clan;
-        this.path = path.join(this.basePath, 'clans', `clan_${clan.id}`, 'activities', 'fireteamUntimed');
+        this.path = path.join(this.basePath, 'clans', `clan_${clan.id}`, 'activities', 'fireteamsUntimed');
         if (!fs.existsSync(this.path)){
             fs.mkdirSync(this.path, {recursive:true});
-            console.log(`Директория data/clans/clan_${clan.id}/activities/fireteamUntimed была успешно создана.`);
+            console.log(`Директория data/clans/clan_${clan.id}/activities/fireteamsUntimed была успешно создана.`);
         }
     }
 
@@ -138,14 +138,14 @@ class FireteamsUntimedManager extends DiscManager{
                     }
                     try{
                         const fireteam = await this.fromJSON(data);
-                        this.client.activities.cache.set(fireteam.id, fireteam);
+                        this.clan.activities.set(fireteam);
                         setTimeout(() => {
                             //fireteam.checkQuantity();
                             fireteam.refreshMessage();
                         }, 10000);
                         console.log(`Загружена боевая группа ${fireteam}`);
                         if (fireteam.guildId){
-                            const sett = this.client.settings.get(fireteam.guildId);
+                            const sett = this.clan.settings.config;
                             sett.sendLog(`Загружена боевая группа ${fireteam}`, 'Запись логов: успех');
                         }
                     } catch (err){

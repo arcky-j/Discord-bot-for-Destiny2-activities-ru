@@ -38,6 +38,7 @@ class GuardianManager extends DiscManager{
     }
 
     async delete(guardian){
+        this.cache.delete(guardian.id);
         const pathToGuardian = path.join(this.path, `guardian_${guardian.id}.json`);
         fs.unlink(pathToGuardian, async (err) =>{
             if (err){
@@ -69,7 +70,7 @@ class GuardianManager extends DiscManager{
             throw new Error('Сервер стража не обнаружен');
         }
 
-        const member = await this.client.guild.members.fetch(data.id).catch();
+        const member = await guild.members.fetch(data.id).catch();
         if (!member){
             message.delete().catch();
             throw new Error('Страж не обнаружен на сервере');

@@ -15,7 +15,7 @@ class Guardian extends Base{
     }
 
     calcScore(){
-        return this.activitiesCount * 2 + this.leaderCount * 4;
+        return this.activitiesCount * 2 + this.leaderCount * 2;
     }
 
     actCountInc(){
@@ -25,6 +25,16 @@ class Guardian extends Base{
 
     leadCountInc(){
         this.leaderCount++;
+        this.score = this.calcScore();
+    }
+
+    actCountDec(){
+        this.activitiesCount--;
+        this.score = this.calcScore();
+    }
+
+    leadCountDec(){
+        this.leaderCount--;
         this.score = this.calcScore();
     }
 }
