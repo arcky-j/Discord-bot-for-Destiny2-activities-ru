@@ -59,8 +59,6 @@ class FireteamsResManager extends DiscManager{
             reservs: new Array(),
             state: team.state,
             bron: new Array(),
-            bronMessages: new Array(),
-            bronChannels: new Array(),
             guild: team.guildId
         };
         team.members.forEach((val, id) =>{
@@ -76,10 +74,6 @@ class FireteamsResManager extends DiscManager{
         if (team.bron.size > 0){
             team.bron.forEach((val, id) =>{
                 data.bron.push(id);
-            });
-            team.bronMessages.forEach((val, id) =>{
-                data.bronMessages.push(val.id);
-                data.bronChannels.push(val.channelId);
             });
         }   
         return JSON.stringify(data);
@@ -102,7 +96,7 @@ class FireteamsResManager extends DiscManager{
             throw new Error('Лидер сбора не обнаружен');
         }
         const date = new Date(data.date);
-        const fireteam = new FireteamRes(data.id, data.guild, data.name, data.quantity, leader, date);
+        const fireteam = new FireteamRes(data.id, this.clan, data.name, data.quantity, leader, date);
         fireteam.message = message;
         //fireteam.state = data.state;
         await data.members.forEach(async (val) =>{
@@ -126,14 +120,7 @@ class FireteamsResManager extends DiscManager{
                 const user = await this.client.users.fetch(val).catch();
                 if (user){
                     fireteam.bron.set(val, user);
-                }
-                const channel = await this.client.channels.fetch(data.bronChannels[i]).catch();
-                if (channel){
-                    const message = await channel.messages.fetch(data.bronMessages[i]).catch();
-                    if (message){
-                        fireteam.bronMessages.set(val, message);
-                    }
-                }               
+                }              
             });
         }
         return fireteam;
@@ -166,7 +153,7 @@ class FireteamsResManager extends DiscManager{
                         }
                     } catch (err){
                         console.log(`Невозможно загрузить боевую группу ${val}. Причина: ${err.message} Производится удаление...`);
-                        fs.unlink(path.join(pathToFireteams, val), async (err) => {
+                        fs.unlink(path.join(this.path, val), async (err) => {
                             if (err){
                                 console.error(err);
                             }

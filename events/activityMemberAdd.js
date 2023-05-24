@@ -3,7 +3,7 @@ const {ActivityEvents, Guardian} = require('../fireteams_module');
 module.exports = {
     name: ActivityEvents.MemberAdd,
     async execute(fireteam, member) {
-        const clan = fireteam.client.d2clans.get(fireteam.guildId);
+        const clan = fireteam.clan;
         if (clan.guardians.cache.has(member.id)){
             const guardian = clan.guardians.get(member.id);
             guardian.actCountInc();

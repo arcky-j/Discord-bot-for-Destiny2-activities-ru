@@ -1,11 +1,12 @@
 const ActivityDate = require("./activityDate");
 const ActivityEvents = require('../consts/activityEvents');
+const {Collection} = require('discord.js');
 
 module.exports = class ActivityRes extends ActivityDate{
-    reservs = new Map();
+    reservs = new Collection();
 
-    constructor(id, guildId, name, quant, leader, date, br1, br2){
-        super(id, guildId, name, quant, leader, date, br1, br2);
+    constructor(id, clan, name, quant, leader, date, br1, br2){
+        super(id, clan, name, quant, leader, date, br1, br2);
     }
 
     add(user){      
@@ -22,7 +23,9 @@ module.exports = class ActivityRes extends ActivityDate{
             this.client.emit(ActivityEvents.ReservRemove, this, user);
         } else {
             if (user.id == this.leader.id){ //проверка на лидерство
-                throw new Error('Лидер не может записаться в резерв!'); 
+                const err = new Error('Лидер не может записаться в резерв!'); 
+                this.client.emit(ActivityEvents.Error, this, err);
+                throw err;
             }
             
             this.reservs.set(user.id, user); //запись в резерв
@@ -58,14 +61,10 @@ module.exports = class ActivityRes extends ActivityDate{
                 }
                 if (this.reservs.size > 0 && this.members.size < this.quantity)
                 this.reservs.forEach( async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
-                    const embed = ActivityRes.client.genEmbed(`Активность «${this}» начнётся в ближайшие **10 минут**! Вы были записаны в резерв и получаете это сообщение, потому что боевая группа меньше необходимого!`, 'Уведомление');
+                    const embed = this.client.genEmbed(`Активность «${this}» начнётся в ближайшие **10 минут**! Вы были записаны в резерв и получаете это сообщение, потому что боевая группа меньше необходимого!`, 'Уведомление');
                     us.send({embeds:[embed, this.message.embeds[0]]})
                     .catch(err =>{
                         console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
-                        if (this.guildId){
-                            const sett = ActivityRes.client.settings.get(this.guildId);
-                            sett.sendLog(`Ошибка рассылки (скорое начало сбора ${this}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
-                        }
                     });
                 });
                 //super.sendAlerts(reason);

@@ -7,16 +7,13 @@ const ActivityEvents = require('../consts/activityEvents');
 module.exports = class CustomActivity extends ActivityBase{
     date;
     role;
-    guild;
     pathToActivities = path.join('.', 'data', 'customActivities');
 
-    constructor(id, guildId, name, quant, leader, date, role){
-        super(id, guildId, name, quant, leader);
+    constructor(id, clan, name, quant, leader, date, role){
+        super(id, clan, name, quant, leader);
         this.date = date;
         if (role){
             this.role = role;
-            CustomActivity.client.guilds.fetch(role.guild.id)
-            .then(guild => this.guild = guild);
         }        
         this.client.emit(ActivityEvents.Created, this);
     }

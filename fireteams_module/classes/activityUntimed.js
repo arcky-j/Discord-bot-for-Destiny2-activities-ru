@@ -2,8 +2,8 @@ const ActivityBron = require("./activityBron");
 const ActivityEvents = require('../consts/activityEvents');
 
 module.exports = class ActivityUntimed extends ActivityBron{
-    constructor(id, guildId, name, quant, leader, br1, br2){
-        super(id, guildId, name, quant, leader, br1, br2);
+    constructor(id, clan, name, quant, leader, br1, br2){
+        super(id, clan, name, quant, leader, br1, br2);
         this.timer = setTimeout(async () => {
             try{
                 this.state = this.states[0];
@@ -31,32 +31,12 @@ module.exports = class ActivityUntimed extends ActivityBron{
     async refreshMessage(){
         super.refreshMessage();
         if (this.state == this.states[2]){
-            const embed = ActivityUntimed.client.genEmbed(`Ваш сбор по готовности (${this}) заполнен!`, 'Уведомление');
+            const embed = this.client.genEmbed(`Ваш сбор по готовности (${this}) заполнен!`, 'Уведомление');
             this.leader.send({embeds: [embed, this.message.embeds[0]]})
             .catch(err => {
                 console.log(`Ошибка рассылки для пользователя ${this.leader.tag}: ${err.message}`);
-                if (this.guildId){
-                    const sett = ActivityUntimed.client.settings.get(this.guildId);
-                    sett.sendLog(`Ошибка оповещения (заполнение сбора ${this}) для пользователя ${this.leader}: ${err.message}`, 'Запись логов: ошибка');
-                }
             });
         }
-    }
-
-    updateMessage(){
-        const embed = super.updateMessage();
-        if (this.state == this.states[2]){
-            const embed = ActivityUntimed.client.genEmbed(`Ваш сбор по готовности (${this}) заполнен!`, 'Уведомление');
-            this.leader.send({embeds: [embed, this.message.embeds[0]]})
-            .catch(err => {
-                console.log(`Ошибка рассылки для пользователя ${this.leader.tag}: ${err.message}`);
-                if (this.guildId){
-                    const sett = ActivityUntimed.client.settings.get(this.guildId);
-                    sett.sendLog(`Ошибка оповещения (заполнение сбора ${this}) для пользователя ${this.leader}: ${err.message}`, 'Запись логов: ошибка');
-                }
-            });
-        }
-        return embed;
     }
 
     async sendAlerts(reason){
@@ -67,14 +47,10 @@ module.exports = class ActivityUntimed extends ActivityBron{
                 }               
                 if (this.bron.size > 0){
                     this.bron.forEach(async (us, id) => {
-                        const embed = ActivityUntimed.client.genEmbed(`Активность «${this}» начата лидером (${this.leader}) активности! Вы получаете уведомление, потому что вам забронировано место.`, 'Уведомление');
+                        const embed = this.client.genEmbed(`Активность «${this}» начата лидером (${this.leader}) активности! Вы получаете уведомление, потому что вам забронировано место.`, 'Уведомление');
                         us.send({embeds:[embed, this.message.embeds[0]]})
                         .catch(err =>{
                             console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
-                            if (this.guildId){
-                                const sett = ActivityUntimed.client.settings.get(this.guildId);
-                                sett.sendLog(`Ошибка рассылки (старт сбора ${this}) для пользователя ${us.tag}: ${err.message}`, 'Запись логов: ошибка');
-                            }
                         });
                     });
                 }

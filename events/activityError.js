@@ -3,6 +3,6 @@ const {ActivityEvents, Guardian} = require('../fireteams_module');
 module.exports = {
     name: ActivityEvents.Error,
     async execute(fireteam, error) {
-        console.log(error.message);
+        
     },
 };

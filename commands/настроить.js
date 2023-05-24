@@ -216,7 +216,7 @@ module.exports = {
             modal.addComponents(row0, row1, row2);
             //отправка формы пользователю
             await interaction.showModal(modal);
-            const filter = inter => inter.user.id === interaction.user.id && inter.customId === 'messJS_modal';
+            const filter = inter => inter.user.id === interaction.user.id && inter.customId === 'messJL_modal';
             const modalInt = await interaction.awaitModalSubmit({filter, time: 600000})
             .catch(error => console.log(error));
 
@@ -228,8 +228,8 @@ module.exports = {
             const sett = interaction.client.d2clans.getConfig(interaction.guild.id);
             sett.setJALMessages(messJfield, messAfield, messLfield);
 
-            const embed = new EmbedBuilder().setTitle('Текста уведомлений о прибытии, принятии правил и уходе обновлены').setDescription(`Уведомление о прибытии: ${messJ}\nУведомление о принятии правил: ${messA}\nУведомление о уходе: ${messL}`);
-            await interaction.reply({embeds: [embed]});
+            const embed = new EmbedBuilder().setTitle('Текста уведомлений о прибытии, принятии правил и уходе обновлены').setDescription(`Уведомление о прибытии: ${messJfield}\nУведомление о принятии правил: ${messAfield}\nУведомление о уходе: ${messLfield}`);
+            await modalInt.reply({embeds: [embed]});
         }
     }
 }

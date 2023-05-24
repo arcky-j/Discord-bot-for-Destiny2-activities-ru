@@ -15,7 +15,7 @@ class GuardianManager extends DiscManager{
             fs.mkdirSync(this.path, {recursive:true});
             console.log(`Директория data/clans/clan_${clan.id}/guardians была успешно создана.`);
         }
-        this.initAll();
+        setTimeout(() => this.initAll(), 3000);
     }
 
     set(guardian){

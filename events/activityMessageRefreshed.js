@@ -3,7 +3,7 @@ const {ActivityEvents} = require('../fireteams_module');
 module.exports = {
     name: ActivityEvents.MessageRefreshed,
     async execute(fireteam) {
-        const clan = fireteam.client.d2clans.get(fireteam.guildId);
+        const clan = fireteam.clan;
         clan.activities.save(fireteam);
     },
 };

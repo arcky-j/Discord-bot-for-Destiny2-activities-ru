@@ -8,8 +8,8 @@ module.exports = class ActivityDate extends ActivityBron{
     interval;
     tenMinutes = 600000;
 
-    constructor(id, guildId, name, quant, leader, date, br1, br2){
-        super(id, guildId, name, quant, leader, br1, br2);
+    constructor(id, clan, name, quant, leader, date, br1, br2){
+        super(id, clan, name, quant, leader, br1, br2);
         this.today = new Date();
         this.date = date;
         this.setTimer();
@@ -21,7 +21,7 @@ module.exports = class ActivityDate extends ActivityBron{
         clearTimeout(this.timer);
         this.setTimer();
         this.sendAlerts('dateChange'); 
-        this.client.emit(ActivityEvents.ChangedDate, this, date);
+        this.client.emit(ActivityEvents.ChangedDate, this, this.date);
         this.refreshMessage();
     }
     async setTimer(){
@@ -77,26 +77,18 @@ module.exports = class ActivityDate extends ActivityBron{
                     break;
                 }
                 this.members.forEach( async (us, id) =>{ //оповещает всех участников
-                    const embed = ActivityDate.client.genEmbed(`Активность «${this}» начнётся в ближайшие **10 минут**!`, 'Уведомление');
+                    const embed = this.client.genEmbed(`Активность «${this}» начнётся в ближайшие **10 минут**!`, 'Уведомление');
                     us.send({embeds:[embed, this.message.embeds[0]]})
                     .catch(err =>{
                         console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
-                        if (this.guildId){
-                            const sett = ActivityDate.client.settings.get(this.guildId);
-                            sett.sendLog(`Ошибка рассылки (скорое начало сбора ${this}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
-                        }
                     });
                 });
                 if (this.bron.size > 0 && this.members.size < this.quantity)
                 this.bron.forEach( async (us, id) =>{ //если есть резервы и боевой группы не хватает, оповещает резервистов
-                    const embed = ActivityDate.client.genEmbed(`Активность «${this}» начнётся в ближайшие **10 минут**! Вам было забронировано место, поэтому вы получаете это сообщение!`, 'Уведомление');
+                    const embed = this.client.genEmbed(`Активность «${this}» начнётся в ближайшие **10 минут**! Вам было забронировано место, поэтому вы получаете это сообщение!`, 'Уведомление');
                     us.send({embeds:[embed, this.message.embeds[0]]})
                     .catch(err =>{
                         console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
-                        if (this.guildId){
-                            const sett = ActivityDate.client.settings.get(this.guildId);
-                            sett.sendLog(`Ошибка рассылки (скорое начало сбора ${this}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
-                        }
                     });
                 });
                 break;
@@ -106,14 +98,10 @@ module.exports = class ActivityDate extends ActivityBron{
                 }
                 this.members.forEach( async (us, id) =>{
                     if (this.leader.id != id) {//рассылает оповещение всем участникам кроме лидера
-                        const embed = ActivityDate.client.genEmbed(`Активность «${this}» перенесёна пользователем ${this.leader}! Новое время: ${this.getDateString()}`, 'Уведомление');
+                        const embed = this.client.genEmbed(`Активность «${this}» перенесёна пользователем ${this.leader}! Новое время: ${this.getDateString()}`, 'Уведомление');
                         us.send({embeds:[embed, this.message.embeds[0]]})
                         .catch(err =>{
                             console.log(`Ошибка рассылки для пользователя ${us.tag}: ${err.message}`);
-                            if (this.guildId){
-                                const sett = ActivityDate.client.settings.get(this.guildId);
-                                sett.sendLog(`Ошибка рассылки (смена даты сбора ${this}) для пользователя ${us}: ${err.message}`, 'Запись логов: ошибка');
-                            }
                         });
                     }                 
                 });

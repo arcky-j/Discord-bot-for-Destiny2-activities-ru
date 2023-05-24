@@ -4,11 +4,11 @@ module.exports = {
     async execute(interaction, activity, user){
         const modal = new ModalBuilder()
         .setCustomId(`reason_close_${activity.id}`)
-        .setTitle('Передача лидерства');
+        .setTitle('Отмена активности');
 
         const reasonT = new TextInputBuilder()
         .setCustomId('reason')
-        .setLabel('Причина передачи лидерства')
+        .setLabel('Причина отмены')
         .setStyle(TextInputStyle.Paragraph)
         .setPlaceholder('Если хотите, укажите причину (отправить форму обязательно даже пустой)')
         .setRequired(false);

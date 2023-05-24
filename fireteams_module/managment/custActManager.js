@@ -101,7 +101,7 @@ class CustomActivitiesManager extends DiscManager{
             message.delete().catch();
             throw new Error('Лидер сбора не обнаружен');
         }
-        const activity = new CustomActivity(data.id, guild.id, data.name, data.quantity, leader, data.date, role);
+        const activity = new CustomActivity(data.id, this.clan, data.name, data.quantity, leader, data.date, role);
         activity.message = message;
         activity.state = data.state;
         if (data.members.length > 0){

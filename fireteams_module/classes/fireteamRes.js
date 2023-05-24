@@ -7,8 +7,8 @@ const path = require('node:path');
 
 module.exports = class FireteamRes extends ActivityRes{
     pathToFireteams = path.join('.', 'data', 'fireteamsRes');
-    constructor(id, guildId, name, quant, leader, date, br1, br2){
-        super(id, guildId, name, quant, leader, date, br1, br2);
+    constructor(id, clan, name, quant, leader, date, br1, br2){
+        super(id, clan, name, quant, leader, date, br1, br2);
         this.members.set(leader.id, leader);
         this.client.emit(ActivityEvents.Created, this);
     }
@@ -87,19 +87,27 @@ module.exports = class FireteamRes extends ActivityRes{
 
     remove(id){
         if (id == this.leader.id){ //проверка на лидерство
-            throw new Error('Лидер не может покинуть боевую группу!');
+            const err = new Error('Лидер не может покинуть боевую группу!');
+            this.client.emit(ActivityEvents.Error, this, err);
+            throw err; 
         }
         super.remove(id);
     }
 
     changeLeader(user){
         if (user.id == this.leader.id){ //проверка на случай попытки сменить себя на себя
-            throw new Error('Лидер пытается сменить себя на себя! чзх? я не буду это комментировать...');
+            const err = new Error('Лидер пытается сменить себя на себя! чзх? я не буду это комментировать...');
+            this.client.emit(ActivityEvents.Error, this, err);
+            throw err;  
         }
 
         if (user.bot){ //на всякий случай проверка, пытаются ли сделать лидером бота
-            throw new Error('Возмутительно! Я не думал, что кому-то придёт назначать лидером бота, но и к этому я был готов');
+            const err = new Error('Возмутительно! Я не думал, что кому-то придёт назначать лидером бота, но и к этому я был готов');
+            this.client.emit(ActivityEvents.Error, this, err);
+            throw err;  
         }
+
+        const oldLead = this.members.get(this.leader.id);
 
         if (this.members.has(user.id)){ 
             this.leader = user; //если новый лидер был в боевой группе, просто передаёт лидерство
@@ -118,7 +126,9 @@ module.exports = class FireteamRes extends ActivityRes{
         if (this.reservs.has(user.id)){
             this.reservs.delete(user.id);
         }
-        this.client.emit(ActivityEvents.ChangedLeader, this, user);
+        const embed = this.client.genEmbed(`Вам было передано управление сбором ${this}!\nСсылка на сбор: ${this.message.url}`, `Уведомление`);
+        user.send({embeds: [embed]}).catch();
+        this.client.emit(ActivityEvents.ChangedLeader, this, user, oldLead);
         this.refreshMessage();
     }
 }

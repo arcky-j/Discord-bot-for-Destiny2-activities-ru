@@ -11,11 +11,13 @@ class Guardian extends Base{
         else this.activitiesCount = 0;
         if (leadCount) this.leaderCount = leadCount;
         else this.leaderCount = 0;
+        this.leadMultiplier = 4;
+        this.actMultiplier = 2;
         this.score = this.calcScore();
     }
 
     calcScore(){
-        return this.activitiesCount * 2 + this.leaderCount * 2;
+        return this.activitiesCount * this.actMultiplier + this.leaderCount * this.leadMultiplier;
     }
 
     actCountInc(){

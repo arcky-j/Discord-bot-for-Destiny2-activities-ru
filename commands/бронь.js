@@ -32,7 +32,7 @@ module.exports = {
         const userNew = interaction.options.getMember('пользователь');
         const user = interaction.member;
         //поиск нужной боевой группы
-        const fireteam = interaction.client.activities.cache.get(id);
+        const fireteam = interaction.client.d2clans.getActivitiy(interaction.guildId, id);
 
         if (!fireteam){
             const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');

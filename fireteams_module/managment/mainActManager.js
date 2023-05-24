@@ -15,7 +15,7 @@ class MainActivityManager extends DiscManager{
         this.customActivitiesManager = new CustomActivitiesManager(clan);
         this.fireteamsResManager = new FireteamsResManager(clan);
         this.fireteamsUntimedManager = new FireteamsUntimedManager(clan);
-        this.initAll();
+        setTimeout(() => this.initAll(), 10000);
     }
 
     set(fireteam){
@@ -27,7 +27,7 @@ class MainActivityManager extends DiscManager{
         return this.cache.get(id);
     }
 
-    initAll(){
+    async initAll(){
         this.customActivitiesManager.initAll().catch(err => console.log(`Ошибка загрузки кастомных сборов: ${err.message}`));
         this.fireteamsResManager.initAll().catch(err => console.log(`Ошибка загрузки стандартных сборов: ${err.message}`)); 
         this.fireteamsUntimedManager.initAll().catch(err => console.log(`Ошибка загрузки сборов по готовности: ${err.message}`));

@@ -16,7 +16,7 @@ class SettingsManager extends DiscManager{
     }
 
     async save(){
-        const data = this.toJSON(this);
+        const data = this.toJSON(this.config);
         fs.writeFile(this.path, data, async (error) =>{
             if (error){
                 console.error(error);
@@ -35,11 +35,7 @@ class SettingsManager extends DiscManager{
 
     }
 
-    toJSON(sett){
-        if (!(sett instanceof Settings)){
-            return;
-        }
-        
+    toJSON(sett){        
         const data = {
             guildId: sett.guildId,
             rolesToTag: new Array(),
@@ -73,12 +69,17 @@ class SettingsManager extends DiscManager{
         if (sett.channelLeave){
             data.channelLeave = sett.channelLeave.id;
         }
-        const dataJS = JSON.stringify(data);
-        return dataJS;
+        return JSON.stringify(data);
     }
 
     async fromJSON(data){ 
-        data = JSON.parse(data);
+        try {
+            data = JSON.parse(data);
+        } catch (err){
+            console.log(`Невозможно загрузить файл ${this.path}: ${err.message}`);
+            this.delete();
+            return;
+        }
         const sett = new Settings(data.guildId);
         const guild = await this.client.guilds.fetch(data.guildId);
 

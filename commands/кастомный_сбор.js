@@ -79,7 +79,7 @@ module.exports = {
         //формирование embed
         const id = interaction.client.generateId(clan.activities.cache);    
         //отправка сообщения
-        const activity = new CustomActivity(id, interaction.guildId, actName, Infinity, interaction.member, timeDate, role);
+        const activity = new CustomActivity(id, clan, actName, Infinity, interaction.member, timeDate, role);
         try {
             const embed = activity.createEmbed(embColor, embDesc, bannerUrl, media);
             const row = activity.createActionRow();
@@ -97,7 +97,6 @@ module.exports = {
         }  
         //формирование внутренней структуры данных       
         clan.activities.set(activity);
-        activity.refreshMessage();
         //уведомление, если всё прошло успешно          
         const embed = interaction.client.genEmbed(`Сбор ${actName} создан`, 'Успех!');
         interaction.reply({embeds: [embed], ephemeral:true}); 

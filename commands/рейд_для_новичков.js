@@ -106,9 +106,9 @@ module.exports = {
         //отправка сообщения
         let fireteam;  
         if (time || date){
-            fireteam = new FireteamRes(id, interaction.guildId, actName, quant, interaction.member, rDate, res1, res2);
+            fireteam = new FireteamRes(id, clan, actName, quant, interaction.member, rDate, res1, res2);
         } else {
-            fireteam = new FireteamUntimed(id, interaction.guildId, actName, quant, interaction.member, res1, res2);
+            fireteam = new FireteamUntimed(id, clan, actName, quant, interaction.member, res1, res2);
         }
         const embed = fireteam.createEmbed(embColor, embDesc, bannerUrl);
         const row = fireteam.createActionRow();
@@ -118,7 +118,6 @@ module.exports = {
         //формирование внутренней структуры данных
         //const lastMess = interaction.channel.lastMessage;  
         clan.activities.set(fireteam);
-        fireteam.refreshMessage();
         //уведомление, если всё прошло успешно
         await interaction.reply({content: 'Сбор создан', ephemeral: true});
 

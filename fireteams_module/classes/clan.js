@@ -12,8 +12,12 @@ class Clan extends Base{
         this.id = guild.id;
         this.guild = guild;
         this.settings = new SettingsManager(this); 
+        this.guardians = new GuardianManager(this);
         this.activities = new MainActivitiesManager(this);
-        this.guardians = new GuardianManager(this);      
+    }
+
+    toString(){
+        return `${this.guild.name}`;
     }
 }
 

@@ -6,17 +6,18 @@ module.exports = {
         //если удалённое сообщение хранилось как сообщение сбора или лог, удаляет и из своей памяти
         if (message.customId){
             const client= message.client;
-            const activity = client.activities.get(message.customId);
+            const clan = client.d2clans.get(message.guildId);          
+            const activity = clan.activities.get(message.customId);
             if (!activity){
                 client.mapVotes.delete(message.customId);    
                 return;         
             }
             if (message.guildId){
-                const sett = client.settings.get(message.guildId);
-                sett.sendLog(`Удаление кастомного сбора ${activity.name} (${activity.id})`, 'Запись логов: уведомление');
+                const sett = client.d2clans.getConfig(message.guildId);
+                sett.sendLog(`Удаление сбора ${activity.name} (${activity.id})`, 'Запись логов: уведомление');
             }
             activity.delete();
-            client.activities.delete(message.customId);             
+            clan.activities.delete(activity);
         }
     },
 };

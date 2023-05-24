@@ -17,7 +17,7 @@ module.exports = {
             command.execute(interaction).catch(error => {
                 console.error(error);
                 const embed = interaction.client.genEmbed(`Произошла ошибка при исполнении команды: ${error.message}`, 'Ошибка!');
-                if (!interaction.replied || !interaction.deferred){
+                if (!interaction.replied){
                     interaction.reply({embeds: [embed], ephemeral:true});
                 }
             }); //пробует выполнить метод execute

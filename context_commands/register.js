@@ -10,15 +10,14 @@ module.exports = {
             .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
     async execute (interaction){
-        const user = interaction.targetUser;
-        //записывает пользователя в кэш бота. всё
-        const guardian = new Guardian(user);
+        const user = interaction.targetMember;
         const clan = interaction.client.d2clans.get(interaction.guildId);
         if (clan.guardians.cache.has(user.id)){
             interaction.reply({content: `Пользователь ${user} уже зарегистрирован!`, ephemeral:true});
             return;
         }
+        const guardian = new Guardian(user);
         clan.guardians.set(guardian);
-        interaction.reply({content: `Вы успешно зарегистрировали ${user}. т.е. записали в кэш и сохранили в файл`, ephemeral:true});
+        interaction.reply({content: `Вы успешно сохранили ${user}!`, ephemeral:true});
     }
 };

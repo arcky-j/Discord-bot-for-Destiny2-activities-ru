@@ -57,8 +57,6 @@ class FireteamsUntimedManager extends DiscManager{
             members: new Array(),
             state: team.state,
             bron: new Array(),
-            bronMessages: new Array(),
-            bronChannels: new Array(),
             guild: team.guildId
         };
 
@@ -69,10 +67,6 @@ class FireteamsUntimedManager extends DiscManager{
         if (team.bron.size > 0){
             team.bron.forEach((val, id) =>{
                 data.bron.push(id);
-            });
-            team.bronMessages.forEach((val, id) =>{
-                data.bronMessages.push(val.id);
-                data.bronChannels.push(val.channelId);
             });
         }   
         return JSON.stringify(data);
@@ -94,7 +88,7 @@ class FireteamsUntimedManager extends DiscManager{
             message.delete().catch();
             throw new Error('Лидер сбора не обнаружен');
         }
-        const fireteam = new FireteamUntimed(data.id, data.guild, data.name, data.quantity, leader);
+        const fireteam = new FireteamUntimed(data.id, this.clan, data.name, data.quantity, leader);
         fireteam.message = message;
         //fireteam.state = data.state;
         await data.members.forEach(async (val) =>{
@@ -110,14 +104,7 @@ class FireteamsUntimedManager extends DiscManager{
                 const user = await this.client.users.fetch(val).catch();
                 if (user){
                     fireteam.bron.set(val, user);
-                }
-                const channel = await this.client.channels.fetch(data.bronChannels[i]).catch();
-                if (channel){
-                    const message = await channel.messages.fetch(data.bronMessages[i]).catch();
-                    if (message){
-                        fireteam.bronMessages.set(val, message);
-                    }
-                }               
+                }            
             });
         }
         return fireteam;
