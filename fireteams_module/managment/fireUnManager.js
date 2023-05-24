@@ -22,7 +22,7 @@ class FireteamsUntimedManager extends DiscManager{
             if (err){
                 console.error(err);
                 if (fireteam.guildId){
-                    const sett = FireteamUntimed.client.settings.get(fireteam.guildId);
+                    const sett = this.clan.settings.config;
                     sett.sendLog(`Не удалось сохранить в файл ${fireteam}: ${err.message}`, 'Запись логов: ошибка');
                 }
             }
@@ -35,7 +35,7 @@ class FireteamsUntimedManager extends DiscManager{
             if (err){
                 console.error(err);
                 if (fireteam.guildId){
-                    const sett = FireteamUntimed.client.settings.get(fireteam.guildId);
+                    const sett = this.clan.settings.config;
                     sett.sendLog(`Не удалось удалить файл с ${fireteam}: ${err.message}`, 'Запись логов: ошибка');
                 }
             }

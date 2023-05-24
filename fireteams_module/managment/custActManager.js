@@ -22,7 +22,7 @@ class CustomActivitiesManager extends DiscManager{
             if (err){
                 console.error(err);
                 if (activity.guildId){
-                    const sett = this.client.settings.get(activity.guildId);
+                    const sett = this.clan.settings.config;
                     sett.sendLog(`Не удалось сохранить в файл ${activity}): ${err.message}`, 'Запись логов: ошибка');
                 }
             }
@@ -35,7 +35,7 @@ class CustomActivitiesManager extends DiscManager{
             if (err){
                 console.error(err);
                 if (activity.guildId){
-                    const sett = CustomActivity.client.settings.get(activity.guildId);
+                    const sett = this.clan.settings.config;
                     sett.sendLog(`Не удалось удалить файл с ${activity}): ${err.message}`, 'Запись логов: ошибка');
                 }
             }
