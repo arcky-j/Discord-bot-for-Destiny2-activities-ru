@@ -90,7 +90,8 @@ class FireteamsResManager extends DiscManager{
             throw new Error('Сообщение сбора не обнаружено');
         }
         message.customId = data.id;
-        const leader = await this.client.users.fetch(data.leader).catch();
+        const guild = this.clan.guild;
+        const leader = await guild.members.fetch(data.leader).catch();
         if (!leader){
             message.delete().catch();
             throw new Error('Лидер сбора не обнаружен');
@@ -101,7 +102,7 @@ class FireteamsResManager extends DiscManager{
         //fireteam.state = data.state;
         await data.members.forEach(async (val) =>{
             if (val != leader.id){
-                const user = await this.client.users.fetch(val).catch();
+                const user = await guild.members.fetch(val).catch();
                 if (user){
                     fireteam.members.set(val, user);
                 }
@@ -109,7 +110,7 @@ class FireteamsResManager extends DiscManager{
         });
         if (data.reservs.length > 0){
             await data.reservs.forEach(async (val, i) =>{
-                const user = await this.client.users.fetch(val).catch();
+                const user = await guild.members.fetch(val).catch();
                 if (user){
                     fireteam.reservs.set(val, user);
                 }
@@ -117,7 +118,7 @@ class FireteamsResManager extends DiscManager{
         }
         if (data.bron.length > 0){
             await data.bron.forEach(async (val, i) =>{
-                const user = await this.client.users.fetch(val).catch();
+                const user = await guild.members.fetch(val).catch();
                 if (user){
                     fireteam.bron.set(val, user);
                 }              

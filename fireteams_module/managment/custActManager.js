@@ -106,7 +106,7 @@ class CustomActivitiesManager extends DiscManager{
         activity.state = data.state;
         if (data.members.length > 0){
             await data.members.forEach(async (val) =>{               
-                const user = await this.client.users.fetch(val).catch();
+                const user = await guild.members.fetch(val).catch();
                 if (user){
                     activity.members.set(val, user);
                 }               
