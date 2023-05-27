@@ -60,6 +60,7 @@ module.exports = {
                     .setDescription('В какое поземелье вы хотите собрать людей?')
                     .setRequired(true)
                     .addChoices(
+                        {name: 'Призраки Глубин', value: 'Призраки Глубин'},
                         {name: 'Шпиль Хранителя', value: 'Шпиль Хранителя'},
                         {name: 'Дуальность', value: 'Дуальность'},
                         {name: 'Тиски Алчности', value: 'Тиски Алчности'},
@@ -219,6 +220,9 @@ module.exports = {
                 case 'Шпиль Хранителя': bannerUrl = 'https://i.ibb.co/7WvDcvw/spire-of-the-watcher.jpg';
                     embColor = 0xb3974d;
                     break;
+                case 'Призраки Глубин': bannerUrl = 'https://i.ibb.co/9NnnQDZ/2023-Ghost-of-the-Deep-Press-Kit-Dungeon-COMPRESSED-011.jpg';
+                    embColor = 0x68bee3;
+                    break;
             }
             if (requiries){
                 embDesc += `Подземелье!\nТребования: ${requiries}\n`;
@@ -272,6 +276,10 @@ module.exports = {
                 } else if (actName.match(/ГМ/) || actName.match(/грандмастер/i)){
                     bannerUrl = 'https://i.ibb.co/SKRg5pB/EYZZg-R1-Uc-AEX3-Np.jpg';
                     embColor = 0xf0f2ae;
+                    return;
+                } else if (actName.match(/рыба/i)){
+                    bannerUrl = 'https://i.ibb.co/zxLXL31/2023-Season-of-the-Deep-Press-Kit-Deep-Dive-Fishing-Compressed-006.jpg';
+                    embColor = 0xb2de99;
                     return;
                 }
             })();
