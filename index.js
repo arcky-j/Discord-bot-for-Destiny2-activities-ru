@@ -1,7 +1,7 @@
 //главный исполняемый файл
 const fs = require('node:fs');
 const path = require('node:path');
-const {Base, idGenerator, genEmbed, dateSet} = require('./fireteams_module');
+const {Base} = require('./fireteams_module');
 
 const { Client, Collection, GatewayIntentBits} = require("discord.js");
 require("dotenv").config();
@@ -15,9 +15,6 @@ const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits
 
 //добавление к клиенту коллекций (по сути Map из javascript) для данных
 client.commands = new Collection(); //слэш-команды
-client.settings = new Collection(); //настройки сервера (свой тип данных)
-//client.actGens = new Collection();
-client.mapVotes = new Collection(); 
 //загрузка исполняемого кода для команд
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -68,9 +65,6 @@ for(const file of contextCommandFiles){
     }
 }
 
-client.generateId = idGenerator;
-client.genEmbed = genEmbed;
-client.dateSet = dateSet;
 Base.client = client;
 //запуск бота
 client.login(process.env.TOKEN);

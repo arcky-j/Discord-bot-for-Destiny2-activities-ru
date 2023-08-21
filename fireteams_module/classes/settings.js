@@ -3,7 +3,6 @@ const {EmbedBuilder} = require('discord.js');
 const Base = require('./base');
 
 class Settings extends Base{
-    guildId; 
     rolesToTag = []; //роли для тэгов в сборах
     rolesForNew = []; //роли для присвоения новичкам на сервере
     channelJoin; //канал уведомлений о прибывших
@@ -12,10 +11,12 @@ class Settings extends Base{
     channelLeave; //канал уведомлений о ливах 
     messageLeave; //уведомление о ливах
     logChannel;
+    archiveChannel;
+    statsOn;
 
-    constructor(id){
+    constructor(settManager){
         super();
-        this.guildId = id;
+        this.settManager = settManager;
         this.messageJoin = '# прибыл на сервер!';
         this.messageAccept = '# принял правила сервера!';
         this.messageLeave = '# покинул сервер';        
@@ -38,8 +39,7 @@ class Settings extends Base{
         if (r4){
             this.rolesToTag.push(r4);
         }
-        const clan = this.client.d2clans.get(this.guildId);
-        clan.settings.save();
+        this.settManager.save();
     }
 
     setRolesForNew(r0, r1, r2){
@@ -53,8 +53,7 @@ class Settings extends Base{
         if (r2){
             this.rolesForNew.push(r2.id);
         }
-        const clan = this.client.d2clans.get(this.guildId);
-        clan.settings.save();
+        this.settManager.save();
     }
 
     setJLChannels(chJ, chL){
@@ -66,8 +65,7 @@ class Settings extends Base{
         if (chL){
             this.channelLeave = chL;
         }
-        const clan = this.client.d2clans.get(this.guildId);
-        clan.settings.save();
+        this.settManager.save();
     }
 
     setLogChannel(ch){
@@ -75,8 +73,15 @@ class Settings extends Base{
         if (ch){
             this.logChannel = ch;
         }
-        const clan = this.client.d2clans.get(this.guildId);
-        clan.settings.save();
+        this.settManager.save();
+    }
+
+    setArchiveChannel(ch){
+        this.archiveChannel = undefined;
+        if (ch){
+            this.archiveChannel = ch;
+        }
+        this.settManager.save();
     }
 
     setJALMessages(messJ, messA, messL){
@@ -89,31 +94,43 @@ class Settings extends Base{
         if (messL){
             this.messageLeave = messL;
         }
-        const clan = this.client.d2clans.get(this.guildId);
-        clan.settings.save();
+        this.settManager.save();
     }
 
     async sendLog(message, title){
         if (this.logChannel){
             const embed = Settings.client.genEmbed(message, title);
             this.logChannel.send({embeds: [embed]}).catch(err => {
-                console.log(`Ошибка с отправлением лога на сервере ${this.guildId}: ${err.message}\nСброс канала с логами...`);
+                console.log(`Ошибка с отправлением лога на сервере ${this.settManager.clan}: ${err.message}\nСброс канала с логами...`);
                 this.logChannel = undefined;
             });
         }
     }
 
+    async sendArchive(actMessage, reason){
+        if (this.archiveChannel && !reason){
+            const embed = Settings.client.genEmbed('Архивация сбора...', 'Запись логов');
+            this.archiveChannel.send({embeds: [embed, actMessage.embeds[0]]});
+        }
+
+        if (this.archiveChannel && reason){
+            const embed = Settings.client.genEmbed(`Архивация сбора... причина: ${reason}`, 'Запись логов');
+            this.archiveChannel.send({embeds: [embed, actMessage.embeds[0]]});
+        }
+    }
+
     async sendJoinAlert(member){
+        if (!this.channelJoin) return;
         const color = member.roles.highest.color;
         if (this.messageJoin.match(/#/)){
-            const embed = new EmbedBuilder().setTitle('Уведомление').setDescription(this.messageJoin.replace('#', `<@${member.user.id}> (**${member.user.tag}**)`)).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
+            const embed = new EmbedBuilder().setTitle('Уведомление').setDescription(this.messageJoin.replace('#', `${member} (**${member.user.username}**)`)).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
             this.channelJoin.send({embeds: [embed]}).catch(err => {
                 console.log(`Ошибка с отправлением уведомления о прибытии в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`);
                 this.sendLog(`Ошибка с отправлением уведомления о прибытии в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`); 
                 this.channelJoin = undefined;
             }); //оповещает о прибытии
         } else {
-            const embed = new EmbedBuilder().setTitle('Уведомление (стандартное - в тексте уведомления нет *#*)').setDescription(`<@${member.user.id}> (**${member.user.tag}**) прибыл на сервер!`).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
+            const embed = new EmbedBuilder().setTitle('Уведомление (стандартное - в тексте уведомления нет *#*)').setDescription(`${member} (**${member.user.username}**) прибыл на сервер!`).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
             this.channelJoin.send({embeds: [embed]}).catch(err => {
                 console.log(`Ошибка с отправлением уведомления о прибытии в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`);
                 this.sendLog(`Ошибка с отправлением уведомления о прибытии в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`); 
@@ -123,16 +140,17 @@ class Settings extends Base{
     }
 
     async sendAcceptAlert(member){
+        if (!this.channelJoin) return;
         const color = member.roles.highest.color;
         if (this.messageAccept.match(/#/)){
-            const embed = new EmbedBuilder().setTitle('Уведомление').setDescription(this.messageAccept.replace('#', `<@${member.user.id}> (**${member.user.tag}**)`)).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
+            const embed = new EmbedBuilder().setTitle('Уведомление').setDescription(this.messageAccept.replace('#', `${member} (**${member.user.username}**)`)).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
             this.channelJoin.send({embeds: [embed]}).catch(err => {
                 console.log(`Ошибка с отправлением уведомления о принятии правил в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`);
                 this.sendLog(`Ошибка с отправлением уведомления о принятии правил в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`); 
                 this.channelJoin = undefined;
             }); 
         } else {
-            const embed = new EmbedBuilder().setTitle('Уведомление (стандартное - в тексте уведомления нет *#*)').setDescription(`<@${member.user.id}> (**${member.user.tag}**) принял правила сервера!`).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
+            const embed = new EmbedBuilder().setTitle('Уведомление (стандартное - в тексте уведомления нет *#*)').setDescription(`${member} (**${member.user.username}**) принял правила сервера!`).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
             this.channelJoin.send({embeds: [embed]}).catch(err => {
                 console.log(`Ошибка с отправлением уведомления о принятии правил в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`);
                 this.sendLog(`Ошибка с отправлением уведомления о принятии правил в ${this.channelJoin}: ${err.message}\nСброс канала с уведомлениями...`); 
@@ -142,16 +160,17 @@ class Settings extends Base{
     }
 
     async sendLeaveAlert(member){
+        if (!this.channelLeave) return;
         const color = member.roles.highest.color;
         if (this.messageLeave.match(/#/)){
-            const embed = new EmbedBuilder().setTitle('Уведомление').setDescription(this.messageLeave.replace('#', `**${member.user.tag}**`)).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
+            const embed = new EmbedBuilder().setTitle('Уведомление').setDescription(this.messageLeave.replace('#', `**${member.user.username}**`)).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
             this.channelLeave.send({embeds: [embed]}).catch(err => {
                 console.log(`Ошибка с отправлением уведомления об уходе в ${this.channelLeave}: ${err.message}\nСброс канала с уведомлениями...`);
                 this.sendLog(`Ошибка с отправлением уведомления об уходе в ${this.channelLeave}: ${err.message}\nСброс канала с уведомлениями...`); 
                 this.channelLeave = undefined;
             }); //оповещает об уходе
         } else {
-            const embed = new EmbedBuilder().setTitle('Уведомление (стандартное - в тексте уведомления нет *#*)').setDescription(`**${member.user.tag}** покинул сервер!`).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
+            const embed = new EmbedBuilder().setTitle('Уведомление (стандартное - в тексте уведомления нет *#*)').setDescription(`**${member.user.username}** покинул сервер!`).setTimestamp(new Date()).setThumbnail(member.displayAvatarURL()).setColor(color);
             this.channelLeave.send({embeds: [embed]}).catch(err => {
                 console.log(`Ошибка с отправлением уведомления об уходе в ${this.channelLeave}: ${err.message}\nСброс канала с уведомлениями...`);
                 this.sendLog(`Ошибка с отправлением уведомления об уходе в ${this.channelLeave}: ${err.message}\nСброс канала с уведомлениями...`); 
@@ -186,7 +205,19 @@ class Settings extends Base{
             strLog = `${this.logChannel}`;
         }
 
-        const str = `Роли, упоминаемые в сборах: ${strT}\nРоли для новоприбывших: ${strN}\nКанал для уведомлений о прибытии: ${strCHJ}\nУведомление о прибытии: ${this.messageJoin}\nУведомление о принятии правил: ${this.messageAccept}\nКанал для уведомлений об уходе: ${strCHL}\nУведомление об уходе: ${this.messageLeave}\nКанал с логами: ${strLog}`;
+        let strArch = '';
+        if (this.archiveChannel){
+            strArch = `${this.archiveChannel}`;
+        }
+
+        // let strStats = '';
+        // if (this.statsOn){
+        //     strArch = `Включён`;
+        // } else {
+        //     strArch = `Выключен`;
+        // }
+
+        const str = `Роли, упоминаемые в сборах: ${strT}\nРоли для новоприбывших: ${strN}\nКанал для уведомлений о прибытии: ${strCHJ}\nУведомление о прибытии: ${this.messageJoin}\nУведомление о принятии правил: ${this.messageAccept}\nКанал для уведомлений об уходе: ${strCHL}\nУведомление об уходе: ${this.messageLeave}\nКанал с логами: ${strLog}\nКанал для архивации: ${strArch}`;
         return str;
     }
 }

@@ -18,34 +18,33 @@ module.exports = {
 
         await interaction.showModal(modal);
         const filter = (interactionM) => interactionM.customId === `reason_close_${activity.id}`;
-        const modalInt = await interaction.awaitModalSubmit({filter, time: 180000})
+        const modalInt = await interaction.awaitModalSubmit({filter, time: 300000})
         .catch(err => {
             console.log(err.message);
             // const embed = interaction.client.genEmbed(`Форма для действия со сбором ${activity} не была отправлена\n${err.message}`, 'Ошибка!');
             // interaction.reply({embeds: [embed]});
         });
+        if (!modalInt){
+            const row = activity.createActionRow();
+            interaction.message.edit({components: [row]}); 
+            return;
+        }
         const reason = modalInt.fields.getTextInputValue('reason');
-
-        activity.sendAlerts('del');
+        activity.cancel();
         //удаление сообщения
         if (reason) {
-            const embed = interaction.client.genEmbed(`Сбор в ${activity} успешно удалён!\nПричина: ${reason}`, 'Успех!');
+            const embed = interaction.client.genEmbed(`Сбор ${activity} успешно отменён!\nПричина: ${reason}`, 'Успех!');
             modalInt.reply({embeds: [embed]});
         } else {
-            const embed = interaction.client.genEmbed(`Сбор в ${activity} успешно удалён!`, 'Успех!');
+            const embed = interaction.client.genEmbed(`Сбор ${activity} успешно отменён!`, 'Успех!');
             modalInt.reply({embeds: [embed]});
         }  
         //запись уведомления в логи
         const logMess = await modalInt.fetchReply();
         setTimeout(() => {
             logMess.delete().catch(async err => {
-                console.log('Ошибка удаления сообщения лога удаления сбора (каво?): ' + err.message)
-                if (interaction.guildId){
-                    const sett = interaction.client.settings.get(interaction.guildId);
-                    sett.sendLog(`Ошибка удаления сообщения лога удаления сбора (каво?): ${err.message}`, 'Запись логов: ошибка');
-                }
+                console.log('Ошибка удаления сообщения лога удаления сбора (каво?): ' + err.message);
             });
         }, 86400000);
-        activity.message.delete(); 
     }
 }

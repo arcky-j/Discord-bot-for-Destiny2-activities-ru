@@ -16,11 +16,11 @@ class SettingsManager extends DiscManager{
     }
 
     async save(){
-        const data = this.toJSON(this.config);
+        const data = this.#toJSON(this.config);
         fs.writeFile(this.path, data, async (error) =>{
             if (error){
                 console.error(error);
-                this.sendLog(`Не удалось сохранить файл с настройками сервера ${this.clan.id}`, 'Запись логов: ошибка');
+                this.sendLog(`Не удалось сохранить файл с настройками сервера ${this.clan}:\n${error.message}`, 'Запись логов: ошибка');
             }
         });
     }
@@ -29,13 +29,13 @@ class SettingsManager extends DiscManager{
         fs.unlink(this.path, async (error) =>{
             if (error){
                 console.error(error);
-                this.sendLog(`Не удалось удалить файл с настройками сервера ${this.clan.id}`, 'Запись логов: ошибка');
+                this.sendLog(`Не удалось удалить файл с настройками сервера ${this.clan}\n${error.message}`, 'Запись логов: ошибка');
             }
         });
 
     }
 
-    toJSON(sett){        
+    #toJSON(sett){        
         const data = {
             guildId: sett.guildId,
             rolesToTag: new Array(),
@@ -45,7 +45,9 @@ class SettingsManager extends DiscManager{
             messageAccept: sett.messageAccept,
             channelLeave: undefined,
             messageLeave: sett.messageLeave,
-            logChannel: undefined
+            logChannel: undefined,
+            archChannel: undefined,
+            statsOn: false
         };
 
         if (sett.rolesToTag.length > 0){
@@ -69,10 +71,16 @@ class SettingsManager extends DiscManager{
         if (sett.channelLeave){
             data.channelLeave = sett.channelLeave.id;
         }
+        if (sett.archiveChannel){
+            data.archChannel = sett.archiveChannel.id
+        }
+        if (sett.statsOn){
+            data.statsOn = true;
+        }
         return JSON.stringify(data);
     }
 
-    async fromJSON(data){ 
+    async #fromJSON(data){ 
         try {
             data = JSON.parse(data);
         } catch (err){
@@ -80,17 +88,11 @@ class SettingsManager extends DiscManager{
             this.delete();
             return;
         }
-        const sett = new Settings(data.guildId);
-        const guild = await this.client.guilds.fetch(data.guildId);
-
-        if (!guild){
-            message.delete().catch();
-            throw new Error('Сервер настроек не обнаружен');
-        }
+        const sett = new Settings(this);
 
         if (data.rolesToTag.length > 0){
             data.rolesToTag.forEach(async (value, index) => {
-                const role = await guild.roles.fetch(value).catch();
+                const role = await this.clan.guild.roles.fetch(value).catch();
                 if (role){
                     sett.rolesToTag.push(role);
                 }
@@ -98,7 +100,7 @@ class SettingsManager extends DiscManager{
         }
         if (data.rolesForNew.length > 0){
             data.rolesForNew.forEach(async (value, index) => {
-                const role = await guild.roles.fetch(value).catch();
+                const role = await this.clan.guild.roles.fetch(value).catch();
                 if (role){
                     sett.rolesForNew.push(value);
                 }
@@ -122,24 +124,19 @@ class SettingsManager extends DiscManager{
                 sett.logChannel = ch;
             }           
         }  
+        if (data.archChannel){
+            const ch = await this.client.channels.fetch(data.archChannel).catch();
+            if (ch){
+                sett.archiveChannel = ch;
+            }           
+        }  
+        if (data.statsOn){
+            sett.statsOn = true;
+        }
         sett.messageJoin = data.messageJoin;
         sett.messageAccept = data.messageAccept;
         sett.messageLeave = data.messageLeave;
         return sett;
-    }
-
-    async initSingle(guild){
-        const sett = new Settings(guild.id);
-        const settJSON = this.toJSON(sett);
-        fs.appendFile(this.path, settJSON, async (err) => {
-            if (err){
-                console.log(`Ошибка при создании файла настроек для сервера "${val.name}": ${err.message}`);
-                throw err;
-            } 
-            console.log(`Файл "${this.path}" (${guild.name}) создан!`);
-        });
-        
-        this.config = sett;           
     }
 
     async initSettings(){
@@ -149,14 +146,25 @@ class SettingsManager extends DiscManager{
                     console.error(error);
                     throw error;
                 }                  
-                const sett = await this.fromJSON(data);    
+                const sett = await this.#fromJSON(data);    
                 this.config = sett;       
-                console.log(`Настройки для сервера ${this.clan.guild.name} загружены.`);
+                console.log(`Настройки для сервера ${this.clan} загружены.`);
                 sett.sendLog(`Настройки для сервера загружены.`, 'Запись логов');
+                this.clan.config = sett;
             });
         } else {
-            console.log(`Файл настроек для сервера "${this.clan.guild.name}" не обнаружен; настройки сервера не загружены; запуск инициализации...`);  
-            this.initSingle(this.clan.guild);
+            console.log(`Файл настроек для сервера "${this.clan}" не обнаружен; настройки сервера не загружены; запуск инициализации...`);  
+            const sett = new Settings(this);
+            const settJSON = this.#toJSON(sett);
+            fs.appendFile(this.path, settJSON, async (err) => {
+                if (err){
+                    console.log(`Ошибка при создании файла настроек для сервера "${this.clan}": ${err.message}`);
+                    throw err;
+                } 
+                console.log(`Файл "${this.path}" (${this.clan}) создан!`);
+            });
+            
+            this.clan.config = sett;
         } 
     }
 }

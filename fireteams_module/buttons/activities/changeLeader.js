@@ -3,7 +3,7 @@ const {UserSelectMenuBuilder, ActionRowBuilder, ComponentType, ModalBuilder, Tex
 module.exports = {
     async execute(interaction, activity, user){          
         const message = interaction.message;                
-        if (message.components[2].components[0].type == ComponentType.UserSelect || message.components[1].components[0].type == ComponentType.UserSelect){            
+        if (message.components[1].components[0].type == ComponentType.UserSelect){            
             const rows = activity.createSettingsRow();
             if (Array.isArray(rows)){
                 interaction.update({components: [message.components[0], rows[0], rows[1]]});  
@@ -29,7 +29,7 @@ module.exports = {
             return i.user.id === interaction.user.id && i.customId === `changeLeaderMenu_${activity.id}`;
         }
 
-        const userSelectInteraction = await message.awaitMessageComponent({filter: colFilter, componentType: ComponentType.UserSelect, time: 60000})
+        const userSelectInteraction = await message.awaitMessageComponent({filter: colFilter, componentType: ComponentType.UserSelect, time: 180000})
         .catch(err => {
             console.log(err.message);         
         });
@@ -64,6 +64,13 @@ module.exports = {
         const filter = (interactionM) => interactionM.customId === `reason_CL_${activity.id}`;
         const modalInt = await userSelectInteraction.awaitModalSubmit({filter, time: 180000})
         .catch(error => console.log(error));
+
+        if (!modalInt){
+            const row = activity.createActionRow();
+            interaction.message.edit({components: [row]}); 
+            return;
+        }
+
         const reason = modalInt.fields.getTextInputValue('reason');
 
         try {
@@ -86,10 +93,10 @@ module.exports = {
         const logMess = await modalInt.fetchReply();
         setTimeout(() => {
             logMess.delete().catch(async err => {
-                console.log('Ошибка удаления лога переноса сбора: ' + err.message)
+                console.log('Ошибка удаления лога передачи сбора: ' + err.message)
                 if (interaction.guildId){
                     const sett = interaction.client.settings.get(interaction.guildId);
-                    sett.sendLog(`Ошибка удаления лога переноса сбора: ${err.message}`, 'Запись логов: ошибка');
+                    sett.sendLog(`Ошибка удаления лога передачи сбора: ${err.message}`, 'Запись логов: ошибка');
                 }
             });
         }, 86400000);

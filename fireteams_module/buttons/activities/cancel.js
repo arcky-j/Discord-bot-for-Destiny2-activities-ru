@@ -3,7 +3,7 @@ module.exports = {
     async execute(interaction, activity, user){
         //попытка удаления Стража
         try {
-            activity.remove(user.id);
+            activity.remove(user);
             interaction.deferUpdate();
         } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');

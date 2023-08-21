@@ -6,19 +6,13 @@ module.exports = {
     async execute(oldMember, newMember) {
         if (oldMember.pending && !newMember.pending){
             const settings = newMember.client.d2clans.getConfig(newMember.guild.id);
-            if (!settings){
-                return;
-            }
             if (settings.rolesForNew.length > 0){
                 await newMember.roles.add(settings.rolesForNew).catch(err => {
-                    console.log(`Ошибка с присвоением роли новичку сервера (${newMember.user.tag}): ${err.message}`);               
-                    const sett = member.client.settings.get(newMember.guild.id);
-                    sett.sendLog(`Не удалось присвоить роль/роли новичку сервера (${newMember}): ${err.message}`, 'Запись логов: ошибка');           
+                    console.log(`Ошибка с присвоением роли новичку сервера (${newMember.user.tag}): ${err.message}`);
+                    settings.sendLog(`Не удалось присвоить роль/роли новичку сервера (${newMember}): ${err.message}`, 'Запись логов: ошибка');           
                 });
             } 
-            if (settings.channelJoin){
-                settings.sendAcceptAlert(newMember);
-            }                     
+            settings.sendAcceptAlert(newMember);                   
         }
     },
 };

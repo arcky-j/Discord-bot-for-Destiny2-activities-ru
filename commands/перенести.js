@@ -1,5 +1,4 @@
 const {SlashCommandBuilder, } = require('discord.js');
-const {ActivityUntimed, dateSet} = require('../fireteams_module');
 //команда для переноса активности на новое время
 module.exports = {
     data: new SlashCommandBuilder()
@@ -29,34 +28,31 @@ module.exports = {
         const reason = interaction.options.getString('причина');
         const user = interaction.member;
         //поиск нужной боевой группы
-        const fireteam = interaction.client.d2clans.getActivity(interaction.guildId, id);
-        if (fireteam instanceof ActivityUntimed){
-            const embed = interaction.client.genEmbed(`Попытка перенести активность, где даты-времени нет в принципе, не пройдёт`, 'Ошибка!');
-            interaction.reply({embeds: [embed], ephemeral:true});
-            return;
-        }
-        if (!fireteam || fireteam.state == 'Закрыт'){
+        const activity = interaction.client.d2clans.getActivity(interaction.guildId, id);
+
+        if (!activity){
             const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
-        if (fireteam.leader.id != user.id){ //проверка на лидерство
+
+        if (activity.leader.id != user.id){ //проверка на лидерство
             const embed = interaction.client.genEmbed(`Только лидер может перенести сбор`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
         //установка новой даты через специальный метод
-        let rDate;
+        let rDate = undefined;
         try {
-            rDate = dateSet(time, date);
+            rDate = interaction.client.d2clans.utility.dateSet(time, date);
         } catch (err) {
             const embed = interaction.client.genEmbed(`Не удалось установить дату: ${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
-            return;
         }   
+        if (!rDate) return;
         //попытка дату сменить
         try {
-            fireteam.changeDate(rDate);
+            activity.changeDate(rDate);
         } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
@@ -64,10 +60,10 @@ module.exports = {
         }
         //рассылка уведомлений
         if (reason){
-            const embed = interaction.client.genEmbed(`Сбор ${fireteam} был успешно перенесён на ${fireteam.getDateString()}!\nПричина: ${reason}`, 'Успех!');
+            const embed = interaction.client.genEmbed(`Сбор ${activity} был успешно перенесён на ${activity.getDateString()}!\nПричина: ${reason}`, 'Успех!');
             interaction.reply({embeds: [embed]});
         } else {
-            const embed = interaction.client.genEmbed(`Сбор ${fireteam} был успешно перенесён на ${fireteam.getDateString()}!`, 'Успех!');
+            const embed = interaction.client.genEmbed(`Сбор ${activity} был успешно перенесён на ${activity.getDateString()}!`, 'Успех!');
             interaction.reply({embeds: [embed]});
         }
         //загрузка сообщения в логи

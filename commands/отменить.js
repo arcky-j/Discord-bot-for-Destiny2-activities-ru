@@ -32,13 +32,13 @@ module.exports = {
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
-        fireteam.sendAlerts('del');
+        fireteam.cancel();
         //удаление сообщения
         if (reason) {
-            const embed = interaction.client.genEmbed(`Сбор в ${fireteam} успешно удалён!\nПричина: ${reason}`, 'Успех!');
+            const embed = interaction.client.genEmbed(`Сбор ${fireteam} успешно отменён!\nПричина: ${reason}`, 'Успех!');
             interaction.reply({embeds: [embed]});
         } else {
-            const embed = interaction.client.genEmbed(`Сбор в ${fireteam} успешно удалён!`, 'Успех!');
+            const embed = interaction.client.genEmbed(`Сбор ${fireteam} успешно отменён!`, 'Успех!');
             interaction.reply({embeds: [embed]});
         }  
         //запись уведомления в логи
@@ -51,7 +51,6 @@ module.exports = {
                     sett.sendLog(`Ошибка удаления сообщения лога удаления сбора (каво?): ${err.message}`, 'Запись логов: ошибка');
                 }
             });
-        }, 86400000);
-        fireteam.message.delete();    
+        }, 86400000);  
     }
 };

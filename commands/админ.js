@@ -46,22 +46,22 @@ module.exports = {
             const userNew = interaction.options.getMember('пользователь');
             const user = interaction.member;
             //поиск нужной боевой группы
-            const fireteam = interaction.client.d2clans.getActivity(interaction.guildId, id);
+            const activity = interaction.client.d2clans.getActivity(interaction.guildId, id);
     
-            if (!fireteam){
+            if (!activity){
                 const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
                 return;
             }
             //попытка добавления пользователя
             try {
-                await fireteam.add(userNew);
+                activity.add(userNew);
             } catch (err) {
                 const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
                 return;
             }
-            const embedDM = interaction.client.genEmbed(`Вы были записаны в активность ${fireteam} администратором ${user}`, 'Уведомление');
+            const embedDM = interaction.client.genEmbed(`Вы были записаны в активность ${activity} администратором ${user}`, 'Уведомление');
             userNew.send({embeds: [embedDM]});         
             const embed = interaction.client.genEmbed(`Вы записали Стража в группу!`, 'Успех!');
             interaction.reply({embeds: [embed], ephemeral:true});
@@ -72,23 +72,23 @@ module.exports = {
             const userNew = interaction.options.getMember('пользователь');
             const user = interaction.member;
             //поиск нужной боевой группы
-            const fireteam = interaction.client.d2clans.getActivity(interaction.guildId, id);
+            const activity = interaction.client.d2clans.getActivity(interaction.guildId, id);
 
-            if (!fireteam){
+            if (!activity){
                 const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
                 return;
             }
             //попытка удаления члена группы
             try {
-                await fireteam.remove(userNew.id);
+                activity.remove(userNew);
             } catch (err) {
                 const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
                 return;
             }
             //оповещение пользователя
-            const embedDM = interaction.client.genEmbed(`Вы были удалены из активности ${fireteam} администратором ${user}`, 'Уведомление');
+            const embedDM = interaction.client.genEmbed(`Вы были удалены из активности ${activity} администратором ${user}`, 'Уведомление');
             userNew.send({embeds: [embedDM]});
             const embed = interaction.client.genEmbed(`Вы удалили Стража из группы!`, 'Успех!');
             interaction.reply({embeds: [embed], ephemeral:true});         
@@ -97,17 +97,16 @@ module.exports = {
         if (interaction.options.getSubcommand() === 'удалить_сбор'){
             const reason = interaction.options.getString('причина');
             //поиск боевой группы
-            const fireteam = interaction.client.d2clans.getActivity(interaction.guildId, id);
-            if (!fireteam){
+            const activity = interaction.client.d2clans.getActivity(interaction.guildId, id);
+            if (!activity){
                 const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
                 return;
             }
             //попытка удаления сообщения с последующим уведомлением
             try {
-                fireteam.sendAlerts('admin_del');
-                fireteam.message.delete().catch();
-                const embed = interaction.client.genEmbed(`Сбор ${fireteam} был удалён администратором ${interaction.user} по причине: ${reason}`, 'Уведомление');
+                activity.adminCancel();
+                const embed = interaction.client.genEmbed(`Сбор ${activity} был удалён администратором ${interaction.member} по причине: ${reason}`, 'Уведомление');
                 interaction.channel.send({embeds: [embed]});
                 const lastMess = interaction.channel.lastMessage;              
                 setTimeout(() => {

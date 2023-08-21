@@ -1,5 +1,5 @@
 const {SlashCommandBuilder} = require('discord.js');
-const {dateSet, getRandomColor, FireteamRes, FireteamUntimed} = require('../fireteams_module');
+const {getRandomColor, Activity, ActivityEvents} = require('../fireteams_module');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('сбор')
@@ -140,10 +140,11 @@ module.exports = {
         const res2 = interaction.options.getMember('бронь2'); 
         const media = interaction.options.getString('медиа'); 
         //установка даты через специальный метод
+        const clan = interaction.client.d2clans.get(interaction.guild.id);
         let rDate;
         if (time || date){
             try {
-                rDate = dateSet(time, date);
+                rDate = interaction.client.d2clans.utility.dateSet(time, date);
             } catch (err) {
                 const embed = interaction.client.genEmbed(`Не удалось установить дату: ${err.message}`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
@@ -153,10 +154,8 @@ module.exports = {
              
         //добавление тэгов ролей, если такие есть
         let strTags = '';
-        const clan = interaction.client.d2clans.get(interaction.guild.id);
-        const sett = clan.settings.config;
-        if (sett.rolesToTag || sett.rolesToTag.size > 0){
-            sett.rolesToTag.forEach((val) => {
+        if (clan.config.rolesToTag || clan.config.rolesToTag.size > 0){
+            clan.config.rolesToTag.forEach((val) => {
                 strTags += `${val} `;
             });
         }
@@ -301,34 +300,35 @@ module.exports = {
             }
         }    
         //формирование embed
-        const id = interaction.client.generateId(clan.activities.cache);
+        const id = interaction.client.d2clans.utility.generateId(clan.activities.cache);
         if (difficulty == 'Мастер'){
             actName = `Мастер ${actName}`;
         }       
         //отправка сообщения
-        let fireteam;  
+        let fireDate;
+        if (rDate){
+            fireDate = rDate;
+        } else {
+            fireDate = 'По готовности';
+        }
+        const activity = new Activity({id: id, clan: clan, name: actName, date: fireDate, quant: quant, leader: interaction.member, bron1: res1, bron2: res2}); 
         try{
-            if (time || date){
-                fireteam = new FireteamRes(id, clan, actName, quant, interaction.member, rDate, res1, res2);
-            } else {
-                fireteam = new FireteamUntimed(id, clan, actName, quant, interaction.member, res1, res2);
-            }
-            const embed = fireteam.createEmbed(embColor, embDesc, bannerUrl, media);
-            const row = fireteam.createActionRow();
+            const embed = activity.createEmbed(embColor, embDesc, bannerUrl, media);
+            const row = activity.createActionRow();
             const mess1 = await interaction.channel.send({content: strTags, embeds: [embed], components: [row]});
             mess1.customId = id;
-            //mess1.fireteam = true;
-            fireteam.message = mess1;   
+            activity.message = mess1;   
         } catch (err){
-            if (fireteam.message){
-                await fireteam.message.delete().catch();
+            if (activity.message){
+                await activity.message.delete().catch();
             }     
             const embed = interaction.client.genEmbed(`Ошибка при создании сбора: ${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }         
         //формирование внутренней структуры данных       
-        clan.activities.set(fireteam);
+        clan.activities.set(activity);
+        interaction.client.emit(ActivityEvents.Created, activity);
         //уведомление, если всё прошло успешно
         const embed = interaction.client.genEmbed(`Сбор ${actName} создан`, 'Успех!');
         interaction.reply({embeds: [embed], ephemeral:true});

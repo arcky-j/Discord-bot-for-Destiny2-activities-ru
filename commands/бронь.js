@@ -32,15 +32,15 @@ module.exports = {
         const userNew = interaction.options.getMember('пользователь');
         const user = interaction.member;
         //поиск нужной боевой группы
-        const fireteam = interaction.client.d2clans.getActivitiy(interaction.guildId, id);
+        const activity = interaction.client.d2clans.getActivitiy(interaction.guildId, id);
 
-        if (!fireteam){
+        if (!activity){
             const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
         //проверка на лидерство
-        if (user.id != fireteam.leader.id){
+        if (user.id != activity.leader.id){
             const embed = interaction.client.genEmbed(`Только лидер может управлять бронью сбора!`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
@@ -48,7 +48,7 @@ module.exports = {
         
         if (interaction.options.getSubcommand() === 'добавить'){
             try {
-                fireteam.bronAdd(userNew);
+                activity.bronAdd(userNew);
                 const embed = interaction.client.genEmbed(`Вы успешно забронировали место для ${userNew}!`, 'Успех!');
                 interaction.reply({embeds: [embed], ephemeral:true}); 
             } catch (err) {
@@ -59,7 +59,7 @@ module.exports = {
         //попытка удаления пользователя
         if (interaction.options.getSubcommand() === 'удалить'){
             try {
-                fireteam.bronDel(userNew.id);
+                activity.bronDel(userNew);
                 const embed = interaction.client.genEmbed(`Вы успешно отозвали бронь для ${userNew}!`, 'Успех!');
                 interaction.reply({embeds: [embed], ephemeral:true});
             } catch (err) {

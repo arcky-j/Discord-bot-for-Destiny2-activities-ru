@@ -66,6 +66,14 @@ module.exports = {
                         .setDescription('Канал для уведомлений')))
         .addSubcommand(subcommand =>
             subcommand
+                .setName('канал_архив')
+                .setDescription('Назначить канал для архивации сборов')
+                .addChannelOption(option => 
+                    option
+                        .setName('канал_для_архива')
+                        .setDescription('Канал для архивации')))
+        .addSubcommand(subcommand =>
+            subcommand
                 .setName('уведомления')
                 .setDescription('Настройка сообщений, уведомляющих о прибытии и уходе'))
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
@@ -185,6 +193,23 @@ module.exports = {
                 return;
             }
         }
+
+        if (interaction.options.getSubcommand() === 'канал_архив'){
+            const channel = interaction.options.getChannel('канал_для_архива');
+            const sett = interaction.client.d2clans.getConfig(interaction.guild.id);
+            sett.setArchiveChannel(channel);
+            //если чат не введён, то он просто сбрасывается
+            if (!channel){
+                const embed = interaction.client.genEmbed(`Вы не выбрали ни одного канала`, 'Успех! Канал для архивации сборов сброшен');
+                interaction.reply({embeds: [embed]});
+                return;
+            }
+            if (channel){
+                const embed = interaction.client.genEmbed(`${channel}`, 'Успех! Канал архивации сборов установлен');
+                interaction.reply({embeds: [embed]});
+                return;
+            }
+        }
         
         if (interaction.options.getSubcommand() === 'уведомления'){
             const modal = new ModalBuilder()
@@ -217,7 +242,7 @@ module.exports = {
             //отправка формы пользователю
             await interaction.showModal(modal);
             const filter = inter => inter.user.id === interaction.user.id && inter.customId === 'messJL_modal';
-            const modalInt = await interaction.awaitModalSubmit({filter, time: 600000})
+            const modalInt = await interaction.awaitModalSubmit({filter, time: 1800000})
             .catch(error => console.log(error));
 
             //получает значения из всплывающего окна

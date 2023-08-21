@@ -24,7 +24,7 @@ module.exports = {
             return i.user.id === interaction.user.id && i.customId === `bronAddMenu_${activity.id}`;
         }
 
-        const userSelectInteraction = await message.awaitMessageComponent({filter: colFilter, componentType: ComponentType.UserSelect, time: 60000})
+        const userSelectInteraction = await message.awaitMessageComponent({filter: colFilter, componentType: ComponentType.UserSelect, time: 300000})
         .catch(err => {
             console.log(err.message);          
         });

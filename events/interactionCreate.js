@@ -1,5 +1,5 @@
 const {Events} = require('discord.js');
-const {activityButtonsHandle, mapVoteButtonsHandle} = require('../fireteams_module');
+const {activityButtonsHandle} = require('../fireteams_module');
 //здесь обрабатываются все взаимодействия с пользователем
 module.exports = {
     name: Events.InteractionCreate,
@@ -31,9 +31,6 @@ module.exports = {
                 activityButtonsHandle(interaction);
             }
 
-            if (interaction.customId.match(/mapVote/)){
-                mapVoteButtonsHandle(interaction);
-            }
         }
         //действия при срабатывании команды контекстного меню
         if (interaction.isUserContextMenuCommand()) {

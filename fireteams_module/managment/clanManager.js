@@ -34,7 +34,7 @@ class ClanManager extends DiscManager{
 
     getConfig(clanId){
         const clan = this.cache.get(clanId);
-        return clan.settings.config;
+        return clan.config;
     }
 
     setActivity(clanId, act){
@@ -49,13 +49,12 @@ class ClanManager extends DiscManager{
 
     async initSingle(guild){
         const clan = new Clan(guild);
-        const clanJSON = JSON.stringify(sett);
-        fs.mkdirSync(path.join(this.path, `clan_${clan.id}`), clanJSON, async (err) => {
+        fs.mkdirSync(path.join(this.path, `clan_${clan.id}`), async (err) => {
             if (err){
                 console.log(`Ошибка при создании файла настроек для сервера "${guild.name}": ${err.message}`);
                 throw err;
             } 
-            console.log(`Файл "${this.path}/clan_${clan.id}" (${guild.name}) создан!`);
+            console.log(`Директория "${this.path}/clan_${clan.id}" (${guild.name}) создана!`);
         });
         
         this.cache.set(clan.id, clan);           
@@ -64,7 +63,7 @@ class ClanManager extends DiscManager{
     async delete(guild){
         this.cache.delete(guild.id);
         const pathToClan = path.join(this.path, `clan_${guild.id}`);
-        fs.unlink(pathToClan, async (err) => {
+        fs.rmdir(pathToClan, async (err) => {
             if (err){
                 console.error(err);
             }
@@ -99,6 +98,113 @@ class ClanManager extends DiscManager{
                 this.cache.set(clan.id, clan);               
             });
         }
+    }
+
+    #dateSet(timeText, dateText){
+        //принимает время в формате "ЧЧ:ММ"
+        if (!timeText.includes(':')){
+            throw new Error('Неправильный формат времени!');
+        }
+        //принимает дату в формате "ДД.ММ" или "ДД.ММ.ГГ", или "ДД.ММ.ГГГГ"
+        if (dateText && !dateText.includes('.')){
+            throw new Error('Неправильный формат Даты!');
+        }
+    
+        const hour = parseInt(timeText.split(':')[0]); //парсит часы
+        const minute = parseInt(timeText.split(':')[1]); //парсит минуты
+    
+        const today = new Date();
+        let day, month, year;
+    
+        if (dateText){
+            day = parseInt(dateText.split('.')[0]); //парсит день
+            month = parseInt(dateText.split('.')[1]) - 1; //парсит месяц
+        } else {
+            day = today.getDate();
+            month = today.getMonth();
+        }
+    
+        if (dateText && dateText.split('.').length == 3){ //проверяет: введён ли пользователем год?
+            if (dateText.split('.')[2].length == 2){
+                year = parseInt('20' + dateText.split('.')[2]); //если введён в формате "ГГ", добавляет "20" - "20ГГ" и парсит
+            } else if (dateText.split('.')[2].length == 4){
+                year = parseInt(dateText.split('.')[2]); //если введён в формате "ГГГГ", просто парсит
+            } else {
+                throw new Error('Формат года некорректен! Или пишите год целиком, или последние две цифры. Третьего не дано');
+            }
+        } else {
+            year = today.getFullYear(); //если год не введёт, просто берёт текущий
+        }
+    
+        //обычные проверки на корректность введённого времени
+        //чтобы не было даты в виде 28:76 34.13.20223, например
+        if (hour < 0 || hour > 23){
+            throw new Error('Время сбора введено некорректно!');
+        }
+        if (minute < 0 || minute > 59){
+            throw new Error('Время сбора введено некорректно!');
+        }
+    
+        switch (month + 1){
+            case 1:
+            case 3:
+            case 5:
+            case 7:
+            case 8:
+            case 10:
+            case 12: 
+                if (day < 0 || day > 31) {
+                    throw new Error('Дата сбора введёна некорректно!');
+                }
+                break;
+            case 4:
+            case 6:
+            case 9:
+            case 11:
+                if (day < 0 || day > 30) {
+                    throw new Error('Дата сбора введёна некорректно!');
+                }
+                break;
+            case 2: //проверка даже для високосного года - зачем?
+                if (year%4 != 0){
+                    if (day < 0 || day > 28) {
+                        throw new Error('Дата сбора введёна некорректно!');
+                    }
+                } else {
+                    if (day < 0 || day > 29) {
+                        throw new Error('Дата сбора введёна некорректно!');
+                    }
+                }            
+                break;
+            default: throw new Error('Дата сбора введёна некорректно!');
+        }
+        //только после всех проверок устанавливается дата
+        const activityDate = new Date(year, month, day, hour, minute, 0);
+        //и сразу проверяется на актуальность
+        if (activityDate - today < 0){
+            throw new Error('Введена прошедшая дата!');
+        }
+    
+        return activityDate;
+    }
+
+    #generateId(cache){
+        let id = '0451';
+        const maxId = 10000;
+        if (cache.has(id)){
+            do{
+                id = Math.floor(Math.random() * maxId);
+            } while (cache.has(id))      
+        }
+        if (id == '0451'){
+            return id.toString();
+        }
+        return id.toString();
+    }
+
+    utility = {
+        dateSet: this.#dateSet,
+        generateId: this.#generateId
     }
 }
 

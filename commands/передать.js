@@ -21,24 +21,23 @@ module.exports = {
         const id = interaction.options.getString('id');
         const userNew = interaction.options.getMember('пользователь');
         const reason = interaction.options.getString('причина');
-        const channel = interaction.channel;
         const user = interaction.member;
         //поиск нужной боевой группы
-        const fireteam = interaction.client.d2clans.getActivity(interaction.guildId, id);
+        const activity = interaction.client.d2clans.getActivity(interaction.guildId, id);
 
-        if (!fireteam || fireteam.state == 'Закрыт'){
+        if (!activity){
             const embed = interaction.client.genEmbed(`Неверный ID. Возможно, активность уже началась`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
-        if (fireteam.leader.id != user.id){ //проверка на лидерство
+        if (activity.leader.id != user.id){ //проверка на лидерство
             const embed = interaction.client.genEmbed(`Только лидер может управлять сбором`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
             return;
         }
         //попытка передачи лидерства
         try {
-            fireteam.changeLeader(userNew);
+            activity.changeLeader(userNew);
         } catch (err) {
             const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
             interaction.reply({embeds: [embed], ephemeral:true});
@@ -46,10 +45,10 @@ module.exports = {
         }
         //уведомление в чат сбора
         if (reason){
-            const embed = interaction.client.genEmbed(`В сборе ${fireteam} сменился Лидер! ${user} => ${userNew}\nПричина: ${reason}`, 'Уведомление');
+            const embed = interaction.client.genEmbed(`В сборе ${activity} сменился Лидер! ${user} => ${userNew}\nПричина: ${reason}`, 'Уведомление');
             interaction.reply({embeds: [embed]});
         } else {
-            const embed = interaction.client.genEmbed(`В сборе ${fireteam} сменился Лидер! ${user} => ${userNew}`, 'Уведомление');
+            const embed = interaction.client.genEmbed(`В сборе ${activity} сменился Лидер! ${user} => ${userNew}`, 'Уведомление');
             interaction.reply({embeds: [embed]});
         }     
         //запись сообщения в логи

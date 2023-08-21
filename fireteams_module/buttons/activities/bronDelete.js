@@ -24,7 +24,7 @@ module.exports = {
             return i.user.id === interaction.user.id && i.customId === `bronDeleteMenu_${activity.id}`;
         }
 
-        const userSelectInteraction = await message.awaitMessageComponent({filter: colFilter, componentType: ComponentType.UserSelect, time: 60000})
+        const userSelectInteraction = await message.awaitMessageComponent({filter: colFilter, componentType: ComponentType.UserSelect, time: 300000})
         .catch(err => {
             console.log(err.message);           
         });
@@ -38,7 +38,7 @@ module.exports = {
         const userSelected = userSelectInteraction.members.at(0);
 
         try {
-            activity.bronDel(userSelected.id);
+            activity.bronDel(userSelected);
             const embed = interaction.client.genEmbed(`Вы успешно отозвали бронь для ${userSelected}!`, 'Успех!');
             userSelectInteraction.reply({embeds: [embed], ephemeral:true});
         } catch (err) {
