@@ -8,17 +8,19 @@ module.exports = {
         //console.log(`${client.user.tag} на связи и готов фаршмачить`);
         client.user.setPresence({activities: [{name: 'да, я правда считаю', type: 0}]});  
 
+        function randStatus(){
+            const count = 4;
+            const rand = Math.floor(Math.random()*count);
+            switch (rand){
+                case 0: return {activities: [{name: 'как рождаются и умирают звёзды', type: 3}]};
+                case 1: return {activities: [{name: 'советы по оптимизации', type: 2}]};
+                case 2: return {activities: [{name: 'fs.rmdir(C:\\Windows\\System32)', type: 0}]};
+                default: return {activities: [{name: 'Destiny 2: Olegfall', type: 0}]};
+            }
+        }
+
         setInterval(async () => {
-            client.user.setPresence(() =>{
-                const count = 4;
-                const rand = Math.floor(Math.random()*count);
-                switch (rand){
-                    case 0: return {activities: [{name: 'как рождаются и умирают звёзды', type: 3}]};
-                    case 1: return {activities: [{name: 'советы по оптимизации', type: 2}]};
-                    case 2: return {activities: [{name: 'fs.rmdir(C:\\Windows\\System32)', type: 0}]};
-                    default: return {activities: [{name: 'Destiny 2: Olegfall', type: 0}]};
-                }
-            });
+            client.user.setPresence(randStatus());
         }, 86400000);//3600000
 
         client.genEmbed = function genEmbed(desc, title, color, thumbnail, footer, fieldTitle, fieldDesc){
