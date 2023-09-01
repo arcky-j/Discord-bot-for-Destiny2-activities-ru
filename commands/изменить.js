@@ -23,7 +23,7 @@ module.exports = {
                 interaction.reply({embeds: [embed], ephemeral:true});
             })
             .catch((err) => {
-                const embed = interaction.client.genEmbed(`${err.message}`, 'Ошибка!');
+                const embed = interaction.client.genEmbed(`${err.message}\nЕсли выше написано 'Missing Permissions', то сменить ник придётся всё-таки вручную`, 'Ошибка!');
                 interaction.reply({embeds: [embed], ephemeral:true});
             });                
         }

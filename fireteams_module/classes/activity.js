@@ -470,6 +470,9 @@ module.exports = class Activity extends Base{
         if (this.delTimer){
             clearTimeout(this.delTimer);
         }
+        if (this.timer){
+            clearTimeout(this.timer);
+        }
         this.delTimer = setTimeout(() => {
             this.delete();
         }, 60000);
@@ -490,6 +493,9 @@ module.exports = class Activity extends Base{
         embed.fields[1].value = `*${this.state}*`;
         if (this.delTimer){
             clearTimeout(this.delTimer);
+        }
+        if (this.timer){
+            clearTimeout(this.timer);
         }
         this.delTimer = setTimeout(() => {
             this.delete();
