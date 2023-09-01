@@ -13,6 +13,7 @@ module.exports = {
                     .setDescription('В какой рейд вы хотите собрать людей?')
                     .setRequired(true)
                     .addChoices(
+                        {name: 'Крах Кроты', value: 'Крах Кроты'},
                         {name: 'Источник Кошмаров', value: 'Источник Кошмаров'},
                         {name: 'Гибель Короля', value: 'Гибель Короля'},
                         {name: 'Клятва Послушника', value: 'Клятва Послушника'},
@@ -185,6 +186,9 @@ module.exports = {
                     break;
                 case 'Источник Кошмаров': bannerUrl = 'https://i.ibb.co/7V0Lk4r/destiny-2-lightfall-raid-0.jpg';
                     embColor = 0xfff8f2;
+                    break;
+                case 'Крах Кроты': bannerUrl = 'https://i.ibb.co/qM86t9C/Crota-s-End-landing-16x9-png-jpgcopy.jpg';
+                    embColor = 0x88e3a0;
                     break;
             }
             //добавление требований и описания, если есть
