@@ -61,6 +61,7 @@ module.exports = {
                     .setDescription('В какое поземелье вы хотите собрать людей?')
                     .setRequired(true)
                     .addChoices(
+                        {name: 'Руины Полководца', value: 'Руины Полководца'},
                         {name: 'Призраки Глубин', value: 'Призраки Глубин'},
                         {name: 'Шпиль Хранителя', value: 'Шпиль Хранителя'},
                         {name: 'Дуальность', value: 'Дуальность'},
@@ -225,6 +226,9 @@ module.exports = {
                     break;
                 case 'Призраки Глубин': bannerUrl = 'https://i.ibb.co/9NnnQDZ/2023-Ghost-of-the-Deep-Press-Kit-Dungeon-COMPRESSED-011.jpg';
                     embColor = 0x68bee3;
+                    break;
+                case 'Руины Полководца': bannerUrl = 'https://i.ibb.co/8xPqSdy/warlord-s-ruin.jpg';
+                    embColor = 0xdff5f2;
                     break;
             }
             if (requiries){
